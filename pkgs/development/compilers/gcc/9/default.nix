@@ -155,6 +155,15 @@ stdenv.mkDerivation ({
           )
         '';
 
+  postFixup = stdenv.lib.optionalString targetPlatform.isRiscV ''
+    # HACK for riscv64
+    poison=$(echo -n $out | sed -n "s|^$NIX_STORE/\\([a-z0-9]\{32\}\\)-.*|\1|p")
+    for file in $lib/lib/*; do
+      echo "  Removing compiler references from $file..."
+      sed -i -e "s|$poison-|eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-|g" $(readlink -f $file)
+    done
+  '';
+
   inherit noSysDirs staticCompiler crossStageStatic
     libcCross crossMingw;
 

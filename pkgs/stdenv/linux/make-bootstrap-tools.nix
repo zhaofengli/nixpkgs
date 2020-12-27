@@ -5,6 +5,35 @@
 let
   pkgs = import ../../.. { inherit localSystem crossSystem; };
   libc = pkgs.stdenv.cc.libc;
+
+  # HACK
+  removeHashesTo = pkgs.writeScript "remove-hashes-to" ''
+    #! ${pkgs.stdenv.shell} -e
+
+    # References to remove
+    targets=()
+    while getopts t: o; do
+        case "$o" in
+            t) storeId=$(echo "$OPTARG" | sed -n "s|^$NIX_STORE/\\([a-z0-9]\{32\}\\)-.*|\1|p")
+               if [ -z "$storeId" ]; then
+                   echo "-t argument must be a Nix store path"
+                   exit 1
+               fi
+               targets+=("$storeId")
+        esac
+    done
+    shift $(($OPTIND-1))
+
+    # Files to remove the references from
+    regions=()
+    for i in "$@"; do
+        test ! -L "$i" -a -f "$i" && regions+=("$i")
+    done
+
+    for target in "''${targets[@]}" ; do
+        sed -i -e "s|$target-|eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-|g" "''${regions[@]}"
+    done
+    '';
 in with pkgs; rec {
 
 
@@ -185,6 +214,10 @@ in with pkgs; rec {
         nuke-refs $out/lib/gcc/*/*/*
         nuke-refs $out/lib/gcc/*/*/include-fixed/*/*
 
+        # HACK for riscv64
+        ${removeHashesTo} -t ${bootGCC.out} $out/bin/* $out/lib/* $out/libexec/gcc/*/*/* $out/lib/gcc/*/*/* $out/lib/gcc/*/*/include-fixed/*/*
+        ${removeHashesTo} -t ${libc.out} $out/bin/* $out/lib/* $out/libexec/gcc/*/*/* $out/lib/gcc/*/*/* $out/lib/gcc/*/*/include-fixed/*/*
+
         mkdir $out/.pack
         mv $out/* $out/.pack
         mv $out/.pack $out/pack
@@ -260,8 +293,8 @@ in with pkgs; rec {
     '' + lib.optionalString (stdenv.hostPlatform.libc == "glibc") ''
       ldlinux=$(echo ${bootstrapTools}/lib/ld-linux*.so.?)
       export CPP="cpp -idirafter ${bootstrapTools}/include-glibc -B${bootstrapTools}"
-      export CC="gcc -idirafter ${bootstrapTools}/include-glibc -B${bootstrapTools} -Wl,-dynamic-linker,$ldlinux -Wl,-rpath,${bootstrapTools}/lib"
-      export CXX="g++ -idirafter ${bootstrapTools}/include-glibc -B${bootstrapTools} -Wl,-dynamic-linker,$ldlinux -Wl,-rpath,${bootstrapTools}/lib"
+      export CC="gcc -idirafter ${bootstrapTools}/include-glibc -B${bootstrapTools} -B${bootstrapTools}/lib -Wl,-dynamic-linker,$ldlinux -Wl,-rpath,${bootstrapTools}/lib"
+      export CXX="g++ -idirafter ${bootstrapTools}/include-glibc -B${bootstrapTools} -B${bootstrapTools}/lib -Wl,-dynamic-linker,$ldlinux -Wl,-rpath,${bootstrapTools}/lib"
     '' + lib.optionalString (stdenv.hostPlatform.libc == "musl") ''
       ldmusl=$(echo ${bootstrapTools}/lib/ld-musl*.so.?)
       export CPP="cpp -idirafter ${bootstrapTools}/include-libc -B${bootstrapTools}"
@@ -282,6 +315,10 @@ in with pkgs; rec {
 
       tar xvf ${hello.src}
       cd hello-*
+
+      # HACK for riscv64
+      cp ${pkgs.gnu-config}/config.* build-aux/
+
       ./configure --prefix=$out
       make
       make install
