@@ -10,7 +10,7 @@ let
 common =
   { lib, stdenv, fetchpatch, perl, curl, bzip2, sqlite, openssl ? null, xz
   , bash, coreutils, gzip, gnutar
-  , pkgconfig, boehmgc, perlPackages, libsodium, brotli, boost, editline, nlohmann_json
+  , pkgconfig, boehmgc, perlPackages, libsodium, brotli, boost17x, editline, nlohmann_json
   , autoreconfHook, autoconf-archive, bison, flex
   , jq, libarchive
   , lowdown, mdbook
@@ -27,6 +27,9 @@ common =
 
   }:
   let
+     # HACK: Boost 1.70+ is required for RISC-V support
+     boost = boost17x;
+
      sh = busybox-sandbox-shell;
      nix = stdenv.mkDerivation rec {
       inherit name src;
