@@ -261,6 +261,10 @@ in
         libc = getLibc self;
       };
     };
+
+    # libtool and bash come with obsolete config.sub/config.guess that don't recognize Risc-V.
+    extraNativeBuildInputs =
+      lib.optional (localSystem.isRiscV) prevStage.updateAutotoolsGnuConfigScriptsHook;
   })
 
 
