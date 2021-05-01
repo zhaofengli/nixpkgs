@@ -23238,6 +23238,8 @@ in
     desktopName = "Firefox DevEdition";
   };
 
+  firefox-pmos-mobile = callPackage ../applications/networking/browsers/firefox-pmos-mobile { };
+
   flac = callPackage ../applications/audio/flac { };
 
   redoflacs = callPackage ../applications/audio/redoflacs { };
