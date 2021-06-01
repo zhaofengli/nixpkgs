@@ -22,7 +22,7 @@ stdenv.mkDerivation rec {
     "-DCMAKE_SKIP_BUILD_RPATH=OFF" # for tests
   ];
 
-  doCheck = true;
+  doCheck = !stdenv.hostPlatform.isRiscV;
 
   meta = with lib; {
     description = "AWS SDK for C common core";
