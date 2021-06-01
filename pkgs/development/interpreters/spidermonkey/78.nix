@@ -93,6 +93,10 @@ stdenv.mkDerivation rec {
     "--target=${stdenv.hostPlatform.config}"
   ];
 
+  # cc-rs insists on using -mabi=lp64 (soft-float) for riscv64,
+  # while we have a double-float toolchain
+  NIX_CFLAGS_COMPILE = lib.optionalString (with stdenv.hostPlatform; isRiscV && is64bit) "-mabi=lp64d";
+
   configurePlatforms = [ ];
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
