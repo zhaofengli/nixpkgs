@@ -11,7 +11,7 @@
 , vulkanDrivers ? ["auto"]
 , eglPlatforms ? [ "x11" ] ++ lib.optionals stdenv.isLinux [ "wayland" ]
 , OpenGL, Xplugin
-, withValgrind ? stdenv.hostPlatform.isLinux && !stdenv.hostPlatform.isAarch32, valgrind-light
+, withValgrind ? lib.meta.availableOn stdenv.hostPlatform valgrind-light, valgrind-light
 , enableGalliumNine ? stdenv.isLinux
 , enableOSMesa ? stdenv.isLinux
 }:

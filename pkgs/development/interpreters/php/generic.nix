@@ -28,7 +28,7 @@ let
     , embedSupport ? false
     , ipv6Support ? true
     , systemdSupport ? stdenv.isLinux
-    , valgrindSupport ? !stdenv.isDarwin
+    , valgrindSupport ? lib.meta.availableOn stdenv.hostPlatform valgrind
     , ztsSupport ? apxs2Support
     }@args:
 
