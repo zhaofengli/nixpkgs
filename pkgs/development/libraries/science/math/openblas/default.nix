@@ -88,6 +88,13 @@ let
       DYNAMIC_ARCH = setDynamicArch true;
       USE_OPENMP = !stdenv.hostPlatform.isMusl;
     };
+
+    riscv64-linux = {
+      BINARY = 64;
+      TARGET = setTarget "RISCV64_GENERIC";
+      DYNAMIC_ARCH = setDynamicArch false;
+      USE_OPENMP = true;
+    };
   };
 in
 
@@ -127,13 +134,20 @@ stdenv.mkDerivation rec {
     sha256 = "14jxh0v3jfbw4mfjx4mcz4dd51lyq7pqvh9k8dg94539ypzjr2lj";
   };
 
-  # apply https://github.com/xianyi/OpenBLAS/pull/3060 to fix a crash on arm
-  # remove this when updating to 0.3.14 or newer
   patches = [
+    # apply https://github.com/xianyi/OpenBLAS/pull/3060 to fix a crash on arm
+    # remove this when updating to 0.3.14 or newer
     (fetchpatch {
       name = "label-get_cpu_ftr-as-volatile.patch";
       url = "https://github.com/xianyi/OpenBLAS/commit/6fe0f1fab9d6a7f46d71d37ebb210fbf56924fbc.diff";
       sha256 = "06gwh73k4sas1ap2fi3jvpifbjkys2vhmnbj4mzrsvj279ljsfdk";
+    })
+
+    # remove this when updating
+    (fetchpatch {
+      name = "riscv64-fixes.patch";
+      url = "https://github.com/xianyi/OpenBLAS/pull/3259.patch";
+      sha256 = "05d864kbva2x02h0h356r0wg3bwwf2m8fgjnshvlg9gc5phabxk2";
     })
   ];
 
