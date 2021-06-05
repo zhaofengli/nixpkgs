@@ -207,6 +207,11 @@ let
       MPTCP           = whenAtLeast "5.6" yes;
       MPTCP_IPV6      = whenAtLeast "5.6" yes;
       INET_MPTCP_DIAG = whenAtLeast "5.9" (mkDefault module);
+
+      # infiniband
+      INFINIBAND = module;
+      INFINIBAND_IPOIB = module;
+      INFINIBAND_IPOIB_CM = yes;
     };
 
     wireless = {
