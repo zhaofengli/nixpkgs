@@ -266,6 +266,7 @@ stdenv.mkDerivation ({
   };
 
   targetConfig = if targetPlatform != hostPlatform then targetPlatform.config else null;
+  realTargetConfig = targetPlatform.config;
 
   buildFlags = optional
     (targetPlatform == hostPlatform && hostPlatform == buildPlatform)
