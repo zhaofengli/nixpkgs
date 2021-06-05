@@ -211,6 +211,14 @@ preInstall() {
         ln -s lib "$out/${targetConfig}/lib64"
         ln -s lib "${!outputLib}/${targetConfig}/lib64"
     fi
+
+    # Always link $out/[target triplet]/lib to $out/lib
+    # This is to solve an issue on RISC-V where GCC does not search
+    # $out/lib for spec files
+    if [ -z "$targetConfig" ]; then
+        mkdir -p "$out/${realTargetConfig}"
+        ln -s ../lib "$out/${realTargetConfig}/lib"
+    fi
 }
 
 
