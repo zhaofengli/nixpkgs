@@ -95,7 +95,9 @@ stdenv.mkDerivation rec {
     "-Ddocs=true"
   ];
 
-  doCheck = true;
+  # Disable tests on RISC-V since there's no platform fast enough to complete
+  # the service test within the time limit. I'm serious.
+  doCheck = !stdenv.hostPlatform.isRiscV;
 
   postPatch = ''
     patchShebangs utils/g-ir-merge/g-ir-merge
