@@ -16895,8 +16895,9 @@ in
 
   libunwind =
     if stdenv.isDarwin then darwin.libunwind
-    else if stdenv.hostPlatform.isRiscV then llvmPackages_latest.libunwind
+    else if stdenv.hostPlatform.isRiscV then llvm-libunwind
     else callPackage ../development/libraries/libunwind { };
+  llvm-libunwind = callPackage ../development/libraries/llvm-libunwind { };
 
   libuv = callPackage ../development/libraries/libuv {
     inherit (darwin.apple_sdk.frameworks) ApplicationServices CoreServices;
