@@ -76,8 +76,8 @@ stdenv.mkDerivation rec {
     "-Ddbghelp=disabled" # not needed as we already provide libunwind and libdw, and dbghelp is a fallback to those
     "-Dexamples=disabled" # requires many dependencies and probably not useful for our users
     "-Ddoc=disabled" # `hotdoc` not packaged in nixpkgs as of writing
-  ] ++ lib.optionals stdenv.isDarwin [
-    # darwin.libunwind doesn't have pkg-config definitions so meson doesn't detect it.
+  ] ++ lib.optionals (stdenv.isDarwin || stdenv.hostPlatform.isRiscV) [
+    # darwin.libunwind/llvmPackages.libunwind doesn't have pkg-config definitions so meson doesn't detect it.
     "-Dlibunwind=disabled"
     "-Dlibdw=disabled"
   ];
