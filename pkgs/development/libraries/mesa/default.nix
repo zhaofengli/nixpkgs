@@ -58,6 +58,7 @@ self = stdenv.mkDerivation {
     ./missing-includes.patch # dev_t needs sys/stat.h, time_t needs time.h, etc.-- fixes build w/musl
     ./opencl-install-dir.patch
     ./disk_cache-include-dri-driver-path-in-cache-key.patch
+    ./add-riscv-default-selections.patch
     # Fix `-Werror=int-conversion` pthread warnings on musl.
     # TODO: Remove when https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/6121 is merged and available
     (fetchpatch {
