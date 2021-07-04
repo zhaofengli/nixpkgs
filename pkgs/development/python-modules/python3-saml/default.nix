@@ -22,6 +22,7 @@ buildPythonPackage rec {
       url = "https://github.com/onelogin/python3-saml/commit/4b6c4b1f2ed3f6eab70ff4391e595b808ace168c.patch";
       sha256 = "11gqn7ib2hmlx5wp4xhi375v5ajapwmj4lpw0y44bh5ww8cypvqy";
     })
+    ./update-expiry-dates.patch
   ];
 
   propagatedBuildInputs = [
