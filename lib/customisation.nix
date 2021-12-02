@@ -178,6 +178,11 @@ rec {
         );
         # Change the result of the function call by applying g to it
         overrideResult = g: makeOverridable (mirrorArgs (args: g (f args))) origArgs;
+
+        # List of arguments not supplied by origArgs
+        nonOverriddenArgs = builtins.filter (arg: !builtins.hasAttr arg origArgs) (
+          builtins.attrNames (lib.functionArgs f)
+        );
       in
       if isAttrs result then
         result
@@ -196,12 +201,16 @@ rec {
             # NOTE: part of the above documentation had to be duplicated in `mkDerivation`'s `overrideAttrs`.
             #       design/tech debt issue: https://github.com/NixOS/nixpkgs/issues/273815
             fdrv: overrideResult (x: x.overrideAttrs fdrv);
+
+          inherit nonOverriddenArgs;
         }
       else if isFunction result then
         # Transform the result into a functor while propagating its arguments
         setFunctionArgs result (functionArgs result)
         // {
           override = overrideArgs;
+
+          inherit nonOverriddenArgs;
         }
       else
         result
