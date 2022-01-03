@@ -28,20 +28,21 @@
 }:
 
 let
-  version = "2021.6.0-411";
+  version = "2022.1.0-98";
   baseVersion = lib.head (lib.splitString "-" version);
 
+  # See the build output for a list of components and their versions
   components = [
-    { id = "intel.oneapi.lin.oneapi-common.licensing"; version = "2021.3.0-261"; }
-    { id = "intel.oneapi.lin.vtune"; version = "2021.6.0-411"; }
+    { id = "intel.oneapi.lin.oneapi-common.licensing"; version = "2022.0.0-59"; }
+    { id = "intel.oneapi.lin.vtune"; version = "2022.1.0-98"; }
   ];
 in stdenv.mkDerivation {
   pname = "vtune";
   inherit version;
 
   src = fetchurl {
-    url = "https://registrationcenter-download.intel.com/akdlm/irc_nas/18012/l_oneapi_vtune_p_2021.6.0.411_offline.sh";
-    sha256 = "032nwnidrfjw63yxywdgpysrarh098zg4vycbdkaldrkf7dgf7bb";
+    url = "https://registrationcenter-download.intel.com/akdlm/irc_nas/18447/l_oneapi_vtune_p_2022.1.0.98_offline.sh";
+    sha256 = "sha256-Ox0MYhUNhYXegTRMeCk6keXfG49XsdgPXoSkq/yNQ4I=";
   };
 
   buildInputs = [
@@ -89,6 +90,9 @@ in stdenv.mkDerivation {
   unpackPhase = ''
     bash $src -x
     cd l_oneapi_*
+
+    >&2 echo "All components in the archive:"
+    >&2 find packages -type d -maxdepth 1
   '';
 
   installPhase = let
