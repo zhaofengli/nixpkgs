@@ -295,6 +295,7 @@ let
         ${lib.optionalString (c.dbpassFile != null) "'dbpassword' => nix_read_secret('dbpass'),"}
         'dbtype' => '${c.dbtype}',
         ${objectstoreConfig}
+        ${cfg.extraConfig}
       ];
 
       $CONFIG = array_replace_recursive($CONFIG, nix_decode_json_file(
@@ -1176,6 +1177,12 @@ in
           :::
         '';
       };
+    };
+
+    extraConfig = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      description = "[not for upstream] Extra configurations.";
     };
 
     cli.memoryLimit = lib.mkOption {
