@@ -40900,6 +40900,8 @@ with pkgs;
 
   parsedmarc = with python3Packages; toPythonApplication parsedmarc;
 
+  passmark-performancetest = callPackage ../tools/misc/passmark-performancetest { };
+
   pgmanage = callPackage ../applications/misc/pgmanage { };
 
   pgadmin4 = callPackage ../tools/admin/pgadmin { };
