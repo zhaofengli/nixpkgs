@@ -1,5 +1,6 @@
 use crate::structure;
 use crate::utils::ErrorWriter;
+use crate::Version;
 use std::path::Path;
 
 use anyhow::Context;
@@ -13,8 +14,25 @@ use tempfile::NamedTempFile;
 /// Attribute set of this structure is returned by eval.nix
 #[derive(Deserialize)]
 struct AttributeInfo {
-    call_package_path: Option<PathBuf>,
+    variant: AttributeVariant,
     is_derivation: bool,
+}
+
+#[derive(Deserialize)]
+enum AttributeVariant {
+    /// The attribute is auto-called as pkgs.callPackage using pkgs/by-name,
+    /// and it is not overridden by a definition in all-packages.nix
+    AutoCalled,
+    /// The attribute is defined as a pkgs.callPackage <path> <args>,
+    /// and overridden by all-packages.nix
+    CallPackage {
+        /// The <path> argument or None if it's not a path
+        path: Option<PathBuf>,
+        /// true if <args> is { }
+        empty_arg: bool,
+    },
+    /// The attribute is not defined as pkgs.callPackage
+    Other,
 }
 
 const EXPR: &str = include_str!("eval.nix");
@@ -23,6 +41,7 @@ const EXPR: &str = include_str!("eval.nix");
 /// of the form `callPackage <package_file> { ... }`.
 /// See the `eval.nix` file for how this is achieved on the Nix side
 pub fn check_values<W: io::Write>(
+    version: Version,
     error_writer: &mut ErrorWriter<W>,
     nixpkgs: &structure::Nixpkgs,
     eval_accessible_paths: Vec<&Path>,
@@ -30,9 +49,15 @@ pub fn check_values<W: io::Write>(
     // Write the list of packages we need to check into a temporary JSON file.
     // This can then get read by the Nix evaluation.
     let attrs_file = NamedTempFile::new().context("Failed to create a temporary file")?;
+    // We need to canonicalise this path because if it's a symlink (which can be the case on
+    // Darwin), Nix would need to read both the symlink and the target path, therefore need 2
+    // NIX_PATH entries for restrict-eval. But if we resolve the symlinks then only one predictable
+    // entry is needed.
+    let attrs_file_path = attrs_file.path().canonicalize()?;
+
     serde_json::to_writer(&attrs_file, &nixpkgs.package_names).context(format!(
         "Failed to serialise the package names to the temporary path {}",
-        attrs_file.path().display()
+        attrs_file_path.display()
     ))?;
 
     // With restrict-eval, only paths in NIX_PATH can be accessed, so we explicitly specify the
@@ -57,9 +82,9 @@ pub fn check_values<W: io::Write>(
         // Pass the path to the attrs_file as an argument and add it to the NIX_PATH so it can be
         // accessed in restrict-eval mode
         .args(["--arg", "attrsPath"])
-        .arg(attrs_file.path())
+        .arg(&attrs_file_path)
         .arg("-I")
-        .arg(attrs_file.path())
+        .arg(&attrs_file_path)
         // Same for the nixpkgs to test
         .args(["--arg", "nixpkgsPath"])
         .arg(&nixpkgs.path)
@@ -91,16 +116,29 @@ pub fn check_values<W: io::Write>(
         let absolute_package_file = nixpkgs.path.join(&relative_package_file);
 
         if let Some(attribute_info) = actual_files.get(package_name) {
-            let is_expected_file =
-                if let Some(call_package_path) = &attribute_info.call_package_path {
-                    absolute_package_file == *call_package_path
-                } else {
-                    false
-                };
+            let valid = match &attribute_info.variant {
+                AttributeVariant::AutoCalled => true,
+                AttributeVariant::CallPackage { path, empty_arg } => {
+                    let correct_file = if let Some(call_package_path) = path {
+                        absolute_package_file == *call_package_path
+                    } else {
+                        false
+                    };
+                    // Only check for the argument to be non-empty if the version is V1 or
+                    // higher
+                    let non_empty = if version >= Version::V1 {
+                        !empty_arg
+                    } else {
+                        true
+                    };
+                    correct_file && non_empty
+                }
+                AttributeVariant::Other => false,
+            };
 
-            if !is_expected_file {
+            if !valid {
                 error_writer.write(&format!(
-                    "pkgs.{package_name}: This attribute is not defined as `pkgs.callPackage {} {{ ... }}`.",
+                    "pkgs.{package_name}: This attribute is manually defined (most likely in pkgs/top-level/all-packages.nix), which is only allowed if the definition is of the form `pkgs.callPackage {} {{ ... }}` with a non-empty second argument.",
                     relative_package_file.display()
                 ))?;
                 continue;

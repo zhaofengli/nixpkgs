@@ -7,15 +7,7 @@ rec {
   version = "unstable-2023-05-02";
   rev = "3189b5f325b7ef8b88e3edec7c1cde4fce73c76c";
   outputHashAlgo = "sha256";
-  outputHash = "sha256-FpMp7z+B3cR3LkQ+PooH/b1/NlxH8NHVJNWifaPWt4U=";
-
-  # This 256 byte seed is the only pre-compiled binary in the bootstrap chain.
-  hex0-seed = import <nix/fetchurl.nix> {
-    name = "hex0-seed-${version}";
-    url = "https://github.com/oriansj/bootstrap-seeds/raw/b1263ff14a17835f4d12539226208c426ced4fba/POSIX/x86/hex0-seed";
-    hash = "sha256-QU3RPGy51W7M2xnfFY1IqruKzusrSLU+L190ztN6JW8=";
-    executable = true;
-  };
+  outputHash = "sha256-7Y9+csTwZIQp0WGbagX+Q4f2zavN7AUk1TSBp/H5Xks=";
 
   /*
   Since `make-minimal-bootstrap-sources` requires nixpkgs and nix it

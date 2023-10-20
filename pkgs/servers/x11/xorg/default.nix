@@ -698,11 +698,11 @@ self: with self; {
   # THIS IS A GENERATED FILE.  DO NOT EDIT!
   fonttosfnt = callPackage ({ stdenv, pkg-config, fetchurl, libfontenc, freetype, xorgproto }: stdenv.mkDerivation {
     pname = "fonttosfnt";
-    version = "1.2.2";
+    version = "1.2.3";
     builder = ./builder.sh;
     src = fetchurl {
-      url = "mirror://xorg/individual/app/fonttosfnt-1.2.2.tar.bz2";
-      sha256 = "0r1s43ypy0a9z6hzdq5y02s2acj965rax4flwdyylvc54ppv86qs";
+      url = "mirror://xorg/individual/app/fonttosfnt-1.2.3.tar.xz";
+      sha256 = "1bv1glfz4jqvkwx8hmv2vqilvxxl6jww3rvbzv6zbl6b83r96yma";
     };
     hardeningDisable = [ "bindnow" "relro" ];
     strictDeps = true;
@@ -2671,11 +2671,11 @@ self: with self; {
   # THIS IS A GENERATED FILE.  DO NOT EDIT!
   xf86videosiliconmotion = callPackage ({ stdenv, pkg-config, fetchurl, xorgproto, libpciaccess, xorgserver }: stdenv.mkDerivation {
     pname = "xf86-video-siliconmotion";
-    version = "1.7.9";
+    version = "1.7.10";
     builder = ./builder.sh;
     src = fetchurl {
-      url = "mirror://xorg/individual/driver/xf86-video-siliconmotion-1.7.9.tar.bz2";
-      sha256 = "1g2r6gxqrmjdff95d42msxdw6vmkg2zn5sqv0rxd420iwy8wdwyh";
+      url = "mirror://xorg/individual/driver/xf86-video-siliconmotion-1.7.10.tar.xz";
+      sha256 = "1h4g2mqxshaxii416ldw0aqy6cxnsbnzayfin51xm2526dw9q18n";
     };
     hardeningDisable = [ "bindnow" "relro" ];
     strictDeps = true;

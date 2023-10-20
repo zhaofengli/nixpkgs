@@ -1,4 +1,9 @@
-{ stdenv, python3, fetchPypi, src, version }:
+{ stdenv
+, python3
+, fetchPypi
+, src
+, version
+}:
 
 let
   buildAzureCliPackage = with py.pkgs; buildPythonPackage;
@@ -60,16 +65,10 @@ let
           tabulate
         ];
 
-        postPatch = ''
-          substituteInPlace setup.py \
-            --replace "requests[socks]~=2.25.1" "requests[socks]~=2.25" \
-            --replace "cryptography>=3.2,<3.4" "cryptography" \
-            --replace "msal-extensions>=0.3.1,<0.4" "msal-extensions" \
-            --replace "msal[broker]==1.24.0b1" "msal[broker]" \
-            --replace "packaging>=20.9,<22.0" "packaging"
-        '';
         nativeCheckInputs = with self; [ pytest ];
+
         doCheck = stdenv.isLinux;
+
         # ignore tests that does network call, or assume powershell
         checkPhase = ''
           rm azure/{,cli/}__init__.py
@@ -115,8 +114,10 @@ let
       azure-batch = overrideAzureMgmtPackage super.azure-batch "14.0.0" "zip"
         "sha256-FlsembhvghAkxProX7NIadQHqg67DKS5b7JthZwmyTQ=";
 
-      azure-data-tables = overrideAzureMgmtPackage super.azure-data-tables "12.4.0" "zip"
-        "sha256-3V/I3pHi+JCO+kxkyn9jz4OzBoqbpCYpjeO1QTnpZlw=";
+      azure-data-tables = (overrideAzureMgmtPackage super.azure-data-tables "12.4.0" "zip"
+        "sha256-3V/I3pHi+JCO+kxkyn9jz4OzBoqbpCYpjeO1QTnpZlw=").overridePythonAttrs (attrs: {
+        propagatedBuildInputs = attrs.propagatedBuildInputs or [ ] ++ [ self.msrest ];
+      });
 
       azure-mgmt-apimanagement = overrideAzureMgmtPackage super.azure-mgmt-apimanagement "4.0.0" "zip"
         "sha256-AiTjLJ28g80xnrRFLfPUevJgeaxLpuGmvkd3+FskNiw=";
@@ -186,8 +187,10 @@ let
       azure-mgmt-imagebuilder = overrideAzureMgmtPackage super.azure-mgmt-imagebuilder "1.2.0" "zip"
         "sha256-XmGIzw+yGYgdaNGZJClFRl531BGsQUH+HESUXGVK6TI=";
 
-      azure-mgmt-iothub = overrideAzureMgmtPackage super.azure-mgmt-iothub "2.3.0" "zip"
-        "sha256-ml+koj52l5o0toAcnsGtsw0tGnO5F/LKq56ovzdmx/A=";
+      azure-mgmt-iothub = (overrideAzureMgmtPackage super.azure-mgmt-iothub "2.3.0" "zip"
+        "sha256-ml+koj52l5o0toAcnsGtsw0tGnO5F/LKq56ovzdmx/A=").overridePythonAttrs (attrs: {
+        propagatedBuildInputs = attrs.propagatedBuildInputs or [ ] ++ [ self.msrest ];
+      });
 
       azure-mgmt-iothubprovisioningservices = overrideAzureMgmtPackage super.azure-mgmt-iothubprovisioningservices "1.1.0" "zip"
         "sha256-04OoJuff93L62G6IozpmHpEaUbHHHD6nKlkMHVoJvJ4=";
@@ -201,8 +204,8 @@ let
       azure-mgmt-devtestlabs = overrideAzureMgmtPackage super.azure-mgmt-devtestlabs "4.0.0" "zip"
         "sha256-WVScTEBo8mRmsQl7V0qOUJn7LNbIvgoAOVsG07KeJ40=r";
 
-      azure-mgmt-netapp = overrideAzureMgmtPackage super.azure-mgmt-netapp "10.0.0" "zip"
-        "sha256-9+cXsY8Qr5ds9lYw39duWdcqm6QUTedQbjn8x6zJoyE=";
+      azure-mgmt-netapp = overrideAzureMgmtPackage super.azure-mgmt-netapp "10.1.0" "zip"
+        "sha256-eJiWTOCk2C79Jotku9bKlu3vU6H8004hWrX+h76MjQM=";
 
       azure-mgmt-dns = overrideAzureMgmtPackage super.azure-mgmt-dns "8.0.0" "zip"
         "sha256-QHwtrLM1E/++nKS+Wt216dS64Mt++mE8P31THve/jeg=";
@@ -215,8 +218,10 @@ let
         propagatedBuildInputs = attrs.propagatedBuildInputs or [ ] ++ [ self.msrest ];
       });
 
-      azure-mgmt-maps = overrideAzureMgmtPackage super.azure-mgmt-maps "2.0.0" "zip"
-        "sha256-OE4X92potwCk+YhHiUXDqXIXEcBAByWv38tjz4ToXw4=";
+      azure-mgmt-maps = (overrideAzureMgmtPackage super.azure-mgmt-maps "2.0.0" "zip"
+        "sha256-OE4X92potwCk+YhHiUXDqXIXEcBAByWv38tjz4ToXw4=").overridePythonAttrs (attrs: {
+        propagatedBuildInputs = attrs.propagatedBuildInputs or [ ] ++ [ self.msrest ];
+      });
 
       azure-mgmt-managedservices = overrideAzureMgmtPackage super.azure-mgmt-managedservices "1.0.0" "zip"
         "sha256-/tg5n8Z3Oq2jfB0ElqRvWUENd8lJTQyllnxTHDN2rRk=";
@@ -247,8 +252,10 @@ let
       azure-mgmt-redhatopenshift = overrideAzureMgmtPackage super.azure-mgmt-redhatopenshift "1.2.0" "zip"
         "sha256-ZU4mKTzny9tsKDrFSU+lll5v6oDivYJlXDriWJLAYec=";
 
-      azure-mgmt-redis = overrideAzureMgmtPackage super.azure-mgmt-redis "14.1.0" "zip"
-        "sha256-LO92Wc2+VvsEKiOjVSHXw2o3D69NQlL58m+YqWl6+ig=";
+      azure-mgmt-redis = (overrideAzureMgmtPackage super.azure-mgmt-redis "14.1.0" "zip"
+        "sha256-LO92Wc2+VvsEKiOjVSHXw2o3D69NQlL58m+YqWl6+ig=").overridePythonAttrs (attrs: {
+        propagatedBuildInputs = attrs.propagatedBuildInputs or [ ] ++ [ self.msrest ];
+      });
 
       azure-mgmt-reservations = overrideAzureMgmtPackage super.azure-mgmt-reservations "2.0.0" "zip"
         "sha256-5vXdXiRubnzPk4uTFeNHR6rwiHSGbeUREX9eW1pqC3E=";
@@ -289,8 +296,8 @@ let
       azure-mgmt-containerregistry = overrideAzureMgmtPackage super.azure-mgmt-containerregistry "10.1.0" "zip"
         "sha256-VrX9YfYNvlA8+eNqHCp35BAeQZzQKakZs7ZZKwT8oYc=";
 
-      azure-mgmt-monitor = (overrideAzureMgmtPackage super.azure-mgmt-monitor "5.0.0" "zip"
-        "sha256-eL9KJowxTF7hZJQQQCNJZ7l+rKPFM8wP5vEigt3ZFGE=").overridePythonAttrs (attrs: {
+      azure-mgmt-monitor = (overrideAzureMgmtPackage super.azure-mgmt-monitor "6.0.2" "tar.gz"
+        "sha256-X/v1AOSZq3kSsbptJs7yZIDZrkEVMgGbt41yViGW4Hs=").overridePythonAttrs (attrs: {
         propagatedBuildInputs = attrs.propagatedBuildInputs or [ ] ++ [ self.msrest ];
       });
 
@@ -340,15 +347,6 @@ let
           inherit version;
           hash = "sha256-0Lti2L+OGWuQPzlxukr6RI5P4U6DlOv83ZQdhNYuyv4=";
           extension = "zip";
-        };
-      });
-
-      azure-storage-blob = super.azure-storage-blob.overrideAttrs (oldAttrs: rec {
-        version = "1.5.0";
-        src = fetchPypi {
-          inherit (oldAttrs) pname;
-          inherit version;
-          hash = "sha256-8YeoeOehkfTgmBWZBPcrQUbPcOGquvZISrS6cvxvJSw=";
         };
       });
 

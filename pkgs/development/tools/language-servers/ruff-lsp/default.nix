@@ -8,6 +8,7 @@
 , lsprotocol
 , hatchling
 , typing-extensions
+, packaging
 , pytestCheckHook
 , python-lsp-jsonrpc
 , pytest-asyncio
@@ -15,15 +16,15 @@
 
 buildPythonPackage rec {
   pname = "ruff-lsp";
-  version = "0.0.38";
-  format = "pyproject";
+  version = "0.0.40";
+  pyproject = true;
   disabled = pythonOlder "3.7";
 
   src = fetchFromGitHub {
     owner = "astral-sh";
     repo = "ruff-lsp";
     rev = "v${version}";
-    hash = "sha256-JWobbaXmIcd+c/EikiuUva5aHm3VDdeAQK60Krl6tVE=";
+    hash = "sha256-CQ4SDIGhUTn7fdvoGag+XM7HcY+qJyp9McyzpoTQ0tM=";
   };
 
   postPatch = ''
@@ -36,6 +37,7 @@ buildPythonPackage rec {
   ];
 
   propagatedBuildInputs = [
+    packaging
     pygls
     lsprotocol
     typing-extensions

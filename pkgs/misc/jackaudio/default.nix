@@ -1,6 +1,6 @@
 { lib, stdenv, fetchFromGitHub, pkg-config, python3Packages, makeWrapper
 , libsamplerate, libsndfile, readline, eigen, celt
-, waf
+, wafHook
 # Darwin Dependencies
 , aften, AudioUnit, CoreAudio, libobjc, Accelerate
 
@@ -39,7 +39,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   outputs = [ "out" "dev" ];
 
-  nativeBuildInputs = [ pkg-config python makeWrapper waf.hook ];
+  nativeBuildInputs = [ pkg-config python makeWrapper wafHook ];
   buildInputs = [ libsamplerate libsndfile readline eigen celt
     optDbus optPythonDBus optLibffado optAlsaLib optLibopus
   ] ++ lib.optionals stdenv.isDarwin [
@@ -51,6 +51,7 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   dontAddWafCrossFlags = true;
+
   wafConfigureFlags = [
     "--classic"
     "--autostart=${if (optDbus != null) then "dbus" else "classic"}"
@@ -61,7 +62,7 @@ stdenv.mkDerivation (finalAttrs: {
   postInstall = (if libOnly then ''
     rm -rf $out/{bin,share}
     rm -rf $out/lib/{jack,libjacknet*,libjackserver*}
-  '' else ''
+  '' else lib.optionalString (optDbus != null) ''
     wrapProgram $out/bin/jack_control --set PYTHONPATH $PYTHONPATH
   '');
 

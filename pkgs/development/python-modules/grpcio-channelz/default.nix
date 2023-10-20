@@ -8,12 +8,12 @@
 
 buildPythonPackage rec {
   pname = "grpcio-channelz";
-  version = "1.56.2";
+  version = "1.59.0";
   format = "setuptools";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-PlPGrD16Iy5vCsuVsFQ3FHd+wu0FJCFbo7isvYtVAQU=";
+    hash = "sha256-H25CEs6JW+gnpuGJe88vSh0h5ETKMT8lxEgfViExhMk=";
   };
 
   nativeBuildInputs = [

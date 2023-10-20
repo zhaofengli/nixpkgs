@@ -116,10 +116,6 @@ self: super: {
   # There will probably be a new revision soon.
   hls-brittany-plugin = assert super.hls-brittany-plugin.version == "1.1.0.0"; doJailbreak super.hls-brittany-plugin;
 
-  hls-hlint-plugin = super.hls-hlint-plugin.override {
-    apply-refact = self.apply-refact_0_11_0_0;
-  };
-
   # For -f-auto see cabal.project in haskell-language-server.
   ghc-lib-parser-ex = addBuildDepend self.ghc-lib-parser (disableCabalFlag "auto" super.ghc-lib-parser-ex);
 
@@ -205,6 +201,11 @@ self: super: {
     })
   ] super.aeson);
 
+  # aeson 2.2.0.0 requires th-abstraction >= 0.5 & < 0.6
+  aeson_2_2_0_0 = super.aeson_2_2_0_0.overrideScope (hfinal: hprev: {
+    th-abstraction = hfinal.th-abstraction_0_5_0_0;
+  });
+
   # 2023-06-28: Test error: https://hydra.nixos.org/build/225565149
   orbits = dontCheck super.orbits;
 
@@ -237,8 +238,7 @@ self: super: {
   # Arion's test suite needs a Nixpkgs, which is cumbersome to do from Nixpkgs
   # itself. For instance, pkgs.path has dirty sources and puts a huge .git in the
   # store. Testing is done upstream.
-  # 2023-07-27: Allow base-4.17
-  arion-compose = dontCheck (assert super.arion-compose.version == "0.2.0.0"; doJailbreak super.arion-compose);
+  arion-compose = dontCheck super.arion-compose;
 
   # 2023-07-17: Outdated base bound https://github.com/srid/lvar/issues/5
   lvar = doJailbreak super.lvar;
@@ -252,6 +252,10 @@ self: super: {
   # Unnecessarily requires alex >= 3.3
   # https://github.com/glguy/config-value/commit/c5558c8258598fab686c259bff510cc1b19a0c50#commitcomment-119514821
   config-value = doJailbreak super.config-value;
+
+  # path-io bound is adjusted in 0.6.1 release
+  # https://github.com/tek/hix/commit/019426f6a3db256e4c96558ffe6fa2114e2f19a0
+  hix = doJailbreak super.hix;
 
   # waiting for release: https://github.com/jwiegley/c2hsc/issues/41
   c2hsc = appendPatch (fetchpatch {
@@ -312,7 +316,17 @@ self: super: {
 
   # Overriding the version pandoc dependency uses as the latest release has version bounds
   # defined as >= 3.1  && < 3.2, can be removed once pandoc gets bumped by Stackage.
-  patat = super.patat.override { pandoc = self.pandoc_3_1_6; };
+  #
+  # The patch can be removed once the commit being pulled is in a release.
+  patat = appendPatch (fetchpatch {
+    url = "https://github.com/jaspervdj/patat/pull/143/commits/cb5d5b6439204b5bd52939e42a11518ac81139fe.patch";
+    sha256 = "sha256-EPiyxziPtn2fAExKknI2uKUGahWCFnv7K8bpVkAgezQ=";
+  }) (super.patat.override { pandoc = self.pandoc_3_1_8; });
+
+  # http2 also overridden in all-packages.nix for mailctl.
+  # twain is currently only used by mailctl, so the .overrideScope shouldn't
+  # negatively affect any other packages, at least currently...
+  twain = super.twain.overrideScope (self: _: { http2 = self.http2_3_0_3; });
 
   # The latest release on hackage has an upper bound on containers which
   # breaks the build, though it works with the version of containers present
@@ -338,7 +352,7 @@ self: super: {
       name = "git-annex-${super.git-annex.version}-src";
       url = "git://git-annex.branchable.com/";
       rev = "refs/tags/" + super.git-annex.version;
-      sha256 = "1i14mv8z9sr5sckckwiba4cypgs3iwk19pyrl9xzcrzz426dxrba";
+      sha256 = "sha256-+buXiG9auq46+reMrs2rBWoxHgPkHmP8BY5BugooU+Q=";
       # delete android and Android directories which cause issues on
       # darwin (case insensitive directory). Since we don't need them
       # during the build process, we can delete it to prevent a hash
@@ -382,15 +396,7 @@ self: super: {
   # https://github.com/awakesecurity/nix-graph/issues/5
   nix-graph = doJailbreak super.nix-graph;
 
-  cachix = self.generateOptparseApplicativeCompletions [ "cachix" ]
-    # Adds a workaround to the API changes in the versions library
-    # Should be dropped by the next release
-    # https://github.com/cachix/cachix/pull/556
-    (appendPatch (fetchpatch {
-      url = "https://github.com/cachix/cachix/commit/078d2d2212d7533a6a4db000958bfc4373c4deeb.patch";
-      hash = "sha256-xfJaO2CuZWFHivq4gqbkNnTOWPiyFVjlwOPV6yibKH4=";
-      stripLen = 1;
-    }) super.cachix);
+  cachix = self.generateOptparseApplicativeCompletions [ "cachix" ] super.cachix;
 
   # https://github.com/froozen/kademlia/issues/2
   kademlia = dontCheck super.kademlia;
@@ -517,13 +523,8 @@ self: super: {
   # https://github.com/ekmett/structures/issues/3
   structures = dontCheck super.structures;
 
-  jacinda = appendPatches [
-    (pkgs.fetchpatch {
-      name = "jacinda-alex-3.3.patch";
-      url = "https://github.com/vmchale/jacinda/commit/b8e18871900402e6ab0addae2e41a0f360682ae3.patch";
-      sha256 = "0c1b9hp9j44zafzjidp301dz0m54vplgfisqvb1zrh1plk6vsxsa";
-    })
-  ] (overrideCabal { revision = null; editedCabalFile = null; } super.jacinda);
+  # Requires alex >= 3.4
+  jacinda = super.jacinda.override { alex = self.alex_3_4_0_0; };
 
   # Disable test suites to fix the build.
   acme-year = dontCheck super.acme-year;                # http://hydra.cryp.to/build/497858/log/raw
@@ -856,9 +857,6 @@ self: super: {
   elm-server = markBroken super.elm-server;
   elm-yesod = markBroken super.elm-yesod;
 
-  # Tests failure with GHC >= 9.0.1, fixed in 1.6.24.4
-  yesod-core = assert super.yesod-core.version == "1.6.24.3"; dontCheck super.yesod-core;
-
   # https://github.com/Euterpea/Euterpea2/issues/40
   Euterpea = doJailbreak super.Euterpea;
 
@@ -895,6 +893,22 @@ self: super: {
   # 2022-03-20: descriptive is unmaintained since 2018 and archived on github.com
   # It does not support aeson 2.0
   descriptive = super.descriptive.override { aeson = self.aeson_1_5_6_0; };
+
+  # Apply compatibility patches until a new release arrives
+  # https://github.com/phadej/spdx/issues/33
+  spdx = appendPatches [
+    (fetchpatch {
+      name = "spdx-ghc-9.4.patch";
+      url = "https://github.com/phadej/spdx/pull/30/commits/545dc69f433225c837375fba4cbbdb7f9cc7b09b.patch";
+      sha256 = "0p2h8dxkjy2v0dx7h6v62clmx5n5j3c4zh4myh926fijympi1glz";
+    })
+    (fetchpatch {
+      name = "spdx-ghc-9.6.patch";
+      url = "https://github.com/phadej/spdx/pull/32/commits/b51f665e9960614274ff6a9ac658802c1a785687.patch";
+      sha256 = "01vf1h0djr84yxsjfhym715ncx0w5q4l02k3dkbmg40pnc62ql4h";
+      excludes = [ ".github/**" ];
+    })
+  ] super.spdx;
 
   # 2022-03-19: Testsuite is failing: https://github.com/puffnfresh/haskell-jwt/issues/2
   jwt = dontCheck super.jwt;
@@ -934,25 +948,6 @@ self: super: {
 
   # https://github.com/basvandijk/concurrent-extra/issues/12
   concurrent-extra = dontCheck super.concurrent-extra;
-
-  bloomfilter = appendPatches [
-    # https://github.com/bos/bloomfilter/issues/7
-    ./patches/bloomfilter-fix-on-32bit.patch
-    # Fix build with GHC >= 9.2 by using stock unsafeShift* functions
-    # https://github.com/bos/bloomfilter/pull/20
-    (pkgs.fetchpatch {
-      name = "bloomfilter-ghc-9.2-shift.patch";
-      url = "https://github.com/bos/bloomfilter/pull/20/commits/fb79b39c44404fd791a3bed973e9d844fb084f1e.patch";
-      sha256 = "0clmr5iar4mhp8nbgh1c1rh4fl7dy0g2kbqqh0af8aqmhjpqzrq3";
-    })
-  ] (overrideCabal (drv: {
-    # Make sure GHC 9.2 patch applies correctly
-    revision = null;
-    editedCabalFile = null;
-    prePatch = drv.prePatch or "" + ''
-      "${pkgs.buildPackages.dos2unix}/bin/dos2unix" *.cabal
-    '';
-  }) super.bloomfilter);
 
   # https://github.com/pxqr/base32-bytestring/issues/4
   base32-bytestring = dontCheck super.base32-bytestring;
@@ -1161,9 +1156,11 @@ self: super: {
   github-backup = doJailbreak super.github-backup;
 
   # dontCheck: https://github.com/haskell-servant/servant-auth/issues/113
-  # doJailbreak: waiting on revision 1 to hit hackage
-  servant-auth-client = doJailbreak (dontCheck super.servant-auth-client);
+  servant-auth-client = dontCheck super.servant-auth-client;
+  # Allow lens-aeson >= 1.2 https://github.com/haskell-servant/servant/issues/1703
   servant-auth-server = doJailbreak super.servant-auth-server;
+  # Allow hspec >= 2.10 https://github.com/haskell-servant/servant/issues/1704
+  servant-foreign = doJailbreak super.servant-foreign;
 
   # Generate cli completions for dhall.
   dhall = self.generateOptparseApplicativeCompletions [ "dhall" ] super.dhall;
@@ -1470,31 +1467,6 @@ self: super: {
       lsp-types = super.lsp-types_1_4_0_1;
     });
   };
-
-  jsaddle-webkit2gtk =
-    appendPatches [
-      (pkgs.fetchpatch {
-        name = "jsaddle-webkit2gtk-ghc-9.2.patch";
-        url = "https://github.com/ghcjs/jsaddle/commit/d2ce9e6be1dcba0ab417314a0b848012d1a47e03.diff";
-        stripLen = 1;
-        includes = [ "jsaddle-webkit2gtk.cabal" ];
-        sha256 = "16pcs3l7s8shhcnrhi80bwjgy7w23csd9b8qpmc5lnxn4wxr4c2r";
-      })
-      (pkgs.fetchpatch {
-        name = "jsaddle-webkit2gtk-ghc-9.6.patch";
-        url = "https://github.com/ghcjs/jsaddle/commit/99b23dac8b4c5b23f5ed7963e681a46c1abdd1a5.patch";
-        sha256 = "02rdifap9vzf6bhjp5siw68ghjrxh2phzd0kwjihf3hxi4a2xlp3";
-        stripLen = 1;
-        includes = [ "jsaddle-webkit2gtk.cabal" ];
-      })
-    ]
-    (overrideCabal (old: {
-      postPatch = old.postPatch or "" + ''
-        sed -i 's/aeson.*,/aeson,/' jsaddle-webkit2gtk.cabal
-        sed -i 's/text.*,/text,/' jsaddle-webkit2gtk.cabal
-      '';
-    })
-    super.jsaddle-webkit2gtk);
 
   # 2022-03-16: lens bound can be loosened https://github.com/ghcjs/jsaddle-dom/issues/19
   jsaddle-dom = overrideCabal (old: {
@@ -1864,15 +1836,6 @@ self: super: {
   vivid-osc = dontCheck super.vivid-osc;
   vivid-supercollider = dontCheck super.vivid-supercollider;
 
-  # while waiting for a new release: https://github.com/brendanhay/amazonka/pull/572
-  amazonka = appendPatches [
-    (fetchpatch {
-      relative = "amazonka";
-      url = "https://github.com/brendanhay/amazonka/commit/43ddd87b1ebd6af755b166e16336259ec025b337.patch";
-      sha256 = "sha256-9Ed3qrLGRaNCdvqWMyg8ydAnqDkFqWKLLoObv/5jG54=";
-    })
-  ] (doJailbreak super.amazonka);
-
   # Test suite does not compile.
   feed = dontCheck super.feed;
 
@@ -1918,27 +1881,27 @@ self: super: {
   inherit (let
     pandoc-cli-overlay = self: super: {
       # pandoc-cli requires pandoc >= 3.1
-      pandoc = self.pandoc_3_1_6;
+      pandoc = self.pandoc_3_1_8;
 
       # pandoc depends on crypton-connection, which requires tls >= 1.7
-      tls = self.tls_1_7_0;
+      tls = self.tls_1_9_0;
       crypton-connection = unmarkBroken super.crypton-connection;
 
       # pandoc depends on http-client-tls, which only starts depending
       # on crypton-connection in http-client-tls-0.3.6.2.
-      http-client-tls = self.http-client-tls_0_3_6_2;
+      http-client-tls = self.http-client-tls_0_3_6_3;
 
-      # pandoc and skylighting are developed in tandem
-      skylighting-core = self.skylighting-core_0_13_4_1;
-      skylighting = self.skylighting_0_13_4_1;
+      # pandoc depends on skylighting >= 0.14
+      skylighting = self.skylighting_0_14;
+      skylighting-core = self.skylighting-core_0_14;
     };
   in {
     pandoc-cli = super.pandoc-cli.overrideScope pandoc-cli-overlay;
-    pandoc_3_1_6 = doDistribute (super.pandoc_3_1_6.overrideScope pandoc-cli-overlay);
+    pandoc_3_1_8 = doDistribute (super.pandoc_3_1_8.overrideScope pandoc-cli-overlay);
     pandoc-lua-engine = super.pandoc-lua-engine.overrideScope pandoc-cli-overlay;
   })
     pandoc-cli
-    pandoc_3_1_6
+    pandoc_3_1_8
     pandoc-lua-engine
     ;
 
@@ -2142,27 +2105,6 @@ self: super: {
     relative = "yi-language";
     sha256 = "sha256-AVQLvul3ufxGQyoXud05qauclNanf6kunip0oJ/9lWQ=";
   }) (dontCheck super.yi-language);
-
-  # 2022-03-16: Upstream is not bumping bounds https://github.com/ghcjs/jsaddle/issues/123
-  # 2023-07-14: Upstream is also not releasing fixes.
-  jsaddle = appendPatch
-    (fetchpatch {
-      name = "jsaddle-casemapping.patch";
-      url = "https://github.com/ghcjs/jsaddle/commit/f90df85fec84fcc4927bfb67452e31342f5aec1f.patch";
-      sha256 = "sha256-xCtDxpjZbus8VSeBUEV0OnJlcQKjeL1PbYSHnhpFuyI=";
-      relative = "jsaddle";
-    })
-    (overrideCabal (drv: {
-    # lift conditional version constraint on ref-tf
-    postPatch = ''
-      sed -i 's/ref-tf.*,/ref-tf,/' jsaddle.cabal
-      sed -i 's/attoparsec.*,/attoparsec,/' jsaddle.cabal
-      sed -i 's/time.*,/time,/' jsaddle.cabal
-      sed -i 's/vector.*,/vector,/' jsaddle.cabal
-      sed -i 's/(!name)/(! name)/' src/Language/Javascript/JSaddle/Object.hs
-    '' + (drv.postPatch or "");
-    })
-    (doJailbreak super.jsaddle));
 
   # 2022-03-22: Jailbreak for base bound: https://github.com/reflex-frp/reflex-dom/pull/433
   reflex-dom = assert super.reflex-dom.version == "0.6.1.1"; doJailbreak super.reflex-dom;
@@ -2539,13 +2481,6 @@ self: super: {
   })
   super.polynomial);
 
-  # Unreleased bound relaxing patch allowing scotty 0.12
-  taffybar = appendPatch (pkgs.fetchpatch {
-    name = "taffybar-allow-scotty-0.12.patch";
-    url = "https://github.com/taffybar/taffybar/commit/2e428ba550fc51067526a0350b91185acef72d19.patch";
-    sha256 = "1lpcz671mk5cwqffjfi9ncc0d67bmwgzypy3i37a2fhfmxd0y3nl";
-  }) ((p: assert p.version == "4.0.0"; p) super.taffybar);
-
   # Tests likely broke because of https://github.com/nick8325/quickcheck/issues/359,
   # but fft is not on GitHub, so no issue reported.
   fft = dontCheck super.fft;
@@ -2561,12 +2496,6 @@ self: super: {
   #
   # has been resolved.
   lucid-htmx = doJailbreak super.lucid-htmx;
-
-  # Needs lsp >= 2.1
-  futhark = super.futhark.overrideScope (fself: _: {
-    lsp = fself.lsp_2_1_0_0;
-    lsp-types = fself.lsp-types_2_0_1_0;
-  });
 
   # Too strict bounds on hspec
   # https://github.com/klapaucius/vector-hashtables/issues/11
@@ -2777,12 +2706,8 @@ self: super: {
 
   # Tests fail due to the newly-build fourmolu not being in PATH
   # https://github.com/fourmolu/fourmolu/issues/231
-  fourmolu_0_13_1_0 = dontCheck (super.fourmolu_0_13_1_0.overrideScope (lself: lsuper: {
-    Cabal-syntax = lself.Cabal-syntax_3_10_1_0;
-    ghc-lib-parser = lself.ghc-lib-parser_9_6_2_20230523;
-    parsec = lself.parsec_3_1_16_1;
-    text = lself.text_2_0_2;
-  }));
+  fourmolu_0_14_0_0 = dontCheck super.fourmolu_0_14_0_0;
+  fourmolu_0_13_1_0 = dontCheck super.fourmolu_0_13_1_0;
 
   # Merged upstream, but never released. Allows both intel and aarch64 darwin to build.
   # https://github.com/vincenthz/hs-gauge/pull/106
@@ -2798,4 +2723,9 @@ self: super: {
 
   # The hackage source is somehow missing a file present in the repo (tests/ListStat.hs).
   sym = dontCheck super.sym;
+
+  # Too strict bounds on base, ghc-prim, primitive
+  # https://github.com/kowainik/typerep-map/pull/128
+  typerep-map = doJailbreak super.typerep-map;
+
 } // import ./configuration-tensorflow.nix {inherit pkgs haskellLib;} self super

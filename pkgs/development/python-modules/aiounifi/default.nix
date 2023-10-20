@@ -1,7 +1,6 @@
 { lib
 , aiohttp
 , aioresponses
-, async-timeout
 , buildPythonPackage
 , fetchFromGitHub
 , orjson
@@ -10,25 +9,40 @@
 , pytestCheckHook
 , pythonOlder
 , segno
+, setuptools
+, trustme
+, wheel
 }:
 
 buildPythonPackage rec {
   pname = "aiounifi";
-  version = "55";
-  format = "setuptools";
+  version = "63";
+  format = "pyproject";
 
-  disabled = pythonOlder "3.9";
+  disabled = pythonOlder "3.11";
 
   src = fetchFromGitHub {
     owner = "Kane610";
     repo = pname;
     rev = "refs/tags/v${version}";
-    hash = "sha256-JvuP1Rhq01Y9KbfAJpawUQNWfxvlf9LY82RvXok4tgw=";
+    hash = "sha256-am11pFgYMRccUNaK/iKdp6mfk5NQ4QnU41xbFiGCMPs=";
   };
+
+  postPatch = ''
+    substituteInPlace pyproject.toml \
+      --replace "setuptools==" "setuptools>=" \
+      --replace "wheel==" "wheel>="
+
+    sed -i '/--cov=/d' pyproject.toml
+  '';
+
+  nativeBuildInputs = [
+    setuptools
+    wheel
+  ];
 
   propagatedBuildInputs = [
     aiohttp
-    async-timeout
     orjson
     segno
   ];
@@ -38,6 +52,7 @@ buildPythonPackage rec {
     pytest-aiohttp
     pytest-asyncio
     pytestCheckHook
+    trustme
   ];
 
   pytestFlagsArray = [

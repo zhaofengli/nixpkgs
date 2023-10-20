@@ -4,7 +4,7 @@ mod structure;
 mod utils;
 
 use anyhow::Context;
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use colored::Colorize;
 use std::io;
 use std::path::{Path, PathBuf};
@@ -15,14 +15,28 @@ use utils::ErrorWriter;
 /// Program to check the validity of pkgs/by-name
 #[derive(Parser, Debug)]
 #[command(about)]
-struct Args {
+pub struct Args {
     /// Path to nixpkgs
     nixpkgs: PathBuf,
+    /// The version of the checks
+    /// Increasing this may cause failures for a Nixpkgs that succeeded before
+    /// TODO: Remove default once Nixpkgs CI passes this argument
+    #[arg(long, value_enum, default_value_t = Version::V0)]
+    version: Version,
+}
+
+/// The version of the checks
+#[derive(Debug, Clone, PartialEq, PartialOrd, ValueEnum)]
+pub enum Version {
+    /// Initial version
+    V0,
+    /// Empty argument check
+    V1,
 }
 
 fn main() -> ExitCode {
     let args = Args::parse();
-    match check_nixpkgs(&args.nixpkgs, vec![], &mut io::stderr()) {
+    match check_nixpkgs(&args.nixpkgs, args.version, vec![], &mut io::stderr()) {
         Ok(true) => {
             eprintln!("{}", "Validated successfully".green());
             ExitCode::SUCCESS
@@ -53,6 +67,7 @@ fn main() -> ExitCode {
 /// - `Ok(true)` if the structure is valid, nothing will have been written to `error_writer`.
 pub fn check_nixpkgs<W: io::Write>(
     nixpkgs_path: &Path,
+    version: Version,
     eval_accessible_paths: Vec<&Path>,
     error_writer: &mut W,
 ) -> anyhow::Result<bool> {
@@ -75,7 +90,7 @@ pub fn check_nixpkgs<W: io::Write>(
 
         if error_writer.empty {
             // Only if we could successfully parse the structure, we do the semantic checks
-            eval::check_values(&mut error_writer, &nixpkgs, eval_accessible_paths)?;
+            eval::check_values(version, &mut error_writer, &nixpkgs, eval_accessible_paths)?;
             references::check_references(&mut error_writer, &nixpkgs)?;
         }
     }
@@ -86,11 +101,11 @@ pub fn check_nixpkgs<W: io::Write>(
 mod tests {
     use crate::check_nixpkgs;
     use crate::structure;
+    use crate::Version;
     use anyhow::Context;
-    use std::env;
     use std::fs;
     use std::path::Path;
-    use tempfile::{tempdir, tempdir_in};
+    use tempfile::{tempdir_in, TempDir};
 
     #[test]
     fn tests_dir() -> anyhow::Result<()> {
@@ -109,6 +124,13 @@ mod tests {
             test_nixpkgs(&name, &path, &expected_errors)?;
         }
         Ok(())
+    }
+
+    // tempfile::tempdir needs to be wrapped in temp_env lock
+    // because it accesses TMPDIR environment variable.
+    fn tempdir() -> anyhow::Result<TempDir> {
+        let empty_list: [(&str, Option<&str>); 0] = [];
+        Ok(temp_env::with_vars(empty_list, tempfile::tempdir)?)
     }
 
     // We cannot check case-conflicting files into Nixpkgs (the channel would fail to
@@ -140,15 +162,38 @@ mod tests {
         Ok(())
     }
 
+    /// Tests symlinked temporary directories.
+    /// This is needed because on darwin, `/tmp` is a symlink to `/private/tmp`, and Nix's
+    /// restrict-eval doesn't also allow access to the canonical path when you allow the
+    /// non-canonical one.
+    ///
+    /// The error if we didn't do this would look like this:
+    /// error: access to canonical path '/private/var/folders/[...]/.tmpFbcNO0' is forbidden in restricted mode
+    #[test]
+    fn test_symlinked_tmpdir() -> anyhow::Result<()> {
+        // Create a directory with two entries:
+        // - actual (dir)
+        // - symlinked -> actual (symlink)
+        let temp_root = tempdir()?;
+        fs::create_dir(temp_root.path().join("actual"))?;
+        std::os::unix::fs::symlink("actual", temp_root.path().join("symlinked"))?;
+        let tmpdir = temp_root.path().join("symlinked");
+
+        temp_env::with_var("TMPDIR", Some(&tmpdir), || {
+            test_nixpkgs("symlinked_tmpdir", Path::new("tests/success"), "")
+        })
+    }
+
     fn test_nixpkgs(name: &str, path: &Path, expected_errors: &str) -> anyhow::Result<()> {
         let extra_nix_path = Path::new("tests/mock-nixpkgs.nix");
 
         // We don't want coloring to mess up the tests
-        env::set_var("NO_COLOR", "1");
-
-        let mut writer = vec![];
-        check_nixpkgs(&path, vec![&extra_nix_path], &mut writer)
-            .context(format!("Failed test case {name}"))?;
+        let writer = temp_env::with_var("NO_COLOR", Some("1"), || -> anyhow::Result<_> {
+            let mut writer = vec![];
+            check_nixpkgs(&path, Version::V1, vec![&extra_nix_path], &mut writer)
+                .context(format!("Failed test case {name}"))?;
+            Ok(writer)
+        })?;
 
         let actual_errors = String::from_utf8_lossy(&writer);
 

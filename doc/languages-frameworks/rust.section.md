@@ -102,7 +102,7 @@ rustPlatform.buildRustPackage rec {
 
   src = fetchCrate {
     inherit pname version;
-    sha256 = "sha256-aDQA4A5mScX9or3Lyiv/5GyAehidnpKKE0grhbP1Ctc=";
+    hash = "sha256-aDQA4A5mScX9or3Lyiv/5GyAehidnpKKE0grhbP1Ctc=";
   };
 
   cargoHash = "sha256-tbrTbutUs5aPSV+yE0IBUZAAytgmZV7Eqxia7g+9zRs=";
@@ -817,7 +817,7 @@ $ cargo test
 ## Using community maintained Rust toolchains {#using-community-maintained-rust-toolchains}
 
 ::: {.note}
-Note: The following projects cannot be used within nixpkgs since [IFD](#ssec-import-from-derivation) is disallowed.
+The following projects cannot be used within Nixpkgs since [Import From Derivation](https://nixos.org/manual/nix/unstable/language/import-from-derivation) (IFD) is disallowed in Nixpkgs.
 To package things that require Rust nightly, `RUSTC_BOOTSTRAP = true;` can sometimes be used as a hack.
 :::
 

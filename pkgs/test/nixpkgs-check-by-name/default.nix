@@ -25,6 +25,10 @@ let
         export NIX_LOG_DIR=$TEST_ROOT/var/log/nix
         export NIX_STATE_DIR=$TEST_ROOT/var/nix
         export NIX_STORE_DIR=$TEST_ROOT/store
+
+        # Ensure that even if tests run in parallel, we don't get an error
+        # We'd run into https://github.com/NixOS/nix/issues/2706 unless the store is initialised first
+        nix-store --init
       '';
       postCheck = ''
         cargo fmt --check

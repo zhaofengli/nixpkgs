@@ -19,7 +19,7 @@ rec {
          name = "sed-4.2.2-pre";
          src = fetchurl {
            url = ftp://alpha.gnu.org/gnu/sed/sed-4.2.2-pre.tar.bz2;
-           sha256 = "11nq06d131y4wmf3drm0yk502d2xc6n5qy82cg88rb9nqd2lj41k";
+           hash = "sha256-MxBJRcM2rYzQYwJ5XKxhXTQByvSg5jZc5cSHEZoB2IY=";
          };
          patches = [];
        });
@@ -69,8 +69,8 @@ rec {
      "<pkg>.overrideDerivation" to learn about `overrideDerivation` and caveats
      related to its use.
   */
-  makeOverridable = f: origArgs:
-    let
+  makeOverridable = f: lib.setFunctionArgs
+    (origArgs: let
       result = f origArgs;
 
       # Creates a functor with the same arguments as f
@@ -102,7 +102,8 @@ rec {
 
           inherit nonOverriddenArgs;
         }
-      else result;
+      else result)
+    (lib.functionArgs f);
 
 
   /* Call the package function in the file `fn` with the required

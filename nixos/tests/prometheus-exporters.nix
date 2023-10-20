@@ -966,6 +966,36 @@ let
       '';
     };
 
+    pgbouncer = {
+      exporterConfig = {
+        enable = true;
+        connectionString = "postgres://admin:@localhost:6432/pgbouncer?sslmode=disable";
+      };
+
+      metricProvider = {
+        services.postgresql.enable = true;
+        services.pgbouncer = {
+          # https://github.com/prometheus-community/pgbouncer_exporter#pgbouncer-configuration
+          ignoreStartupParameters = "extra_float_digits";
+          enable = true;
+          listenAddress = "*";
+          databases = { postgres = "host=/run/postgresql/ port=5432 auth_user=postgres dbname=postgres"; };
+          authType = "any";
+          maxClientConn = 99;
+        };
+      };
+      exporterTest = ''
+        wait_for_unit("postgresql.service")
+        wait_for_unit("pgbouncer.service")
+        wait_for_unit("prometheus-pgbouncer-exporter.service")
+        wait_for_open_port(9127)
+        succeed("curl -sSf http://localhost:9127/metrics | grep 'pgbouncer_up 1'")
+        succeed(
+            "curl -sSf http://localhost:9127/metrics | grep 'pgbouncer_config_max_client_connections 99'"
+        )
+      '';
+    };
+
     php-fpm = {
       nodeName = "php_fpm";
       exporterConfig = {
@@ -1174,6 +1204,44 @@ let
             "curl -sSf localhost:9550/metrics | grep '{}'".format(
                 'rtl_433_temperature_celsius{channel="3",id="55",location="",model="zopieux"} 18'
             )
+        )
+      '';
+    };
+
+    sabnzbd = {
+      exporterConfig = {
+        enable = true;
+        servers = [{
+          baseUrl = "http://localhost:8080";
+          apiKeyFile = "/var/sabnzbd-apikey";
+        }];
+      };
+
+      metricProvider = {
+        services.sabnzbd.enable = true;
+
+        # unrar is required for sabnzbd
+        nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "unrar" ];
+
+        # extract the generated api key before starting
+        systemd.services.sabnzbd-apikey = {
+          requires = [ "sabnzbd.service" ];
+          after = [ "sabnzbd.service" ];
+          requiredBy = [ "prometheus-sabnzbd-exporter.service" ];
+          before = [ "prometheus-sabnzbd-exporter.service" ];
+          script = ''
+            grep -Po '^api_key = \K.+' /var/lib/sabnzbd/sabnzbd.ini > /var/sabnzbd-apikey
+          '';
+        };
+      };
+
+      exporterTest = ''
+        wait_for_unit("sabnzbd.service")
+        wait_for_unit("prometheus-sabnzbd-exporter.service")
+        wait_for_open_port(8080)
+        wait_for_open_port(9387)
+        wait_until_succeeds(
+            "curl -sSf 'localhost:9387/metrics' | grep 'sabnzbd_queue_size{sabnzbd_instance=\"http://localhost:8080\"} 0.0'"
         )
       '';
     };

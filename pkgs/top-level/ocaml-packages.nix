@@ -60,6 +60,8 @@ let
 
     ### B ###
 
+    b0 = callPackage ../development/ocaml-modules/b0 { };
+
     bap = janeStreet_0_15.bap;
 
     base64 = callPackage ../development/ocaml-modules/base64 { };
@@ -336,6 +338,10 @@ let
     dnssec = callPackage ../development/ocaml-modules/dns/dnssec.nix { };
 
     dolmen =  callPackage ../development/ocaml-modules/dolmen { };
+
+    dolmen_loop =  callPackage ../development/ocaml-modules/dolmen/loop.nix { };
+
+    dolmen_type =  callPackage ../development/ocaml-modules/dolmen/type.nix { };
 
     dolog = callPackage ../development/ocaml-modules/dolog { };
 
@@ -958,6 +964,8 @@ let
 
     lua-ml = callPackage ../development/ocaml-modules/lua-ml { };
 
+    lun = callPackage ../development/ocaml-modules/lun { };
+
     lustre-v6 = callPackage ../development/ocaml-modules/lustre-v6 { };
 
     lutils = callPackage ../development/ocaml-modules/lutils { };
@@ -1154,6 +1162,8 @@ let
 
     mparser-pcre =  callPackage ../development/ocaml-modules/mparser/pcre.nix { };
 
+    msgpck = callPackage ../development/ocaml-modules/msgpck { };
+
     mrmime = callPackage ../development/ocaml-modules/mrmime { };
 
     mtime_1 =  callPackage ../development/ocaml-modules/mtime/1_x.nix { };
@@ -1290,6 +1300,8 @@ let
 
     ocf_ppx = callPackage ../development/ocaml-modules/ocf/ppx.nix { };
 
+    ocolor = callPackage ../development/ocaml-modules/ocolor { };
+
     ocp-build = callPackage ../development/tools/ocaml/ocp-build { };
 
     ocp-indent = callPackage ../development/tools/ocaml/ocp-indent { };
@@ -1323,6 +1335,8 @@ let
     ocurl = callPackage ../development/ocaml-modules/ocurl { };
 
     odate = callPackage ../development/ocaml-modules/odate { };
+
+    odig = callPackage ../development/ocaml-modules/odig { };
 
     odoc = callPackage ../development/ocaml-modules/odoc { };
 
@@ -1396,6 +1410,8 @@ let
 
     pbkdf = callPackage ../development/ocaml-modules/pbkdf { };
 
+    pbrt = callPackage ../development/ocaml-modules/pbrt { };
+
     pcap-format = callPackage ../development/ocaml-modules/pcap-format { };
 
     pecu = callPackage ../development/ocaml-modules/pecu { };
@@ -1438,6 +1454,8 @@ let
 
     pp = callPackage ../development/ocaml-modules/pp { };
 
+    pp_loc = callPackage ../development/ocaml-modules/pp_loc { };
+
     pprint = callPackage ../development/ocaml-modules/pprint { };
 
     ppx_bap = janeStreet_0_15.ppx_bap;
@@ -1471,6 +1489,8 @@ let
     ppx_import = callPackage ../development/ocaml-modules/ppx_import {};
 
     ppx_irmin = callPackage ../development/ocaml-modules/irmin/ppx.nix { };
+
+    ppx_lun = callPackage ../development/ocaml-modules/lun/ppx.nix { };
 
     ppx_monad = callPackage ../development/ocaml-modules/ppx_monad { };
 
@@ -1511,10 +1531,7 @@ let
 
     psq = callPackage ../development/ocaml-modules/psq { };
 
-    ptime =
-      if lib.versionAtLeast ocaml.version "4.08"
-      then callPackage ../development/ocaml-modules/ptime { }
-      else null;
+    ptime = callPackage ../development/ocaml-modules/ptime { };
 
     ptmap = callPackage ../development/ocaml-modules/ptmap { };
 
@@ -1693,7 +1710,9 @@ let
 
     tar = callPackage ../development/ocaml-modules/tar { };
 
-    tar-unix = callPackage ../development/ocaml-modules/tar/unix.nix { };
+    tar-unix = callPackage ../development/ocaml-modules/tar/unix.nix {
+      inherit (pkgs) git;
+    };
 
     tcpip = callPackage ../development/ocaml-modules/tcpip { };
 
@@ -1867,6 +1886,10 @@ let
 
     zed = callPackage ../development/ocaml-modules/zed { };
 
+    zelus = callPackage ../development/ocaml-modules/zelus { };
+
+    zelus-gtk = callPackage ../development/ocaml-modules/zelus-gtk { };
+
     zmq = callPackage ../development/ocaml-modules/zmq { };
 
     zmq-lwt = callPackage ../development/ocaml-modules/zmq/lwt.nix { };
@@ -1878,6 +1901,8 @@ let
     buildDunePackage = callPackage ../build-support/ocaml/dune.nix { };
 
     buildOasisPackage = callPackage ../build-support/ocaml/oasis.nix { };
+
+    buildTopkgPackage = callPackage ../build-support/ocaml/topkg.nix { };
 
     # Apps from all-packages, to be eventually removed
 
@@ -1927,7 +1952,9 @@ in let inherit (pkgs) callPackage; in rec
 
   ocamlPackages_5_0 = mkOcamlPackages (callPackage ../development/compilers/ocaml/5.0.nix { });
 
-  ocamlPackages_latest = ocamlPackages_5_0;
+  ocamlPackages_5_1 = mkOcamlPackages (callPackage ../development/compilers/ocaml/5.1.nix { });
+
+  ocamlPackages_latest = ocamlPackages_5_1;
 
   ocamlPackages = ocamlPackages_4_14;
 

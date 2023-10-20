@@ -11,16 +11,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "sozu";
-  version = "0.15.3";
+  version = "0.15.6";
 
   src = fetchFromGitHub {
     owner = "sozu-proxy";
     repo = pname;
     rev = version;
-    hash = "sha256-hZQ5pRzQy+BMGnxCl0Mw3hqCHZJcZ30vhqt6gWyLXWU=";
+    hash = "sha256-8JvSVqU8JSf7VrHYxKTZWsX59gMW7eRg4WHrvemhUNU=";
   };
 
-  cargoHash = "sha256-KFOsKyZZOWvkkTuLqVeLmHlk6HscEJi0sI2hJS6UnOU=";
+  cargoHash = "sha256-f4tteNovor8/YS71SbpD0GlHXEHfLmZmOLxn8impRj8=";
 
   nativeBuildInputs = [ protobuf ];
 
@@ -45,6 +45,7 @@ rustPlatform.buildRustPackage rec {
     changelog = "https://github.com/sozu-proxy/sozu/releases/tag/${version}";
     license = licenses.agpl3;
     maintainers = with maintainers; [ Br1ght0ne gaelreyrol ];
+    mainProgram = "sozu";
     # error[E0432]: unresolved import `std::arch::x86_64`
     broken = !stdenv.isx86_64;
   };

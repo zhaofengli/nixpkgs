@@ -12,13 +12,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "ugrep";
-  version = "4.0.5";
+  version = "4.3.0";
 
   src = fetchFromGitHub {
     owner = "Genivia";
     repo = "ugrep";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-7cE8kbj8ChvHOPb1F7Fj9talg82nXpXRPt4oBSGSWZw=";
+    hash = "sha256-X2tRjQ948fnyCn7vQbpmDqktMfP4A/s7bVfrKDed5nw=";
   };
 
   buildInputs = [

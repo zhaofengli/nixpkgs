@@ -1,14 +1,20 @@
-{ stdenv, lib, python3, fetchPypi, fetchFromGitHub, installShellFiles }:
+{ lib
+, stdenv
+, python3
+, fetchPypi
+, fetchFromGitHub
+, installShellFiles
+}:
 
 let
-  version = "2.51.0";
+  version = "2.53.0";
 
   src = fetchFromGitHub {
     name = "azure-cli-${version}-src";
     owner = "Azure";
     repo = "azure-cli";
     rev = "azure-cli-${version}";
-    hash = "sha512-KjkR1YKvL5stfmIbrfzj9Ons4iYyiKQdLiRh7I7Dd43lvJwXaYLNjIYL5SOX3F3D9nmNxCb0qmYAQH0iEmyVjw==";
+    hash = "sha256-5c2Z0EJnKyLqWiz8/BEFAdy5A0+sBbai7UQ2KPL1jr8=";
   };
 
   # put packages that needs to be overridden in the py package scope
@@ -28,18 +34,17 @@ py.pkgs.toPythonApplication (py.pkgs.buildAzureCliPackage {
       --replace "chardet~=3.0.4" "chardet" \
       --replace "javaproperties~=0.5.1" "javaproperties" \
       --replace "scp~=0.13.2" "scp" \
-      --replace "packaging>=20.9,<22.0" "packaging" \
       --replace "fabric~=2.4" "fabric"
 
     # remove namespace hacks
     # remove urllib3 because it was added as 'urllib3[secure]', which doesn't get handled well
     sed -i setup.py \
-      -e '/azure-cli-command_modules-nspkg/d' \
-      -e '/azure-cli-nspkg/d' \
       -e '/urllib3/d'
   '';
 
-  nativeBuildInputs = [ installShellFiles ];
+  nativeBuildInputs = [
+    installShellFiles
+  ];
 
   propagatedBuildInputs = with py.pkgs; [
     azure-appconfiguration
@@ -128,6 +133,7 @@ py.pkgs.toPythonApplication (py.pkgs.buildAzureCliPackage {
     azure-mgmt-web
     azure-multiapi-storage
     azure-storage-blob
+    azure-storage-common
     azure-synapse-accesscontrol
     azure-synapse-artifacts
     azure-synapse-managedprivateendpoints

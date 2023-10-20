@@ -11,16 +11,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "cargo-binstall";
-  version = "1.3.0";
+  version = "1.4.3";
 
   src = fetchFromGitHub {
     owner = "cargo-bins";
     repo = "cargo-binstall";
     rev = "v${version}";
-    hash = "sha256-uT8nSsC8QstjbyO5Ve2jSug3Bd/DuUNoGzquDPVl++o=";
+    hash = "sha256-z69uGnXyzV4spa3pNMwZrqOX1i0RYCgo8dwfZ86MBlA=";
   };
 
-  cargoHash = "sha256-rxQKU73ANokxLb42u3Zom+5Wbv/ayiQJaM9NsTWW8fU=";
+  cargoHash = "sha256-/eXdbHDVzM4hHRfP/gw+IXZVDuZcergGyotnvQEKEiw=";
 
   nativeBuildInputs = [
     pkg-config
@@ -31,7 +31,7 @@ rustPlatform.buildRustPackage rec {
     xz
     zstd
   ] ++ lib.optionals stdenv.isDarwin [
-    darwin.apple_sdk.frameworks.Security
+    darwin.apple_sdk.frameworks.SystemConfiguration
   ];
 
   buildNoDefaultFeatures = true;

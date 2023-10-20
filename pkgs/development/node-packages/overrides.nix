@@ -31,18 +31,6 @@ final: prev: {
     buildInputs = [ final.node-gyp-build ];
   };
 
-  "@forge/cli" = prev."@forge/cli".override {
-    nativeBuildInputs = [ pkgs.pkg-config ];
-    buildInputs = with pkgs; [
-      libsecret
-      final.node-gyp-build
-      final.node-pre-gyp
-    ] ++ lib.optionals stdenv.isDarwin [
-      darwin.apple_sdk.frameworks.AppKit
-      darwin.apple_sdk.frameworks.Security
-    ];
-  };
-
   autoprefixer = prev.autoprefixer.override {
     nativeBuildInputs = [ pkgs.buildPackages.makeWrapper ];
     postInstall = ''
@@ -53,18 +41,6 @@ final: prev: {
       simple-execution = callPackage ./package-tests/autoprefixer.nix { inherit (final) autoprefixer; };
     };
   };
-
-  aws-azure-login = prev.aws-azure-login.override (oldAttrs: {
-    nativeBuildInputs = [ pkgs.buildPackages.makeWrapper ];
-    prePatch = ''
-      export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
-    '';
-    postInstall = ''
-      wrapProgram $out/bin/aws-azure-login \
-          --set PUPPETEER_EXECUTABLE_PATH ${pkgs.chromium}/bin/chromium
-    '';
-    meta = oldAttrs.meta // { platforms = lib.platforms.linux; };
-  });
 
   bower2nix = prev.bower2nix.override {
     nativeBuildInputs = [ pkgs.buildPackages.makeWrapper ];
@@ -99,7 +75,7 @@ final: prev: {
   };
 
 
-  graphite-cli = prev."@withgraphite/graphite-cli".override {
+  graphite-cli = prev."@withgraphite/graphite-cli".override (old: {
     name = "graphite-cli";
     nativeBuildInputs = with pkgs; [ installShellFiles pkg-config ];
     buildInputs = with pkgs; [ cairo pango pixman ];
@@ -110,7 +86,10 @@ final: prev: {
         --bash <($out/bin/gt completion) \
         --zsh <(ZSH_NAME=zsh $out/bin/gt completion)
     '';
-  };
+    meta = old.meta // {
+      license = lib.licenses.unfree; # no license specified
+    };
+  });
 
   graphql-language-service-cli = prev.graphql-language-service-cli.override {
     nativeBuildInputs = [ pkgs.buildPackages.makeWrapper ];
@@ -192,29 +171,6 @@ final: prev: {
     '';
   };
 
-  mermaid-cli = prev."@mermaid-js/mermaid-cli".override (
-  if stdenv.isDarwin
-  then {}
-  else {
-    nativeBuildInputs = [ pkgs.buildPackages.makeWrapper ];
-    prePatch = ''
-      export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
-    '';
-    postInstall = ''
-      wrapProgram $out/bin/mmdc \
-      --set PUPPETEER_EXECUTABLE_PATH ${pkgs.chromium.outPath}/bin/chromium
-    '';
-  });
-
-  near-cli = prev.near-cli.override {
-    nativeBuildInputs = with pkgs; [
-      libusb1
-      final.prebuild-install
-      final.node-gyp-build
-      pkg-config
-    ];
-  };
-
   node-gyp = prev.node-gyp.override {
     nativeBuildInputs = [ pkgs.buildPackages.makeWrapper ];
     # Teach node-gyp to use nodejs headers locally rather that download them form https://nodejs.org.
@@ -255,13 +211,6 @@ final: prev: {
     in ''
       ${lib.concatStringsSep "\n" (map (patch: "patch -d $out/lib/node_modules/node2nix -p1 < ${patch}") patches)}
       wrapProgram "$out/bin/node2nix" --prefix PATH : ${lib.makeBinPath [ pkgs.nix ]}
-    '';
-  };
-
-  parcel = prev.parcel.override {
-    buildInputs = [ final.node-gyp-build ];
-    preRebuild = ''
-      sed -i -e "s|#!/usr/bin/env node|#! ${nodejs}/bin/node|" node_modules/node-gyp-build/bin.js
     '';
   };
 
@@ -310,12 +259,11 @@ final: prev: {
 
     src = fetchurl {
       url = "https://registry.npmjs.org/prisma/-/prisma-${version}.tgz";
-      hash = "sha256-0NxYp+W2KbR3xEV2OCXCIL3RqkvLfJHNKgl/PxapVbI=";
+      hash = "sha256-rwpwB+vli3CXRhUFL+UvyUpPlxRk6P/2zLCn0SL9E6s=";
     };
     postInstall = with pkgs; ''
       wrapProgram "$out/bin/prisma" \
         --set PRISMA_SCHEMA_ENGINE_BINARY ${prisma-engines}/bin/schema-engine \
-        --set PRISMA_MIGRATION_ENGINE_BINARY ${prisma-engines}/bin/schema-engine \
         --set PRISMA_QUERY_ENGINE_BINARY ${prisma-engines}/bin/query-engine \
         --set PRISMA_QUERY_ENGINE_LIBRARY ${lib.getLib prisma-engines}/lib/libquery_engine.node \
         --set PRISMA_FMT_BINARY ${prisma-engines}/bin/prisma-fmt
@@ -368,14 +316,6 @@ final: prev: {
   teck-programmer = prev.teck-programmer.override {
     nativeBuildInputs = [ final.node-gyp-build ];
     buildInputs = [ pkgs.libusb1 ];
-  };
-
-  tedicross = prev."tedicross-git+https://github.com/TediCross/TediCross.git#v0.8.7".override {
-    nativeBuildInputs = with pkgs; [ makeWrapper libtool autoconf ];
-    postInstall = ''
-      makeWrapper '${nodejs}/bin/node' "$out/bin/tedicross" \
-        --add-flags "$out/lib/node_modules/tedicross/main.js"
-    '';
   };
 
   thelounge-plugin-closepms = prev.thelounge-plugin-closepms.override {

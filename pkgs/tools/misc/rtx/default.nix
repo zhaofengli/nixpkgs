@@ -10,23 +10,24 @@
 , openssl
 , direnv
 , Security
+, SystemConfiguration
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "rtx";
-  version = "2023.8.2";
+  version = "2023.10.1";
 
   src = fetchFromGitHub {
     owner = "jdxcode";
     repo = "rtx";
     rev = "v${version}";
-    hash = "sha256-I5S9HR+syvj5H7xJKhtM7Ja+8wlKL6A01SDb9TjeoS8=";
+    hash = "sha256-E0jBTnfp8asLC2V8TtYSCh6fTxqkFwCMZjsjjBKEN0s=";
   };
 
-  cargoHash = "sha256-zbJ+U3PZIGp+BYQbc50+Kgh1KFF7svela3DsyogO/r8=";
+  cargoHash = "sha256-n/GxC5wDfhPboynFu8S1f9+kNDVmcKoSHaT96khyi2Q=";
 
   nativeBuildInputs = [ installShellFiles pkg-config ];
-  buildInputs = [ openssl  ] ++ lib.optionals stdenv.isDarwin [ Security ];
+  buildInputs = [ openssl  ] ++ lib.optionals stdenv.isDarwin [ Security SystemConfiguration ];
 
   postPatch = ''
     patchShebangs --build ./test/data/plugins/**/bin/* ./src/fake_asdf.rs ./src/cli/reshim.rs

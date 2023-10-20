@@ -16,20 +16,20 @@ let
 in
 python3.pkgs.buildPythonApplication rec {
   pname = "matrix-synapse";
-  version = "1.91.1";
+  version = "1.94.0";
   format = "pyproject";
 
   src = fetchFromGitHub {
     owner = "matrix-org";
     repo = "synapse";
     rev = "v${version}";
-    hash = "sha256-SOQp+mqADO+iwvKPA50IdxBvVzMiUUZ7f1hwXQYyopA=";
+    hash = "sha256-26w926IPkVJiPVMoJUYvIFQMv5Kc6bl7Ps1mZsZJ2Xs=";
   };
 
   cargoDeps = rustPlatform.fetchCargoTarball {
     inherit src;
     name = "${pname}-${version}";
-    hash = "sha256-vkM1U9L9PGDZFw64KAQyRQWtewRzXXWhk35m23x6o+8=";
+    hash = "sha256-xq6qPr7gfdIleV2znUdKftkOU8MB8j55m78TJR4C5Vs=";
   };
 
   postPatch = ''
@@ -41,6 +41,10 @@ python3.pkgs.buildPythonApplication rec {
     # be extra defensive, but we don't want to deal with updating this
     sed -i 's/"poetry-core>=\([0-9.]*\),<=[0-9.]*"/"poetry-core>=\1"/' pyproject.toml
     sed -i 's/"setuptools_rust>=\([0-9.]*\),<=[0-9.]*"/"setuptools_rust>=\1"/' pyproject.toml
+
+    # Don't force pillow to be 10.0.1 because we already have patched it, and
+    # we don't use the pillow wheels.
+    sed -i 's/Pillow = ".*"/Pillow = ">=5.4.0"/' pyproject.toml
   '';
 
   nativeBuildInputs = with python3.pkgs; [
@@ -157,7 +161,7 @@ python3.pkgs.buildPythonApplication rec {
   '';
 
   passthru = {
-    tests = { inherit (nixosTests) matrix-synapse; };
+    tests = { inherit (nixosTests) matrix-synapse matrix-synapse-workers; };
     inherit plugins tools;
     python = python3;
   };

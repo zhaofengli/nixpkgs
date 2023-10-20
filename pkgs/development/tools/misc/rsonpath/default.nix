@@ -1,30 +1,26 @@
 { lib
-, stdenv
 , rustPlatform
 , fetchFromGitHub
-, withSimd ? stdenv.isx86_64
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "rsonpath";
-  version = "0.7.0";
+  version = "0.8.3";
 
   src = fetchFromGitHub {
     owner = "v0ldek";
     repo = "rsonpath";
     rev = "v${version}";
-    hash = "sha256-VzHp5xMzAzo8ZCQyFCb1Igb0deJuZX+PIfs/oIy/zR0=";
+    hash = "sha256-gAoxWdczeaN4VqeQY0qJeLK8aABGhuwXf41QFKUxAG0=";
   };
 
-  cargoHash = "sha256-bnG95BgK41YJABqEGAbxg+gHoOksWc9nTChK7aCFK2E=";
-
-  buildNoDefaultFeatures = !withSimd;
+  cargoHash = "sha256-UXPVqc4RNIFKx0f/BPCfkJxilioXbRZSAgqQv1MzK7k=";
 
   cargoBuildFlags = [ "-p=rsonpath" ];
   cargoTestFlags = cargoBuildFlags;
 
   meta = with lib; {
-    description = "Blazing fast Rust JSONPath query engine";
+    description = "Experimental JSONPath engine for querying massive streamed datasets";
     homepage = "https://github.com/v0ldek/rsonpath";
     changelog = "https://github.com/v0ldek/rsonpath/blob/${src.rev}/CHANGELOG.md";
     license = licenses.mit;

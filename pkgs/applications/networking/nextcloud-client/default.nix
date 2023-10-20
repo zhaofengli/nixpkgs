@@ -25,7 +25,7 @@
 
 mkDerivation rec {
   pname = "nextcloud-client";
-  version = "3.9.3";
+  version = "3.10.0";
 
   outputs = [ "out" "dev" ];
 
@@ -33,7 +33,7 @@ mkDerivation rec {
     owner = "nextcloud";
     repo = "desktop";
     rev = "v${version}";
-    sha256 = "sha256-9DfQZ3AFyiUKwt8IqAgjQlQ2XJtwkLEtPM5+VH+x/6c=";
+    sha256 = "sha256-BNqMKL888DKuRiM537V7CBuCabg5YmGYGpWARtvs7go=";
   };
 
   patches = [
@@ -85,9 +85,6 @@ mkDerivation rec {
     "-DCMAKE_INSTALL_LIBDIR=lib" # expected to be prefix-relative by build code setting RPATH
     "-DNO_SHIBBOLETH=1" # allows to compile without qtwebkit
   ];
-
-  # causes redefinition of _FORTIFY_SOURCE
-  hardeningDisable = [ "fortify3" ];
 
   postBuild = ''
     make doc-man

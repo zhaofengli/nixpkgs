@@ -6,15 +6,15 @@
 
 buildGoModule {
   pname = "bloat";
-  version = "unstable-2022-12-17";
+  version = "unstable-2023-10-02";
 
   src = fetchgit {
     url = "git://git.freesoftwareextremist.com/bloat";
-    rev = "5147897c6c8ba3428ea6998f77241182ee8caa24";
-    sha256 = "sha256-/sSRzAAWO/KtXOD3lQsqaXc+lOuN7MJqbfASueLYBQk=";
+    rev = "b83a00aa2cdabfc20c162379c885caac0110e167";
+    hash = "sha256-E04XP3frzwaRNoc8HM96buODtGMs/nBJ7BDJD5VX40g=";
   };
 
-  vendorSha256 = null;
+  vendorHash = null;
 
   postInstall = ''
     mkdir -p $out/share/bloat

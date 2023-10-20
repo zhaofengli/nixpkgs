@@ -7,14 +7,12 @@ let
 
   efi = config.boot.loader.efi;
 
-  python3 = pkgs.python3.withPackages (ps: [ ps.packaging ]);
-
   systemdBootBuilder = pkgs.substituteAll {
     src = ./systemd-boot-builder.py;
 
     isExecutable = true;
 
-    inherit python3;
+    inherit (pkgs) python3;
 
     systemd = config.systemd.package;
 
@@ -52,7 +50,7 @@ let
   };
 
   checkedSystemdBootBuilder = pkgs.runCommand "systemd-boot" {
-    nativeBuildInputs = [ pkgs.mypy python3 ];
+    nativeBuildInputs = [ pkgs.mypy ];
   } ''
     install -m755 ${systemdBootBuilder} $out
     mypy \
@@ -147,7 +145,7 @@ in {
         default = false;
         type = types.bool;
         description = lib.mdDoc ''
-          Make MemTest86+ available from the systemd-boot menu. MemTest86+ is a
+          Make Memtest86+ available from the systemd-boot menu. Memtest86+ is a
           program for testing memory.
         '';
       };
@@ -191,7 +189,7 @@ in {
       default = {};
       example = literalExpression ''
         { "memtest86.conf" = '''
-          title MemTest86+
+          title Memtest86+
           efi /efi/memtest86/memtest.efi
         '''; }
       '';
@@ -285,7 +283,7 @@ in {
     boot.loader.systemd-boot.extraEntries = mkMerge [
       (mkIf cfg.memtest86.enable {
         "${cfg.memtest86.entryFilename}" = ''
-          title  MemTest86
+          title  Memtest86+
           efi    /efi/memtest86/memtest.efi
         '';
       })

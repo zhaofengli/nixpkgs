@@ -134,8 +134,8 @@ in
 
     system.nixos-generate-config.configuration = mkDefault ''
       # Edit this configuration file to define what should be installed on
-      # your system.  Help is available in the configuration.nix(5) man page
-      # and in the NixOS manual (accessible by running `nixos-help`).
+      # your system. Help is available in the configuration.nix(5) man page, on
+      # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
       { config, lib, pkgs, ... }:
 
@@ -163,15 +163,15 @@ in
         # console = {
         #   font = "Lat2-Terminus16";
         #   keyMap = "us";
-        #   useXkbConfig = true; # use xkbOptions in tty.
+        #   useXkbConfig = true; # use xkb.options in tty.
         # };
 
       $xserverConfig
 
       $desktopConfiguration
         # Configure keymap in X11
-        # services.xserver.layout = "us";
-        # services.xserver.xkbOptions = "eurosign:e,caps:escape";
+        # services.xserver.xkb.layout = "us";
+        # services.xserver.xkb.options = "eurosign:e,caps:escape";
 
         # Enable CUPS to print documents.
         # services.printing.enable = true;

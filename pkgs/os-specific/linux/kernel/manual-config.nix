@@ -1,5 +1,5 @@
 { lib, stdenv, buildPackages, runCommand, nettools, bc, bison, flex, perl, rsync, gmp, libmpc, mpfr, openssl
-, libelf, cpio, elfutils, zstd, python3Minimal, zlib, pahole
+, libelf, cpio, elfutils, zstd, python3Minimal, zlib, pahole, kmod
 , fetchpatch
 }:
 
@@ -117,7 +117,8 @@ let
           });
 
       postPatch = ''
-        sed -i Makefile -e 's|= depmod|= ${buildPackages.kmod}/bin/depmod|'
+        # Ensure that depmod gets resolved through PATH
+        sed -i Makefile -e 's|= /sbin/depmod|= depmod|'
 
         # fixup for pre-5.4 kernels using the $(cd $foo && /bin/pwd) pattern
         # FIXME: remove when no longer needed
@@ -271,7 +272,7 @@ let
         make modules_install $makeFlags "''${makeFlagsArray[@]}" \
           $installFlags "''${installFlagsArray[@]}"
         unlink $out/lib/modules/${modDirVersion}/build
-        unlink $out/lib/modules/${modDirVersion}/source
+        rm -f $out/lib/modules/${modDirVersion}/source
 
         mkdir -p $dev/lib/modules/${modDirVersion}/{build,source}
 
@@ -332,9 +333,6 @@ let
 
         # Delete empty directories
         find -empty -type d -delete
-
-        # Remove reference to kmod
-        sed -i Makefile -e 's|= ${buildPackages.kmod}/bin/depmod|= depmod|'
       '';
 
       requiredSystemFeatures = [ "big-parallel" ];
@@ -370,7 +368,7 @@ stdenv.mkDerivation ((drvAttrs config stdenv.hostPlatform.linux-kernel kernelPat
   enableParallelBuilding = true;
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
-  nativeBuildInputs = [ perl bc nettools openssl rsync gmp libmpc mpfr zstd python3Minimal ]
+  nativeBuildInputs = [ perl bc nettools openssl rsync gmp libmpc mpfr zstd python3Minimal kmod ]
       ++ optional  (stdenv.hostPlatform.linux-kernel.target == "uImage") buildPackages.ubootTools
       ++ optional  (lib.versionOlder version "5.8") libelf
       ++ optionals (lib.versionAtLeast version "4.16") [ bison flex ]
