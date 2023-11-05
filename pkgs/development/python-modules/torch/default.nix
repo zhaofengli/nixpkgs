@@ -95,8 +95,7 @@ let
 
     paths = with rocmPackages; [
       rocm-core clr rccl miopen miopengemm rocrand rocblas
-      rocsparse hipsparse rocthrust rocprim hipcub
-      roctracer # Unfree at the moment due to hsa-amd-aqlprofile hard dependency in rocprofiler
+      rocsparse hipsparse rocthrust rocprim hipcub roctracer
       rocfft rocsolver hipfft hipsolver hipblas
       rocminfo rocm-thunk rocm-comgr rocm-device-libs
       rocm-runtime clr.icd hipify
@@ -111,7 +110,7 @@ let
   brokenConditions = attrsets.filterAttrs (_: cond: cond) {
     "CUDA and ROCm are not mutually exclusive" = cudaSupport && rocmSupport;
     "CUDA is not targeting Linux" = cudaSupport && !stdenv.isLinux;
-    "Unsupported CUDA version" = cudaSupport && (cudaPackages.cudaMajorVersion != "11");
+    "Unsupported CUDA version" = cudaSupport && !(builtins.elem cudaPackages.cudaMajorVersion [ "11" "12" ]);
     "MPI cudatoolkit does not match cudaPackages.cudatoolkit" = MPISupport && cudaSupport && (mpi.cudatoolkit != cudaPackages.cudatoolkit);
     "Magma cudaPackages does not match cudaPackages" = cudaSupport && (magma.cudaPackages != cudaPackages);
   };
@@ -146,10 +145,8 @@ in buildPythonPackage rec {
     ./pthreadpool-disable-gcd.diff
   ] ++ lib.optionals stdenv.isLinux [
     # Propagate CUPTI to Kineto by overriding the search path with environment variables.
-    (fetchpatch {
-      url = "https://github.com/pytorch/pytorch/pull/108847/commits/7ae4d7c0e2dec358b4fe81538efe9da5eb580ec9.patch";
-      hash = "sha256-skFaDg98xcJqJfzxWk+qhUxPLHDStqvd0mec3PgksIg=";
-    })
+    # https://github.com/pytorch/pytorch/pull/108847
+    ./pytorch-pr-108847.patch
   ];
 
   postPatch = lib.optionalString rocmSupport ''

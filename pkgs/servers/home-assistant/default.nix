@@ -30,6 +30,16 @@ let
     # Override the version of some packages pinned in Home Assistant's setup.py and requirements_all.txt
 
     (self: super: {
+      aioairq = super.aioairq.overridePythonAttrs (oldAttrs: rec {
+        version = "0.2.4";
+        src = fetchFromGitHub {
+          owner = "CorantGmbH";
+          repo = "aioairq";
+          rev = "refs/tags/v${version}";
+          hash = "sha256-+5FyBfsB3kjyX/V9CdZ072mZ3THyvALyym+uk7/kZLo=";
+        };
+      });
+
       aiowatttime = super.aiowatttime.overridePythonAttrs (oldAttrs: rec {
         version = "0.1.1";
         src = fetchFromGitHub {
@@ -57,16 +67,6 @@ let
         ];
       });
 
-      dsmr-parser = super.dsmr-parser.overridePythonAttrs (oldAttrs: rec {
-        version = "0.33";
-        src = fetchFromGitHub {
-          owner = "ndokter";
-          repo = "dsmr_parser";
-          rev = "refs/tags/v${version}";
-          hash = "sha256-Phx8Yqx6beTzkQv0fU8Pfs2btPgKVARdO+nMcne1S+w=";
-        };
-      });
-
       geojson = super.geojson.overridePythonAttrs (oldAttrs: rec {
         version = "2.5.0";
         src = fetchFromGitHub {
@@ -87,12 +87,51 @@ let
         };
       });
 
+      holidays = super.holidays.overridePythonAttrs (oldAttrs: rec {
+        version = "0.28";
+        src = fetchFromGitHub {
+          owner = "dr-prodigy";
+          repo = "python-holidays";
+          rev = "refs/tags/v.${version}";
+          hash = "sha256-JHj7fSE8p3TLViDSegl6gm35u53D9NvN7Oa2TBjN9t4=";
+        };
+      });
+
+      intellifire4py = super.intellifire4py.overridePythonAttrs (oldAttrs: rec {
+        version = "2.2.2";
+        src = fetchFromGitHub {
+          owner = "jeeftor";
+          repo = "intellifire4py";
+          rev = "refs/tags/${version}";
+          hash = "sha256-iqlKfpnETLqQwy5sNcK2x/TgmuN2hCfYoHEFK2WWVXI=";
+        };
+        nativeBuildInputs = with super; [
+          setuptools
+        ];
+        propagatedBuildInputs = with super; [
+          aenum
+          aiohttp
+          pydantic
+        ];
+        doCheck = false; # requires asynctest, which does not work on python 3.11
+      });
+
       jaraco-abode = super.jaraco-abode.overridePythonAttrs (oldAttrs: rec {
         version = "3.3.0";
         src = fetchFromGitHub {
           inherit (oldAttrs.src) owner repo;
           rev = "refs/tags/v${version}";
           hash = "sha256-LnbWzIST+GMtdsHDKg67WWt9GmHUcSuGZ5Spei3nEio=";
+        };
+      });
+
+      justnimbus = super.justnimbus.overridePythonAttrs (oldAttrs: rec {
+        version = "0.6.0";
+        src = fetchFromGitHub {
+          owner = "kvanzuijlen";
+          repo = "justnimbus";
+          rev = "refs/tags/${version}";
+          hash = "sha256-uQ5Nc5sxqHeAuavyfX4Q6Umsd54aileJjFwOOU6X7Yg=";
         };
       });
 
@@ -183,6 +222,16 @@ let
         };
       });
 
+      pydexcom = super.pydexcom.overridePythonAttrs (oldAttrs: rec {
+        version = "0.2.3";
+        src = fetchFromGitHub {
+          owner = "gagebenne";
+          repo = "pydexcom";
+          rev = "refs/tags/${version}";
+          hash = "sha256-ItDGnUUUTwCz4ZJtFVlMYjjoBPn2h8QZgLzgnV2T/Qk=";
+        };
+      });
+
       pykaleidescape = super.pykaleidescape.overridePythonAttrs (oldAttrs: rec {
         version = "1.0.1";
         src = fetchFromGitHub {
@@ -192,12 +241,32 @@ let
         };
       });
 
+      pysnooz = super.pysnooz.overridePythonAttrs (oldAttrs: rec {
+        version = "0.8.6";
+        src = fetchFromGitHub {
+          owner = "AustinBrunkhorst";
+          repo = "pysnooz";
+          rev = "refs/tags/v${version}";
+          hash = "sha256-hJwIObiuFEAVhgZXYB9VCeAlewBBnk0oMkP83MUCpyU=";
+        };
+      });
+
       python-slugify = super.python-slugify.overridePythonAttrs (oldAttrs: rec {
         pname = "python-slugify";
         version = "4.0.1";
         src = fetchPypi {
           inherit pname version;
           hash = "sha256-aaUXdm4AwSaOW7/A0BCgqFCN4LGNMK1aH/NX+K5yQnA=";
+        };
+      });
+
+      python-tado = super.python-tado.overridePythonAttrs (oldAttrs: rec {
+        version = "0.15.0";
+        src = fetchFromGitHub {
+          owner = "wmalgadey";
+          repo = "PyTado";
+          rev = "refs/tags/${version}";
+          hash = "sha256-gduqQVw/a64aDzTHFmgZu7OVB53jZb7L5vofzL3Ho6s=";
         };
       });
 
@@ -296,7 +365,7 @@ let
   extraBuildInputs = extraPackages python.pkgs;
 
   # Don't forget to run parse-requirements.py after updating
-  hassVersion = "2023.10.1";
+  hassVersion = "2023.11.0";
 
 in python.pkgs.buildPythonApplication rec {
   pname = "homeassistant";
@@ -312,7 +381,7 @@ in python.pkgs.buildPythonApplication rec {
   # Primary source is the pypi sdist, because it contains translations
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-3VkV5DirOzLO9Qbo4s5of5Aie7JvSAN7hgHBTA8koAE=";
+    hash = "sha256-qLs098k/MUvmOl6/tB4SDU55V7KTZ0+T3RUoLH4AQ2Q=";
   };
 
   # Secondary source is git for tests
@@ -320,7 +389,7 @@ in python.pkgs.buildPythonApplication rec {
     owner = "home-assistant";
     repo = "core";
     rev = "refs/tags/${version}";
-    hash = "sha256-mzj4JJ81Wr5FO1lVVwHlgnS3olxzXzMw0lFYPbTf634=";
+    hash = "sha256-I5I/OcVE6nGO7LG3s2I1P/VUbPjPkUc7qj43z99tIRM=";
   };
 
   nativeBuildInputs = with python.pkgs; [

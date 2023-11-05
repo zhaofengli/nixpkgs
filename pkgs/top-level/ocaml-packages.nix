@@ -40,6 +40,8 @@ let
 
     arp = callPackage ../development/ocaml-modules/arp { };
 
+    asai = callPackage ../development/ocaml-modules/asai { };
+
     asetmap = callPackage ../development/ocaml-modules/asetmap { };
 
     asn1-combinators = callPackage ../development/ocaml-modules/asn1-combinators { };
@@ -740,7 +742,7 @@ let
       }
       else if lib.versionOlder "4.10.2" ocaml.version
       then import ../development/ocaml-modules/janestreet/0.15.nix {
-        inherit self;
+        inherit self ocaml;
         inherit (pkgs) bash fetchpatch fzf lib openssl zstd;
       }
       else if lib.versionOlder "4.08" ocaml.version
@@ -792,6 +794,7 @@ let
 
       janeStreet = import ../development/ocaml-modules/janestreet/0.15.nix {
         self = self' // jsDeps;
+        inherit ocaml;
         inherit (pkgs) bash fetchpatch fzf lib openssl zstd;
       };
 
@@ -1270,6 +1273,7 @@ let
     ocamlformat_0_24_1 = ocamlformat.override { version = "0.24.1"; };
     ocamlformat_0_25_1 = ocamlformat.override { version = "0.25.1"; };
     ocamlformat_0_26_0 = ocamlformat.override { version = "0.26.0"; };
+    ocamlformat_0_26_1 = ocamlformat.override { version = "0.26.1"; };
 
     ocamlformat = callPackage ../development/ocaml-modules/ocamlformat/ocamlformat.nix {};
 
