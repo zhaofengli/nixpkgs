@@ -36,13 +36,12 @@
 , openvdb
 , pcre
 , qhull
-, systemd
 , tbb_2021_8
 , webkitgtk
 , wxGTK31
 , xorg
 , fetchpatch
-, withSystemd ? stdenv.isLinux
+, withSystemd ? lib.meta.availableOn stdenv.hostPlatform systemd, systemd
 }:
 let
   wxGTK31' = wxGTK31.overrideAttrs (old: {
