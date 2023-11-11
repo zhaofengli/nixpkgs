@@ -34,7 +34,7 @@
 , pcre
 , qhull
 , systemd
-, tbb
+, tbb_2021_8
 , webkitgtk
 , wxGTK31
 , xorg
@@ -94,7 +94,7 @@ stdenv.mkDerivation rec {
     opencascade-occt
     openvdb
     pcre
-    tbb
+    tbb_2021_8
     webkitgtk
     wxGTK31'
     xorg.libX11
