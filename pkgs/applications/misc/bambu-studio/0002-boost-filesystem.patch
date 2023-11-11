@@ -1,0 +1,151 @@
+diff --git a/src/BambuStudio.cpp b/src/BambuStudio.cpp
+index c113db5a..f4617ba6 100644
+--- a/src/BambuStudio.cpp
++++ b/src/BambuStudio.cpp
+@@ -448,7 +448,7 @@ static int decode_png_to_thumbnail(std::string png_file, ThumbnailData& thumbnai
+     std::string png_buffer(size, '\0');
+     png_buffer.reserve(size);
+ 
+-    boost::filesystem::ifstream ifs(png_file, std::ios::binary);
++    boost::nowide::ifstream ifs(png_file, std::ios::binary);
+     ifs.read(png_buffer.data(), png_buffer.size());
+     ifs.close();
+ 
+diff --git a/src/libnest2d/tools/svgtools.hpp b/src/libnest2d/tools/svgtools.hpp
+index 2bf090b3..9d832d40 100644
+--- a/src/libnest2d/tools/svgtools.hpp
++++ b/src/libnest2d/tools/svgtools.hpp
+@@ -5,6 +5,7 @@
+ #include <fstream>
+ #include <string>
+ 
++#include <boost/nowide/fstream.hpp>
+ #include <boost/filesystem.hpp>
+ #include <libnest2d/nester.hpp>
+ 
+@@ -144,7 +145,7 @@ public:
+         size_t last = svg_layers_.size() > 1 ? svg_layers_.size() : 0;
+ 
+         for (auto &lyr : svg_layers_) {
+-            boost::filesystem::ofstream out(filepath, std::fstream::out);
++            boost::nowide::ofstream out(filepath, std::fstream::out);
+             if (out.is_open()) out << lyr;
+             if (lyrc == last && !finished_) out << "\n</svg>\n";
+             out.flush();
+diff --git a/src/libslic3r/Format/bbs_3mf.cpp b/src/libslic3r/Format/bbs_3mf.cpp
+index 69dd1e26..24e48d84 100644
+--- a/src/libslic3r/Format/bbs_3mf.cpp
++++ b/src/libslic3r/Format/bbs_3mf.cpp
+@@ -5720,7 +5720,7 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
+                     MD5_CTX       ctx;
+                     MD5_Init(&ctx);
+                     auto                        src_gcode_file = plate_data->gcode_file;
+-                    boost::filesystem::ifstream ifs(src_gcode_file, std::ios::binary);
++                    boost::nowide::ifstream ifs(src_gcode_file, std::ios::binary);
+                     std::string                 buf(64 * 1024, 0);
+                     const std::size_t &         size      = boost::filesystem::file_size(src_gcode_file);
+                     std::size_t                 left_size = size;
+@@ -7476,7 +7476,7 @@ bool _BBS_3MF_Exporter::_add_gcode_file_to_archive(mz_zip_archive& archive, cons
+                     BOOST_LOG_TRIVIAL(error) << "Gcode is missing, filename = " << src_gcode_file;
+                     result = false;
+                 }
+-                boost::filesystem::ifstream ifs(src_gcode_file, std::ios::binary);
++                boost::nowide::ifstream ifs(src_gcode_file, std::ios::binary);
+                 std::string buf(64 * 1024, 0);
+                 while (ifs) {
+                     ifs.read(buf.data(), buf.size());
+diff --git a/src/libslic3r/Preset.cpp b/src/libslic3r/Preset.cpp
+index 4584e569..95ae7e9c 100644
+--- a/src/libslic3r/Preset.cpp
++++ b/src/libslic3r/Preset.cpp
+@@ -136,7 +136,7 @@ ConfigFileType guess_config_file_type(const ptree &tree)
+ VendorProfile VendorProfile::from_ini(const boost::filesystem::path &path, bool load_all)
+ {
+     ptree tree;
+-    boost::filesystem::ifstream ifs(path);
++    boost::nowide::ifstream ifs(path);
+     boost::property_tree::read_ini(ifs, tree);
+     return VendorProfile::from_ini(tree, path, load_all);
+ }
+diff --git a/src/slic3r/GUI/PrintHostDialogs.cpp b/src/slic3r/GUI/PrintHostDialogs.cpp
+index 3be2f89c..3e3002a4 100644
+--- a/src/slic3r/GUI/PrintHostDialogs.cpp
++++ b/src/slic3r/GUI/PrintHostDialogs.cpp
+@@ -79,8 +79,9 @@ PrintHostSendDialog::PrintHostSendDialog(const fs::path &path, PrintHostPostUplo
+     
+     m_valid_suffix = recent_path.substr(recent_path.find_last_of('.'));
+     // .gcode suffix control
+-    auto validate_path = [this](const wxString &path) -> bool {
+-        if (! path.Lower().EndsWith(m_valid_suffix.Lower())) {
++
++    auto validate_path = [this](const std::wstring &path) -> bool {
++        if (! wxString(path).Lower().EndsWith(m_valid_suffix.Lower())) {
+             MessageDialog msg_wingow(this, wxString::Format(_L("Upload filename doesn't end with \"%s\". Do you wish to continue?"), m_valid_suffix), wxString(SLIC3R_APP_NAME), wxYES | wxNO);
+             if (msg_wingow.ShowModal() == wxID_NO)
+                 return false;
+@@ -90,7 +91,7 @@ PrintHostSendDialog::PrintHostSendDialog(const fs::path &path, PrintHostPostUplo
+ 
+     auto* btn_upload = add_button(wxID_YES, false, _L("Upload"));
+     btn_upload->Bind(wxEVT_BUTTON, [this, validate_path](wxCommandEvent&) {
+-        if (validate_path(txt_filename->GetValue())) {
++	if (validate_path(txt_filename->GetValue().ToStdWstring())) {
+             post_upload_action = PrintHostPostUploadAction::None;
+             EndDialog(wxID_OK);
+         }
+@@ -99,7 +100,7 @@ PrintHostSendDialog::PrintHostSendDialog(const fs::path &path, PrintHostPostUplo
+     if (post_actions.has(PrintHostPostUploadAction::StartPrint)) {
+         auto* btn_print = add_button(wxID_YES, false, _L("Print"));
+         btn_print->Bind(wxEVT_BUTTON, [this, validate_path](wxCommandEvent&) {
+-            if (validate_path(txt_filename->GetValue())) {
++	    if (validate_path(txt_filename->GetValue().ToStdWstring())) {
+                 post_upload_action = PrintHostPostUploadAction::StartPrint;
+                 EndDialog(wxID_OK);
+             }
+@@ -110,7 +111,7 @@ PrintHostSendDialog::PrintHostSendDialog(const fs::path &path, PrintHostPostUplo
+         // Using wxID_MORE as a button identifier to be different from the other buttons, wxID_MORE has no other meaning here.
+         auto* btn_simulate = add_button(wxID_MORE, false, _L("Simulate"));
+         btn_simulate->Bind(wxEVT_BUTTON, [this, validate_path](wxCommandEvent&) {
+-            if (validate_path(txt_filename->GetValue())) {
++	    if (validate_path(txt_filename->GetValue().ToStdWstring())) {
+                 post_upload_action = PrintHostPostUploadAction::StartSimulation;
+                 EndDialog(wxID_OK);
+             }        
+@@ -142,7 +143,7 @@ PrintHostSendDialog::PrintHostSendDialog(const fs::path &path, PrintHostPostUplo
+ 
+ fs::path PrintHostSendDialog::filename() const
+ {
+-    return into_path(txt_filename->GetValue());
++    return into_path(txt_filename->GetValue().ToStdWstring());
+ }
+ 
+ PrintHostPostUploadAction PrintHostSendDialog::post_action() const
+@@ -164,7 +165,7 @@ void PrintHostSendDialog::EndModal(int ret)
+ {
+     if (ret == wxID_OK) {
+         // Persist path and print settings
+-        wxString path = txt_filename->GetValue();
++        wxString path = txt_filename->GetValue().ToStdWstring();
+         int last_slash = path.Find('/', true);
+ 		if (last_slash == wxNOT_FOUND)
+ 			path.clear();
+diff --git a/src/slic3r/GUI/Printer/PrinterFileSystem.cpp b/src/slic3r/GUI/Printer/PrinterFileSystem.cpp
+index ee6a0637..273b6eba 100644
+--- a/src/slic3r/GUI/Printer/PrinterFileSystem.cpp
++++ b/src/slic3r/GUI/Printer/PrinterFileSystem.cpp
+@@ -7,6 +7,7 @@
+ #include "../../Utils/NetworkAgent.hpp"
+ #include "../BitmapCache.hpp"
+ 
++#include <boost/nowide/fstream.hpp>
+ #include <boost/algorithm/hex.hpp>
+ #include <boost/uuid/detail/md5.hpp>
+ #include <boost/regex.hpp>
+@@ -234,7 +235,7 @@ struct PrinterFileSystem::Download : Progress
+     std::string                 path;
+     std::string                 local_path;
+     std::string                 error;
+-    boost::filesystem::ofstream ofs;
++    boost::nowide::ofstream ofs;
+     boost::uuids::detail::md5   boost_md5;
+ };
+ 

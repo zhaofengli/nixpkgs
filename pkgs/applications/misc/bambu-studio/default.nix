@@ -110,6 +110,8 @@ stdenv.mkDerivation rec {
   patches = [
     # Fix for webkitgtk linking
     ./0001-not-for-upstream-CMakeLists-Link-against-webkit2gtk-.patch
+    # gentoo inspired boost workaround
+    ./0002-boost-filesystem.patch
   ];
 
   doCheck = true;
