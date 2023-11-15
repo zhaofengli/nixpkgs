@@ -564,6 +564,7 @@
   ./services/home-automation/home-assistant.nix
   ./services/home-automation/homeassistant-satellite.nix
   ./services/home-automation/zigbee2mqtt.nix
+  ./services/home-automation/zwave-js.nix
   ./services/logging/SystemdJournal2Gelf.nix
   ./services/logging/awstats.nix
   ./services/logging/filebeat.nix
@@ -1040,7 +1041,6 @@
   ./services/networking/powerdns.nix
   ./services/networking/pppd.nix
   ./services/networking/pptpd.nix
-  ./services/networking/prayer.nix
   ./services/networking/privoxy.nix
   ./services/networking/prosody.nix
   ./services/networking/quassel.nix

@@ -48,7 +48,10 @@
 
 let
   inherit (lib) attrsets lists strings trivial;
-  inherit (cudaPackages) cudaFlags cudnn nccl;
+  inherit (cudaPackages) cudaFlags cudnn;
+
+  # Some packages are not available on all platforms
+  nccl = cudaPackages.nccl or null;
 
   setBool = v: if v then "1" else "0";
 
@@ -178,6 +181,13 @@ in buildPythonPackage rec {
         'message(FATAL_ERROR "Found NCCL header version and library version' \
         'message(WARNING "Found NCCL header version and library version'
   ''
+  # TODO(@connorbaker): Remove this patch after 2.1.0 lands.
+  + lib.optionalString cudaSupport ''
+    substituteInPlace torch/utils/cpp_extension.py \
+      --replace \
+        "'8.6', '8.9'" \
+        "'8.6', '8.7', '8.9'"
+  ''
   # error: no member named 'aligned_alloc' in the global namespace; did you mean simply 'aligned_alloc'
   # This lib overrided aligned_alloc hence the error message. Tltr: his function is linkable but not in header.
   + lib.optionalString (stdenv.isDarwin && lib.versionOlder stdenv.targetPlatform.darwinSdkVersion "11.0") ''
@@ -228,7 +238,7 @@ in buildPythonPackage rec {
 
   preBuild = ''
     export MAX_JOBS=$NIX_BUILD_CORES
-    ${python.pythonForBuild.interpreter} setup.py build --cmake-only
+    ${python.pythonOnBuildForHost.interpreter} setup.py build --cmake-only
     ${cmake}/bin/cmake build
   '';
 
@@ -253,6 +263,7 @@ in buildPythonPackage rec {
   PYTORCH_BUILD_VERSION = version;
   PYTORCH_BUILD_NUMBER = 0;
 
+  USE_NCCL = setBool (nccl != null);
   USE_SYSTEM_NCCL = setBool useSystemNccl;                  # don't build pytorch's third_party NCCL
   USE_STATIC_NCCL = setBool useSystemNccl;
 
@@ -291,7 +302,7 @@ in buildPythonPackage rec {
   ])
   ++ lib.optionals rocmSupport [ rocmtoolkit_joined ];
 
-  buildInputs = [ blas blas.provider pybind11 ]
+  buildInputs = [ blas blas.provider ]
     ++ lib.optionals stdenv.isLinux [ linuxHeaders_5_19 ] # TMP: avoid "flexible array member" errors for now
     ++ lib.optionals cudaSupport (with cudaPackages; [
       cuda_cccl.dev # <thrust/*>
@@ -316,6 +327,8 @@ in buildPythonPackage rec {
       libcusolver.lib
       libcusparse.dev
       libcusparse.lib
+    ] ++ lists.optionals (nccl != null) [
+      # Some platforms do not support NCCL (i.e., Jetson)
       nccl.dev # Provides nccl.h AND a static copy of NCCL!
     ] ++ lists.optionals (strings.versionOlder cudaVersion "11.8") [
       cuda_nvprof.dev # <cuda_profiler_api.h>
@@ -342,17 +355,15 @@ in buildPythonPackage rec {
 
     # the following are required for tensorboard support
     pillow six future tensorboard protobuf
+
+    # ROCm build and `torch.compile` requires openai-triton
+    openai-triton
+
+    # torch/csrc requires `pybind11` at runtime
+    pybind11
   ]
   ++ lib.optionals MPISupport [ mpi ]
-  ++ lib.optionals rocmSupport [ rocmtoolkit_joined ]
-  # rocm build requires openai-triton;
-  # openai-triton currently requires cuda_nvcc,
-  # so not including it in the cpu-only build;
-  # torch.compile relies on openai-triton,
-  # so we include it for the cuda build as well
-  ++ lib.optionals (rocmSupport || cudaSupport) [
-    openai-triton
-  ];
+  ++ lib.optionals rocmSupport [ rocmtoolkit_joined ];
 
   # Tests take a long time and may be flaky, so just sanity-check imports
   doCheck = false;

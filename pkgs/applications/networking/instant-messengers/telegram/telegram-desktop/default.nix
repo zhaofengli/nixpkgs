@@ -53,7 +53,6 @@
 , libthai
 , libdatrie
 , xdg-utils
-, xorg
 , libsysprof-capture
 , libpsl
 , brotli
@@ -104,14 +103,14 @@ let
 in
 stdenv.mkDerivation rec {
   pname = "telegram-desktop";
-  version = "4.11.3";
+  version = "4.11.6";
 
   src = fetchFromGitHub {
     owner = "telegramdesktop";
     repo = "tdesktop";
     rev = "v${version}";
     fetchSubmodules = true;
-    hash = "sha256-Xjb8um3TA2yIPrCdEV1BJ10keyAqTnlU20ZZ0T3P3ls=";
+    hash = "sha256-GV5jaC1chm4cq097/aP18Z4QemTO4tt8SBrdxCQYaS8=";
   };
 
   patches = [
@@ -217,7 +216,6 @@ stdenv.mkDerivation rec {
     wrapProgram $out/bin/telegram-desktop \
       "''${gappsWrapperArgs[@]}" \
       "''${qtWrapperArgs[@]}" \
-      --prefix LD_LIBRARY_PATH : "${xorg.libXcursor}/lib" \
       --suffix PATH : ${lib.makeBinPath [ xdg-utils ]}
   '';
 
