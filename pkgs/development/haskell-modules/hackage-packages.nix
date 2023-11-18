@@ -96497,6 +96497,7 @@ self: {
        ];
        description = "Static site generator library with hot reload";
        license = lib.licenses.agpl3Only;
+       maintainers = [ lib.maintainers.srid ];
      }) {};
 
   "ema-extra" = callPackage
@@ -96822,6 +96823,7 @@ self: {
        badPlatforms = [ "x86_64-darwin" ];
        hydraPlatforms = lib.platforms.none;
        mainProgram = "emanote";
+       maintainers = [ lib.maintainers.srid ];
      }) {};
 
   "embed-config" = callPackage
