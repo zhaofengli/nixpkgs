@@ -8,7 +8,7 @@
 , cmake
 , pkg-config
 , wrapGAppsHook
-, boost
+, boost179
 , cereal
 , cgal_5
 , curl
@@ -51,7 +51,7 @@ let
     ];
   });
   openvdb_tbb_2021_8 = openvdb.overrideAttrs (old: rec {
-    buildInputs = [ openexr boost tbb_2021_8 jemalloc c-blosc ilmbase ];
+    buildInputs = [ openexr boost179 tbb_2021_8 jemalloc c-blosc ilmbase ];
   });
 in
 stdenv.mkDerivation rec {
@@ -73,7 +73,7 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     binutils
-    boost
+    boost179
     cereal
     cgal_5
     curl
