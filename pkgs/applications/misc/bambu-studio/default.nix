@@ -56,13 +56,13 @@ let
 in
 stdenv.mkDerivation rec {
   pname = "bambu-studio";
-  version = "01.08.00.57";
+  version = "01.08.00.62";
 
   src = fetchFromGitHub {
     owner = "bambulab";
     repo = "BambuStudio";
     rev = "v${version}";
-    hash = "sha256-yqn6248kdsxnVBevOca3LKZKicBF8cU+e/G5ynZK86k=";
+    hash = "sha256-Rb8YNf+ZQ8+9jAP/ZLze0PfY/liE7Rr2bJX33AENsbg=";
   };
 
   nativeBuildInputs = [
