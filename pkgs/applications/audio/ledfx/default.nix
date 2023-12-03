@@ -5,12 +5,12 @@
 
 python3.pkgs.buildPythonPackage rec {
   pname = "ledfx";
-  version = "2.0.69";
-  format = "setuptools";
+  version = "2.0.80";
+  pyproject= true;
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-gkO6XYiPMkU/zRLvc0yd3jJXVcAgAkR1W1ELTSN461o=";
+    hash = "sha256-vwLk3EpXqUSAwzY2oX0ZpXrmH2cT0GdYdL/Mifav6mU=";
   };
 
   postPatch = ''
@@ -19,6 +19,10 @@ python3.pkgs.buildPythonPackage rec {
       --replace '"sentry-sdk==1.14.0",' "" \
       --replace "~=" ">="
   '';
+
+  nativeBuildInputs = with python3.pkgs; [
+    poetry-core
+  ];
 
   propagatedBuildInputs = with python3.pkgs; [
     aiohttp

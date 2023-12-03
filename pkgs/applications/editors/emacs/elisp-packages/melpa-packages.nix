@@ -281,6 +281,20 @@ let
           packageRequires = [ self.haskell-mode ];
         });
 
+        hotfuzz = super.hotfuzz.overrideAttrs (old: {
+          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.cmake ];
+
+          dontUseCmakeBuildDir = true;
+
+          preBuild = ''
+            make -j$NIX_BUILD_CORES
+          '';
+
+          postInstall = (old.postInstall or "") + "\n" + ''
+            install source/hotfuzz-module.so $out/share/emacs/site-lisp/elpa/hotfuzz-*
+          '';
+        });
+
         irony = super.irony.overrideAttrs (old: {
           cmakeFlags = old.cmakeFlags or [ ] ++ [ "-DCMAKE_INSTALL_BINDIR=bin" ];
           env.NIX_CFLAGS_COMPILE = "-UCLANG_RESOURCE_DIR";
@@ -315,7 +329,7 @@ let
         ivy-rtags = fix-rtags super.ivy-rtags;
 
         jinx = super.jinx.overrideAttrs (old: let
-          libExt = pkgs.stdenv.targetPlatform.extensions.sharedLibrary;
+          libExt = pkgs.stdenv.hostPlatform.extensions.sharedLibrary;
         in {
           nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [
             pkgs.pkg-config

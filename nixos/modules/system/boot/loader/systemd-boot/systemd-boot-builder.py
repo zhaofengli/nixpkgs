@@ -88,9 +88,20 @@ def write_loader_conf(profile: str | None, generation: int, specialisation: str 
 
 
 def get_bootspec(profile: str | None, generation: int) -> BootSpec:
-    boot_json_path = os.path.realpath("%s/%s" % (system_dir(profile, generation, None), "boot.json"))
-    boot_json_f = open(boot_json_path, 'r')
-    bootspec_json = json.load(boot_json_f)
+    system_directory = system_dir(profile, generation, None)
+    boot_json_path = os.path.realpath("%s/%s" % (system_directory, "boot.json"))
+    if os.path.isfile(boot_json_path):
+        boot_json_f = open(boot_json_path, 'r')
+        bootspec_json = json.load(boot_json_f)
+    else:
+        boot_json_str = subprocess.check_output([
+        "@bootspecTools@/bin/synthesize",
+        "--version",
+        "1",
+        system_directory,
+        "/dev/stdout"],
+        universal_newlines=True)
+        bootspec_json = json.loads(boot_json_str)
     return bootspec_from_json(bootspec_json)
 
 def bootspec_from_json(bootspec_json: Dict) -> BootSpec:
@@ -266,7 +277,7 @@ def install_bootloader(args: argparse.Namespace) -> None:
 
         if installed_version < available_version:
             print("updating systemd-boot from %s to %s" % (installed_version, available_version))
-            subprocess.check_call(["@systemd@/bin/bootctl", "--esp-path=@efiSysMountPoint@", "update"])
+            subprocess.check_call(["@systemd@/bin/bootctl", "--esp-path=@efiSysMountPoint@"] + bootctl_flags + ["update"])
 
     os.makedirs("@efiSysMountPoint@/efi/nixos", exist_ok=True)
     os.makedirs("@efiSysMountPoint@/loader/entries", exist_ok=True)

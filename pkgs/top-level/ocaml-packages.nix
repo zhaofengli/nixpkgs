@@ -806,7 +806,7 @@ let
         lwt_ppx = self.lwt_ppx.override { inherit ppxlib; };
         sedlex = self.sedlex.override { inherit ppxlib ppx_expect; };
         in callPackage ../development/ocaml-modules/bap {
-          inherit (pkgs.llvmPackages) llvm;
+          inherit (pkgs.llvmPackages_14) llvm;
           ezjsonm = self.ezjsonm.override { inherit sexplib0; };
           ppx_bitstring = self.ppx_bitstring.override { inherit ppxlib; };
           ocurl = self.ocurl.override { inherit lwt_ppx; };
@@ -1895,6 +1895,8 @@ let
     zelus = callPackage ../development/ocaml-modules/zelus { };
 
     zelus-gtk = callPackage ../development/ocaml-modules/zelus-gtk { };
+
+    zipc = callPackage ../development/ocaml-modules/zipc { };
 
     zmq = callPackage ../development/ocaml-modules/zmq { };
 

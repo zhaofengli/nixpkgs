@@ -117,6 +117,7 @@ in {
   allTerminfo = handleTest ./all-terminfo.nix {};
   alps = handleTest ./alps.nix {};
   amazon-init-shell = handleTest ./amazon-init-shell.nix {};
+  amazon-ssm-agent = handleTest ./amazon-ssm-agent.nix {};
   amd-sev = runTest ./amd-sev.nix;
   anbox = runTest ./anbox.nix;
   anuko-time-tracker = handleTest ./anuko-time-tracker.nix {};
@@ -173,6 +174,7 @@ in {
   cassandra_3_0 = handleTest ./cassandra.nix { testPackage = pkgs.cassandra_3_0; };
   cassandra_3_11 = handleTest ./cassandra.nix { testPackage = pkgs.cassandra_3_11; };
   cassandra_4 = handleTest ./cassandra.nix { testPackage = pkgs.cassandra_4; };
+  centrifugo = runTest ./centrifugo.nix;
   ceph-multi-node = handleTestOn [ "aarch64-linux" "x86_64-linux" ] ./ceph-multi-node.nix {};
   ceph-single-node = handleTestOn [ "aarch64-linux" "x86_64-linux" ] ./ceph-single-node.nix {};
   ceph-single-node-bluestore = handleTestOn [ "aarch64-linux" "x86_64-linux" ] ./ceph-single-node-bluestore.nix {};
@@ -192,7 +194,6 @@ in {
   cntr = handleTestOn ["aarch64-linux" "x86_64-linux"] ./cntr.nix {};
   cockpit = handleTest ./cockpit.nix {};
   cockroachdb = handleTestOn ["x86_64-linux"] ./cockroachdb.nix {};
-  code-server = handleTest ./code-server.nix {};
   coder = handleTest ./coder.nix {};
   collectd = handleTest ./collectd.nix {};
   connman = handleTest ./connman.nix {};
@@ -320,6 +321,7 @@ in {
   mimir = handleTest ./mimir.nix {};
   garage = handleTest ./garage {};
   gemstash = handleTest ./gemstash.nix {};
+  geoserver = runTest ./geoserver.nix;
   gerrit = handleTest ./gerrit.nix {};
   geth = handleTest ./geth.nix {};
   ghostunnel = handleTest ./ghostunnel.nix {};
@@ -331,6 +333,7 @@ in {
   gitolite-fcgiwrap = handleTest ./gitolite-fcgiwrap.nix {};
   glusterfs = handleTest ./glusterfs.nix {};
   gnome = handleTest ./gnome.nix {};
+  gnome-extensions = handleTest ./gnome-extensions.nix {};
   gnome-flashback = handleTest ./gnome-flashback.nix {};
   gnome-xorg = handleTest ./gnome-xorg.nix {};
   gnupg = handleTest ./gnupg.nix {};
@@ -617,6 +620,7 @@ in {
   openstack-image-userdata = (handleTestOn ["x86_64-linux"] ./openstack-image.nix {}).userdata or {};
   opentabletdriver = handleTest ./opentabletdriver.nix {};
   opentelemetry-collector = handleTest ./opentelemetry-collector.nix {};
+  ocsinventory-agent = handleTestOn [ "x86_64-linux" "aarch64-linux" ] ./ocsinventory-agent.nix {};
   owncast = handleTest ./owncast.nix {};
   outline = handleTest ./outline.nix {};
   image-contents = handleTest ./image-contents.nix {};
@@ -739,6 +743,7 @@ in {
   sddm = handleTest ./sddm.nix {};
   seafile = handleTest ./seafile.nix {};
   searx = handleTest ./searx.nix {};
+  seatd = handleTest ./seatd.nix {};
   service-runner = handleTest ./service-runner.nix {};
   sftpgo = runTest ./sftpgo.nix;
   sfxr-qt = handleTest ./sfxr-qt.nix {};
@@ -750,6 +755,7 @@ in {
   signal-desktop = handleTest ./signal-desktop.nix {};
   simple = handleTest ./simple.nix {};
   sing-box = handleTest ./sing-box.nix {};
+  slimserver = handleTest ./slimserver.nix {};
   slurm = handleTest ./slurm.nix {};
   smokeping = handleTest ./smokeping.nix {};
   snapcast = handleTest ./snapcast.nix {};
@@ -760,6 +766,7 @@ in {
   sogo = handleTest ./sogo.nix {};
   solanum = handleTest ./solanum.nix {};
   sonarr = handleTest ./sonarr.nix {};
+  sonic-server = handleTest ./sonic-server.nix {};
   sourcehut = handleTest ./sourcehut.nix {};
   spacecookie = handleTest ./spacecookie.nix {};
   spark = handleTestOn [ "x86_64-linux" "aarch64-linux" ] ./spark {};
@@ -806,6 +813,7 @@ in {
   systemd-initrd-luks-empty-passphrase = handleTest ./initrd-luks-empty-passphrase.nix { systemdStage1 = true; };
   systemd-initrd-luks-password = handleTest ./systemd-initrd-luks-password.nix {};
   systemd-initrd-luks-tpm2 = handleTest ./systemd-initrd-luks-tpm2.nix {};
+  systemd-initrd-luks-unl0kr = handleTest ./systemd-initrd-luks-unl0kr.nix {};
   systemd-initrd-modprobe = handleTest ./systemd-initrd-modprobe.nix {};
   systemd-initrd-shutdown = handleTest ./systemd-shutdown.nix { systemdStage1 = true; };
   systemd-initrd-simple = handleTest ./systemd-initrd-simple.nix {};
@@ -922,6 +930,7 @@ in {
   xmonad-xdg-autostart = handleTest ./xmonad-xdg-autostart.nix {};
   xpadneo = handleTest ./xpadneo.nix {};
   xrdp = handleTest ./xrdp.nix {};
+  xscreensaver = handleTest ./xscreensaver.nix {};
   xss-lock = handleTest ./xss-lock.nix {};
   xterm = handleTest ./xterm.nix {};
   xxh = handleTest ./xxh.nix {};

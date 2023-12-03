@@ -131,7 +131,7 @@ stdenv.mkDerivation rec {
   shared = if stdenv.isDarwin then "dylib" else "shared";
   configureFlags = [ "--enable-${shared}"  "--enable-lt=${libtool}/bin/libtool" ]
                    ++ lib.optionals disableDocs [ "--disable-docs" ]
-                   ++ lib.optionals stdenv.isDarwin [ "--enable-xonx" ];
+                   ++ lib.optionals stdenv.isDarwin [ "--disable-strip" "--enable-xonx" ];
 
   configureScript = "../configure";
 
@@ -151,7 +151,7 @@ stdenv.mkDerivation rec {
     homepage = "https://racket-lang.org/";
     changelog = "https://github.com/racket/racket/releases/tag/v${version}";
     license = with licenses; [ asl20 /* or */ mit ];
-    maintainers = with maintainers; [ henrytill vrthra ];
+    maintainers = with maintainers; [ vrthra ];
     platforms = [ "x86_64-darwin" "x86_64-linux" "aarch64-linux" "aarch64-darwin" ];
   };
 }

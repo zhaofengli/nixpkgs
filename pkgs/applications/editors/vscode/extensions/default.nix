@@ -20,6 +20,7 @@
 , millet
 , shfmt
 , typst-lsp
+, typst-preview
 , autoPatchelfHook
 , zlib
 , stdenv
@@ -275,8 +276,8 @@ let
         mktplcRef = {
           name = "nix-env-selector";
           publisher = "arrterian";
-          version = "1.0.9";
-          sha256 = "sha256-TkxqWZ8X+PAonzeXQ+sI9WI+XlqUHll7YyM7N9uErk0=";
+          version = "1.0.10";
+          sha256 = "sha256-b3Sr0bwU2VJgl2qcdsUROZ3jnK+YUuzJMySvSD7goj8=";
         };
         meta = {
           license = lib.licenses.mit;
@@ -617,10 +618,14 @@ let
         mktplcRef = {
           name = "vscode-tailwindcss";
           publisher = "bradlc";
-          version = "0.9.9";
-          sha256 = "sha256-QyB6DtKe9KH2UizLZQfP4YlHz2yF8H9Ehj+M+OdIYe4=";
+          version = "0.11.30";
+          sha256 = "sha256-1CxyvQu7WQJw87sTcpnILztt1WeSpWOgij0dEIXebPU=";
         };
         meta = {
+          changelog = "https://marketplace.visualstudio.com/items/bradlc.vscode-tailwindcss/changelog";
+          description = "Tailwind CSS tooling for Visual Studio Code";
+          downloadPage = "https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss";
+          homepage = "https://github.com/tailwindlabs/tailwindcss-intellisense";
           license = lib.licenses.mit;
         };
       };
@@ -1688,10 +1693,14 @@ let
         mktplcRef = {
           name = "Go";
           publisher = "golang";
-          version = "0.38.0";
-          sha256 = "sha256-wOWouVz4mE4BzmgQOLQyVWsMadMqeUkFWHnruxStU0Q=";
+          version = "0.40.0";
+          sha256 = "sha256-otAq6ul2l64zpRJdekCb7XZiE2vgpLUfM4NUdRPZX8w=";
         };
         meta = {
+          changelog = "https://marketplace.visualstudio.com/items/golang.Go/changelog";
+          description = "Go extension for Visual Studio Code";
+          downloadPage = "https://marketplace.visualstudio.com/items?itemName=golang.Go";
+          homepage = "https://github.com/golang/vscode-go";
           license = lib.licenses.mit;
         };
       };
@@ -2297,37 +2306,26 @@ let
         };
       };
 
+      # Keep pkgs/tools/typesetting/typst-preview/default.nix in sync with this
+      # extension
       mgt19937.typst-preview = buildVscodeMarketplaceExtension {
-        mktplcRef =
-        let
-          sources = {
-            "x86_64-linux" = {
-              arch = "linux-x64";
-              sha256 = "sha256-O8sFv23tlhJS6N8LRKkHcTJTupZejCLDRdVVCdDlWbA=";
-            };
-            "x86_64-darwin" = {
-              arch = "darwin-x64";
-              sha256 = "1npzjch67agswh3nm14dbbsx777daq2rdw1yny10jf3858z2qynr";
-            };
-            "aarch64-linux" = {
-              arch = "linux-arm64";
-              sha256 = "1vv1jfgnyjbmshh4w6rf496d9dpdsk3f0049ii4d9vi23igk4xpk";
-            };
-            "aarch64-darwin" = {
-              arch = "darwin-arm64";
-              sha256 = "0dfchzqm61kddq20zvp1pcpk1625b9wgj32ymc08piq06pbadk29";
-            };
-          };
-        in
-        {
+        mktplcRef = {
           name = "typst-preview";
           publisher = "mgt19937";
-          version = "0.6.1";
-        } // sources.${stdenv.system};
+          version = "0.9.2";
+          sha256 = "sha256-/2ZD5LOQ1vTIKab2qX+5AqNqaRs90MNz1jUMDaV1wUY=";
+        };
 
-        nativeBuildInputs = lib.optionals stdenv.isLinux [ autoPatchelfHook ];
+        buildInputs = [
+          typst-preview
+        ];
 
-        buildInputs = lib.optionals stdenv.isLinux [ stdenv.cc.cc.lib ];
+        nativeBuildInputs = [ jq moreutils ];
+
+        postInstall = ''
+          cd "$out/$installPrefix"
+          jq '.contributes.configuration.properties."typst-preview.executable".default = "${lib.getExe typst-preview}"' package.json | sponge package.json
+        '';
 
         meta = {
           description = "Typst Preview is an extension for previewing your Typst files in vscode instantly";
@@ -2745,7 +2743,6 @@ let
         };
       };
 
-
       nvarner.typst-lsp = buildVscodeMarketplaceExtension {
         mktplcRef = {
           name = "typst-lsp";
@@ -2758,9 +2755,13 @@ let
 
         nativeBuildInputs = [ jq moreutils ];
 
+        buildInputs = [
+          typst-lsp
+        ];
+
         postInstall = ''
           cd "$out/$installPrefix"
-          jq '.contributes.configuration.properties."typst-lsp.serverPath".default = "${typst-lsp}/bin/typst-lsp"' package.json | sponge package.json
+          jq '.contributes.configuration.properties."typst-lsp.serverPath".default = "${lib.getExe typst-lsp}"' package.json | sponge package.json
         '';
 
         meta = {
@@ -3554,15 +3555,15 @@ let
         mktplcRef = {
           name = "uiua-vscode";
           publisher = "uiua-lang";
-          version = "0.0.23";
-          sha256 = "sha256-NauXoYTAka8qXNPYlW5g7r6NNX1x8cnvDRbEGkRsMoY=";
+          version = "0.0.24";
+          sha256 = "sha256-/MLeBsnUdzcDB4nUrugEF05HKqC30G9muYKvmlnLM7U=";
         };
         meta = {
           description = "VSCode language extension for Uiua";
           downloadPage = "https://marketplace.visualstudio.com/items?itemName=uiua-lang.uiua-vscode";
           homepage = "https://github.com/uiua-lang/uiua-vscode";
           license = lib.licenses.mit;
-          maintainers = with lib.maintainers; [ tomasajt wackbyte ];
+          maintainers = with lib.maintainers; [ tomasajt wackbyte defelo ];
         };
       };
 

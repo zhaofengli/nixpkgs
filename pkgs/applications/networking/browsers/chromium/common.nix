@@ -253,6 +253,20 @@ let
         hash = "sha256-Vryjg8kyn3cxWg3PmSwYRG6zrHOqYWBMSdEMGiaPg6M=";
         revert = true;
       })
+    ] ++ lib.optionals (!chromiumVersionAtLeast "119.0.6024.0") [
+      # Fix build with at-spi2-core ≥ 2.49
+      # This version is still needed for electron.
+      (githubPatch {
+        commit = "fc09363b2278893790d131c72a4ed96ec9837624";
+        hash = "sha256-l60Npgs/+0ozzuKWjwiHUUV6z59ObUjAPTfXN7eXpzw=";
+      })
+    ] ++ lib.optionals (!chromiumVersionAtLeast "121.0.6104.0") [
+      # Fix build with at-spi2-core ≥ 2.49
+      # https://chromium-review.googlesource.com/c/chromium/src/+/5001687
+      (githubPatch {
+        commit = "b9bef8e9555645fc91fab705bec697214a39dbc1";
+        hash = "sha256-CJ1v/qc8+nwaHQR9xsx08EEcuVRbyBfCZCm/G7hRY+4=";
+      })
     ];
 
     postPatch = ''
@@ -475,11 +489,11 @@ let
     '';
 
     postFixup = ''
-      # Make sure that libGLESv2 and libvulkan are found by dlopen.
+      # Make sure that libGLESv2 and libvulkan are found by dlopen in both chromium binary and ANGLE libGLESv2.so.
       # libpci (from pciutils) is needed by dlopen in angle/src/gpu_info_util/SystemInfo_libpci.cpp
-      chromiumBinary="$libExecPath/$packageName"
-      origRpath="$(patchelf --print-rpath "$chromiumBinary")"
-      patchelf --set-rpath "${lib.makeLibraryPath [ libGL vulkan-loader pciutils ]}:$origRpath" "$chromiumBinary"
+      for chromiumBinary in "$libExecPath/$packageName" "$libExecPath/libGLESv2.so"; do
+        patchelf --set-rpath "${lib.makeLibraryPath [ libGL vulkan-loader pciutils ]}:$(patchelf --print-rpath "$chromiumBinary")" "$chromiumBinary"
+      done
     '';
 
     passthru = {

@@ -219,7 +219,6 @@ with lib.maintainers; {
       cole-h
       grahamc
       hoverbear
-      lheckemann
     ];
     scope = "Group registration for packages maintained by Determinate Systems.";
     shortName = "Determinate Systems employees";
@@ -323,6 +322,7 @@ with lib.maintainers; {
 
   geospatial = {
     members = [
+      das-g
       imincik
       nh2
       sikmir
@@ -398,6 +398,7 @@ with lib.maintainers; {
       cdepillabout
       expipiplus1
       maralorn
+      ncfavier
       sternenseemann
     ];
     githubTeams = [
@@ -677,18 +678,6 @@ with lib.maintainers; {
     enableFeatureFreezePing = true;
   };
 
-  numtide = {
-    members = [
-      mic92
-      flokli
-      jfroche
-      tazjin
-      zimbatm
-    ];
-    scope = "Group registration for Numtide team members who collectively maintain packages.";
-    shortName = "Numtide team";
-  };
-
   ocaml = {
     members = [
       alizter
@@ -916,7 +905,6 @@ with lib.maintainers; {
 
   tts = {
     members = [
-      hexa
       mic92
     ];
     scope = "coqui-ai TTS (formerly Mozilla TTS) and leaf packages";

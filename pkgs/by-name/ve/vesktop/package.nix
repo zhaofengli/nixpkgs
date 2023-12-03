@@ -14,6 +14,7 @@
 , libicns
 , jq
 , moreutils
+, cacert
 , nodePackages
 }:
 stdenv.mkDerivation (finalAttrs: {
@@ -39,6 +40,7 @@ stdenv.mkDerivation (finalAttrs: {
         jq
         moreutils
         nodePackages.pnpm
+        cacert
       ];
 
       pnpmPatch = builtins.toJSON {
@@ -148,6 +150,7 @@ stdenv.mkDerivation (finalAttrs: {
       startupWMClass = "VencordDesktop";
       genericName = "Internet Messenger";
       keywords = [ "discord" "vencord" "electron" "chat" ];
+      categories = [ "Network" "InstantMessaging" "Chat" ];
     })
   ];
 
