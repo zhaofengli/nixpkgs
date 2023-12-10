@@ -27,12 +27,12 @@ rec {
   stable = if stdenv.hostPlatform.system == "i686-linux" then legacy_390 else latest;
 
   production = generic {
-    version = "535.129.03";
-    sha256_64bit = "sha256-5tylYmomCMa7KgRs/LfBrzOLnpYafdkKwJu4oSb/AC4=";
-    sha256_aarch64 = "sha256-i6jZYUV6JBvN+Rt21v4vNstHPIu9sC+2ZQpiLOLoWzM=";
-    openSha256 = "sha256-/Hxod/LQ4CGZN1B1GRpgE/xgoYlkPpMh+n8L7tmxwjs=";
-    settingsSha256 = "sha256-QKN/gLGlT+/hAdYKlkIjZTgvubzQTt4/ki5Y+2Zj3pk=";
-    persistencedSha256 = "sha256-FRMqY5uAJzq3o+YdM2Mdjj8Df6/cuUUAnh52Ne4koME=";
+    version = "535.146.02";
+    sha256_64bit = "sha256-Sf0cyeRFyYspP3xm82vs/hLMwd6WDf/z8dyWujqcv3A=";
+    sha256_aarch64 = "sha256-8G0oNdaVWxIGwVaQSw/cojy4TIAuiUBF3B98BI4hEec=";
+    openSha256 = "sha256-Oyllcy3uYYK912CIusMwjKKHtMgoyOxpZWQQ8hIycuk=";
+    settingsSha256 = "sha256-IrN2NaPrZSN0sCZqYNJ43iCicX3ziwUgyLLSRzp9sHQ=";
+    persistencedSha256 = "sha256-trIddaTgKXszEJunK+t6D+e3HbLDTfAsitdEYRgwRNQ=";
   };
 
   latest = selectHighestVersion production (generic {
@@ -59,14 +59,14 @@ rec {
   # Vulkan developer beta driver
   # See here for more information: https://developer.nvidia.com/vulkan-driver
   vulkan_beta = generic rec {
-    version = "535.43.16";
+    version = "535.43.20";
     persistencedVersion = "535.98";
     settingsVersion = "535.98";
-    sha256_64bit = "sha256-c93CJSMPlGZgk+jhp9zTHCKSZ0LdnJu+ifLo+qMvIIk=";
-    openSha256 = "sha256-509KaBavGIOOpzdrdJuAR1PYq91Clwo8n+nhruxO1wM=";
+    sha256_64bit = "sha256-PVs+AnVbJhriAHlxVEV81fqT4n92edv0cQyAGvuUgPw=";
+    openSha256 = "sha256-xqjitZRsIvbE98zzSQNorkCguDJt53eCxKYBxIZQwVM=";
     settingsSha256 = "sha256-jCRfeB1w6/dA27gaz6t5/Qo7On0zbAPIi74LYLel34s=";
     persistencedSha256 = "sha256-WviDU6B50YG8dO64CGvU3xK8WFUX8nvvVYm/fuGyroM=";
-    url = "https://developer.nvidia.com/downloads/vulkan-beta-${lib.concatStrings (lib.splitString "." version)}-linux";
+    url = "https://developer.nvidia.com/downloads/vulkan-beta-${lib.concatStrings (lib.splitVersion version)}-linux";
   };
 
   # data center driver compatible with current default cudaPackages

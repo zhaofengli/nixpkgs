@@ -1,4 +1,5 @@
 { lib
+, stdenv
 , auditwheel
 , buildPythonPackage
 , git
@@ -53,8 +54,10 @@ buildPythonPackage rec {
 
     substituteInPlace pyproject.toml \
       --replace 'requires = ["setuptools==68.2.2", "setuptools-scm==8.0.4", "wheel==0.41.2", "auditwheel==5.4.0"]' \
-                'requires = ["setuptools", "setuptools-scm", "wheel", "auditwheel"]' \
+                'requires = ["setuptools", "setuptools-scm", "wheel"]' \
       --replace 'version_file = "playwright/_repo_version.py"' ""
+    # FIXME version_file is available in setuptools-scm>=8.0.0
+    echo "__version__ = version = '${version}'" > playwright/_repo_version.py
 
     # Skip trying to download and extract the driver.
     # This is done manually in postInstall instead.
@@ -67,7 +70,8 @@ buildPythonPackage rec {
   '';
 
 
-  nativeBuildInputs = [ git setuptools-scm setuptools auditwheel ];
+  nativeBuildInputs = [ git setuptools-scm setuptools ]
+    ++ lib.optionals stdenv.isLinux [ auditwheel ];
 
   propagatedBuildInputs = [
     greenlet

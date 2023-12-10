@@ -1803,6 +1803,8 @@ with self; {
     };
   };
 
+  BioBigFile = callPackage ../development/perl-modules/Bio-BigFile { };
+
   BioPerl = buildPerlPackage {
     pname = "BioPerl";
     version = "1.7.8";
@@ -3291,6 +3293,32 @@ with self; {
     meta = {
       description = "A series of charting modules";
       license = with lib.licenses; [ artistic1 gpl1Plus ];
+    };
+  };
+
+  ChipcardPCSC = buildPerlPackage {
+    pname = "Chipcard-PCSC";
+    version = "1.4.16";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/W/WH/WHOM/Chipcard-PCSC-v1.4.16.tar.gz";
+      hash = "sha256-O14p1jRDXxQm7Nzfebo1G04mWPNsPCK+N7HTHjbKj6k=";
+    };
+    buildInputs = [ pkgs.pcsclite ];
+    nativeBuildInputs = [ pkgs.pkg-config ];
+    env.NIX_CFLAGS_COMPILE = toString ([
+      "-I${pkgs.pcsclite.dev}/include/PCSC"
+    ] ++ lib.optionals stdenv.cc.isClang [
+      "-Wno-error=implicit-int"
+      "-Wno-error=int-conversion"
+    ]);
+    NIX_CFLAGS_LINK = "-L${lib.getLib pkgs.pcsclite}/lib -lpcsclite";
+    # tests fail; look unfinished
+    doCheck = false;
+    meta = {
+      description = "Communicate with a smart card using PC/SC";
+      homepage = "https://pcsc-perl.apdu.fr/";
+      license = with lib.licenses; [ gpl2Plus ];
+      maintainers = with maintainers; [ abbradar anthonyroussel ];
     };
   };
 
@@ -20196,27 +20224,6 @@ with self; {
     };
   };
 
-  pcscperl = buildPerlPackage {
-    pname = "pcsc-perl";
-    version = "1.4.14";
-    src = fetchurl {
-      url = "mirror://cpan/authors/id/W/WH/WHOM/pcsc-perl-1.4.14.tar.bz2";
-      hash = "sha256-JyK35VQ+T687oexrKaff7G2Svh7ewJ0KMZGZLU2Ixp0=";
-    };
-    buildInputs = [ pkgs.pcsclite ];
-    nativeBuildInputs = [ pkgs.pkg-config ];
-    NIX_CFLAGS_LINK = "-L${lib.getLib pkgs.pcsclite}/lib -lpcsclite";
-    # tests fail; look unfinished
-    doCheck = false;
-    meta = {
-      description = "Communicate with a smart card using PC/SC";
-      homepage = "http://ludovic.rousseau.free.fr/softwares/pcsc-perl/";
-      license = with lib.licenses; [ gpl2Plus ];
-      maintainers = with maintainers; [ abbradar ];
-      broken = stdenv.isDarwin; # never built on Hydra https://hydra.nixos.org/job/nixpkgs/staging-next/perl534Packages.pcscperl.x86_64-darwin
-    };
-  };
-
   PDFAPI2 = buildPerlPackage {
     pname = "PDF-API2";
     version = "2.045";
@@ -29325,4 +29332,5 @@ with self; {
   version = self.Version;
 
   Gtk2GladeXML = throw "Gtk2GladeXML has been removed"; # 2022-01-15
+  pcscperl = throw "'pcscperl' has been renamed to 'ChipcardPCSC'"; # Added 2023-12-07
 }

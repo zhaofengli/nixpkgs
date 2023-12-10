@@ -167,6 +167,7 @@
   ./programs/direnv.nix
   ./programs/dmrconfig.nix
   ./programs/droidcam.nix
+  ./programs/dublin-traceroute.nix
   ./programs/ecryptfs.nix
   ./programs/environment.nix
   ./programs/evince.nix
@@ -441,6 +442,7 @@
   ./services/databases/surrealdb.nix
   ./services/databases/victoriametrics.nix
   ./services/desktops/accountsservice.nix
+  ./services/desktops/ayatana-indicators.nix
   ./services/desktops/bamf.nix
   ./services/desktops/blueman.nix
   ./services/desktops/cpupower-gui.nix
@@ -515,6 +517,7 @@
   ./services/hardware/argonone.nix
   ./services/hardware/asusd.nix
   ./services/hardware/auto-cpufreq.nix
+  ./services/hardware/auto-epp.nix
   ./services/hardware/bluetooth.nix
   ./services/hardware/bolt.nix
   ./services/hardware/brltty.nix
@@ -635,6 +638,7 @@
   ./services/misc/amazon-ssm-agent.nix
   ./services/misc/ananicy.nix
   ./services/misc/ankisyncd.nix
+  ./services/misc/anki-sync-server.nix
   ./services/misc/apache-kafka.nix
   ./services/misc/atuin.nix
   ./services/misc/autofs.nix
@@ -680,6 +684,7 @@
   ./services/misc/gollum.nix
   ./services/misc/gpsd.nix
   ./services/misc/greenclip.nix
+  ./services/misc/guix
   ./services/misc/headphones.nix
   ./services/misc/heisenbridge.nix
   ./services/misc/homepage-dashboard.nix
@@ -966,6 +971,7 @@
   ./services/networking/iwd.nix
   ./services/networking/jibri/default.nix
   ./services/networking/jicofo.nix
+  ./services/networking/jigasi.nix
   ./services/networking/jitsi-videobridge.nix
   ./services/networking/jool.nix
   ./services/networking/kea.nix
@@ -1329,6 +1335,7 @@
   ./services/web-apps/vikunja.nix
   ./services/web-apps/whitebophir.nix
   ./services/web-apps/wiki-js.nix
+  ./services/web-apps/windmill.nix
   ./services/web-apps/wordpress.nix
   ./services/web-apps/writefreely.nix
   ./services/web-apps/youtrack.nix
@@ -1354,6 +1361,7 @@
   ./services/web-servers/molly-brown.nix
   ./services/web-servers/nginx/default.nix
   ./services/web-servers/nginx/gitweb.nix
+  ./services/web-servers/nginx/tailscale-auth.nix
   ./services/web-servers/phpfpm/default.nix
   ./services/web-servers/pomerium.nix
   ./services/web-servers/rustus.nix
@@ -1420,6 +1428,7 @@
   ./system/activation/bootspec.nix
   ./system/activation/top-level.nix
   ./system/boot/binfmt.nix
+  ./system/boot/clevis.nix
   ./system/boot/emergency-mode.nix
   ./system/boot/grow-partition.nix
   ./system/boot/initrd-network.nix

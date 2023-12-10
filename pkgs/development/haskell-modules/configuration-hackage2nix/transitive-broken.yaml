@@ -116,6 +116,7 @@ dont-distribute-packages:
  - FiniteCategoriesGraphViz
  - FiniteMap
  - FirstOrderTheory
+ - Flint2-Examples
  - Flippi
  - ForSyDe
  - Forestry
@@ -1004,12 +1005,6 @@ dont-distribute-packages:
  - cryptonite-cd
  - crystalfontz
  - csg
- - csound-catalog
- - csound-controllers
- - csound-expression
- - csound-expression-opcodes
- - csound-expression-typed
- - csound-sampler
  - cspmchecker
  - csv-enumerator
  - ctpl
@@ -1309,6 +1304,7 @@ dont-distribute-packages:
  - fast-bech32
  - fastcdc
  - fastirc
+ - fastparser
  - fault-tree
  - fay-base
  - fay-builder
@@ -3457,6 +3453,7 @@ dont-distribute-packages:
  - samtools-conduit
  - samtools-enumerator
  - samtools-iteratee
+ - sandwich_0_2_0_0
  - sarsi
  - sasha
  - sasl
@@ -3874,7 +3871,6 @@ dont-distribute-packages:
  - techlab
  - telegram-bot
  - telegram-raw-api
- - temporal-csound
  - ten-lens
  - ten-unordered-containers
  - tensorflow-opgen

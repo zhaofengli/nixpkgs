@@ -225,6 +225,8 @@ mapAliases ({
   lazy_imports = lazy-imports; # added 2023-10-13
   lektor = throw "lektor has been promoted to a top-level attribute"; # added 2023-08-01
   line_profiler = line-profiler; # added 2023-11-04
+  livestreamer = throw "'livestreamer' has been removed, as it unmaintained. A currently maintained fork is 'streamlink'."; # added 2023-11-14
+  livestreamer-curses = throw "'livestreamer-curses' has been removed as it, and livestreamer itself are unmaintained."; # added 2023-11-14
   logilab_astng = throw "logilab-astng has not been released since 2013 and is unmaintained"; # added 2022-11-29
   logilab_common = logilab-common; # added 2022-11-21
   loo-py = loopy; # added 2022-05-03
@@ -374,6 +376,7 @@ mapAliases ({
   qasm2image = throw "qasm2image is no longer maintained (since November 2018), and is not compatible with the latest pythonPackages.qiskit versions."; # added 2020-12-09
   qds_sdk = qds-sdk; # added 2023-10-21
   Quandl = quandl; # added 2023-02-19
+  qcodes-loop = throw "qcodes-loop has been removed due to deprecation"; # added 2023-11-30
   qiskit-aqua = throw "qiskit-aqua has been removed due to deprecation, with its functionality moved to different qiskit packages";
   rabbitpy = throw "rabbitpy has been removed, since it is unmaintained and broken"; # added 2023-07-01
   radio_beam = radio-beam; # added 2023-11-04
@@ -466,11 +469,13 @@ mapAliases ({
   zc_buildout_nix = throw "zc_buildout_nix was pinned to a version no longer compatible with other modules";
   zope_broken = throw "zope_broken has been removed because it is obsolete and not needed in zodb>=3.10"; # added 2023-07-26
   zope_component = zope-component; # added 2023-07-28
+  zope_configuration = zope-configuration; # added 2023-11-12
   zope_contenttype = zope-contenttype; # added 2023-10-11
   zope_deprecation = zope-deprecation; # added 2023-10-07
   zope_dottedname = zope-dottedname; # added 2023-11-12
   zope_i18nmessageid = zope-i18nmessageid; # added 2023-07-29
   zope_lifecycleevent = zope-lifecycleevent; # added 2023-10-11
   zope_proxy = zope-proxy; # added 2023-10-07
+  zope_testing = zope-testing; # added 2023-11-12
   zxing_cpp = zxing-cpp; # added 2023-11-05
 })

@@ -61,7 +61,9 @@ let
   pgsqlLocal = cfg.database.createLocally && cfg.config.dbtype == "pgsql";
 
   # https://github.com/nextcloud/documentation/pull/11179
-  ocmProviderIsNotAStaticDirAnymore = versionAtLeast cfg.package.version "27.1.2";
+  ocmProviderIsNotAStaticDirAnymore = versionAtLeast cfg.package.version "27.1.2"
+    || (versionOlder cfg.package.version "27.0.0"
+      && versionAtLeast cfg.package.version "26.0.8");
 
 in {
 
@@ -190,13 +192,8 @@ in {
       description = lib.mdDoc "Which package to use for the Nextcloud instance.";
       relatedPackages = [ "nextcloud26" "nextcloud27" ];
     };
-    phpPackage = mkOption {
-      type = types.package;
-      relatedPackages = [ "php81" "php82" ];
-      defaultText = "pkgs.php";
-      description = lib.mdDoc ''
-        PHP package to use for Nextcloud.
-      '';
+    phpPackage = mkPackageOption pkgs "php" {
+      example = "php82";
     };
 
     maxUploadSize = mkOption {

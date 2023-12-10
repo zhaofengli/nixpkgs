@@ -80,6 +80,8 @@ in (noExtraAttrs (kdeFrameworks // plasmaMobileGear // plasma5 // plasma5.thirdP
 
   ### LIBRARIES
 
+  accounts-qml-module = callPackage ../development/libraries/accounts-qml-module { };
+
   accounts-qt = callPackage ../development/libraries/accounts-qt { };
 
   alkimia = callPackage ../development/libraries/alkimia { };
@@ -140,13 +142,13 @@ in (noExtraAttrs (kdeFrameworks // plasmaMobileGear // plasma5 // plasma5.thirdP
 
   liblastfm = callPackage ../development/libraries/liblastfm { };
 
-  libopenshot = callPackage ../applications/video/openshot-qt/libopenshot.nix {
+  libopenshot = callPackage ../development/libraries/libopenshot {
     stdenv = if pkgs.stdenv.isDarwin then pkgs.overrideSDK pkgs.stdenv "11.0" else pkgs.stdenv;
   };
 
   packagekit-qt = callPackage ../tools/package-management/packagekit/qt.nix { };
 
-  libopenshot-audio = callPackage ../applications/video/openshot-qt/libopenshot-audio.nix {
+  libopenshot-audio = callPackage ../development/libraries/libopenshot-audio {
     inherit (pkgs.darwin.apple_sdk.frameworks) Accelerate AGL Cocoa Foundation;
   };
 
@@ -245,6 +247,8 @@ in (noExtraAttrs (kdeFrameworks // plasmaMobileGear // plasma5 // plasma5.thirdP
   qwt6_1 = callPackage ../development/libraries/qwt/6_1.nix { };
 
   qxlsx = callPackage ../development/libraries/qxlsx { };
+
+  qzxing = callPackage ../development/libraries/qzxing { };
 
   soqt = callPackage ../development/libraries/soqt { };
 
