@@ -7,7 +7,7 @@
 , nodePackages
 , python3Packages
 , jdk
-, llvmPackages_8
+, llvmPackages
 , llvmPackages_14
 , nixpkgs-fmt
 , protobuf
@@ -344,8 +344,8 @@ let
         mktplcRef = {
           name = "vscode-neovim";
           publisher = "asvetliakov";
-          version = "1.0.1";
-          sha256 = "1yf065syb5hskds47glnv18nk0fg7d84w1j72hg1pqb082gn1sdv";
+          version = "1.5.0";
+          sha256 = "1glad9xmzq58jc7js8afjmqrxgd3rqm80fk528wv5kqcmn90bgk3";
         };
         meta = {
           changelog = "https://marketplace.visualstudio.com/items/asvetliakov.vscode-neovim/changelog";
@@ -591,8 +591,8 @@ let
         mktplcRef = {
           name = "vscode-intelephense-client";
           publisher = "bmewburn";
-          version = "1.10.1";
-          sha256 = "sha256-VZQ3dpwj4RWZuyMba8DM7+JcIBSYB8zimZOkP5mJbms=";
+          version = "1.10.2";
+          sha256 = "sha256-he/aPcsxfqYWI/RJ51d5V0reaTPTATci34xPm93qxGs=";
         };
         meta = {
           description = "PHP code intelligence for Visual Studio Code";
@@ -710,8 +710,8 @@ let
         mktplcRef = {
           name = "ruff";
           publisher = "charliermarsh";
-          version = "2023.40.0";
-          sha256 = "sha256-Ym76WtKvz18NgxH9o8O/Ozn+/AtqLvjJs8ffLhPOWkQ=";
+          version = "2023.60.0";
+          sha256 = "sha256-zxE4QcWt8M6djTbdIf0YNSpeF1w7vMK4/BW5ArCOYbE=";
         };
         meta = {
           license = lib.licenses.mit;
@@ -1101,6 +1101,12 @@ let
       };
 
       donjayamanne.githistory = buildVscodeMarketplaceExtension {
+        mktplcRef = {
+          name = "githistory";
+          publisher = "donjayamanne";
+          version = "0.6.20";
+          sha256 = "sha256-nEdYS9/cMS4dcbFje23a47QBZr9eDK3dvtkFWqA+OHU=";
+        };
         meta = {
           changelog = "https://marketplace.visualstudio.com/items/donjayamanne.githistory/changelog";
           description = "View git log, file history, compare branches or commits";
@@ -1108,12 +1114,6 @@ let
           homepage = "https://github.com/DonJayamanne/gitHistoryVSCode/";
           license = lib.licenses.mit;
           maintainers = [ ];
-        };
-        mktplcRef = {
-          name = "githistory";
-          publisher = "donjayamanne";
-          version = "0.6.20";
-          sha256 = "sha256-nEdYS9/cMS4dcbFje23a47QBZr9eDK3dvtkFWqA+OHU=";
         };
       };
 
@@ -1151,8 +1151,8 @@ let
         mktplcRef = {
           name = "theme-dracula";
           publisher = "dracula-theme";
-          version = "2.24.2";
-          sha256 = "sha256-YNqWEIvlEI29mfPxOQVdd4db9G2qNodhz8B0MCAAWK8=";
+          version = "2.24.3";
+          sha256 = "sha256-3B18lEu8rXVXySdF3+xsPnAyruIuEQJDhlNw82Xm6b0=";
         };
         meta = {
           changelog = "https://marketplace.visualstudio.com/items/dracula-theme.theme-dracula/changelog";
@@ -1234,8 +1234,8 @@ let
         mktplcRef = {
           name = "elixir-ls";
           publisher = "JakeBecker";
-          version = "0.17.10";
-          sha256 = "sha256-4/B70DyNlImz60PSTSL5CKihlOJen/tR1/dXGc3s1ZY=";
+          version = "0.18.1";
+          sha256 = "sha256-PdXoc9+ejYr1SiikuabUH+2tt1tByJn5gycaHrHuaBE=";
         };
         meta = {
           changelog = "https://marketplace.visualstudio.com/items/JakeBecker.elixir-ls/changelog";
@@ -1580,8 +1580,8 @@ let
         mktplcRef = {
           publisher = "github";
           name = "copilot";
-          version = "1.135.544";
-          sha256 = "sha256-OeG1nkQbQAfu8NuDEA+iaWy0ioFyXPe7Qm/CZIKPiX8=";
+          version = "1.151.659";
+          sha256 = "sha256-6jz7Nb9SGON7AXL4KJwC4H03la9JqLCX+AyBEvxD4HA=";
         };
 
         meta = {
@@ -1597,8 +1597,8 @@ let
         mktplcRef = {
           publisher = "github";
           name = "copilot-chat";
-          version = "0.11.2023111001";
-          sha256 = "sha256-sBDvqqyq0R0ZyS81G61fI9Vd860RIjhNzCqY0bdz1mg=";
+          version = "0.11.2023120102";
+          sha256 = "sha256-EUegM4sVP/vDikNr4LwnWzhDBSgfxYe6mxnrhSdXhIQ=";
         };
         meta = {
           description = "GitHub Copilot Chat is a companion extension to GitHub Copilot that houses experimental chat features";
@@ -1630,8 +1630,8 @@ let
         mktplcRef = {
           name = "vscode-github-actions";
           publisher = "github";
-          version = "0.25.6";
-          sha256 = "sha256-HRj/AQI9E6HDkZ2ok/h/+c9HHq1wVXQPAt5mb/Ij+BI=";
+          version = "0.26.2";
+          sha256 = "sha256-sEc6Fbn4XpK8vNK32R4fjnx/R+1xYOwcuhKlo7sPd5o=";
         };
         meta = {
           description = "A Visual Studio Code extension for GitHub Actions workflows and runs for github.com hosted repositories";
@@ -1651,8 +1651,8 @@ let
           # the VSCode Marketplace and use a calver scheme. We should avoid
           # using preview versions, because they can require insider versions
           # of VS Code
-          version = "0.75.2023101209";
-          sha256 = "1saz4brd5k1wyy7pz1h3jcl4kq35f78s2q8drjd7v2k97jhy8la1";
+          version = "0.78.1";
+          sha256 = "sha256-T9oW6o4ItZfR8E1qrcH3nhMvVB6ihi4kpiDz7YGHOcI=";
         };
         meta = { license = lib.licenses.mit; };
       };
@@ -1884,8 +1884,8 @@ let
         mktplcRef = {
           name = "Ionide-fsharp";
           publisher = "Ionide";
-          version = "7.5.4";
-          sha256 = "sha256-cM3ssUzQnqt5WL8UaLYkrmfHscVa2sGa7/UWLXMIHGg=";
+          version = "7.17.0";
+          sha256 = "sha256-CC6ySeuO61O/mAkQYGoK/1cd4hlyS0vG+Lqv0HQ7K6c=";
         };
         meta = {
           changelog = "https://marketplace.visualstudio.com/items/Ionide.Ionide-fsharp/changelog";
@@ -2162,7 +2162,7 @@ let
         };
       };
 
-      llvm-org.lldb-vscode = llvmPackages_8.lldb;
+      llvm-org.lldb-vscode = llvmPackages.lldb;
 
       llvm-vs-code-extensions.vscode-clangd = buildVscodeMarketplaceExtension {
         mktplcRef = {
@@ -2306,14 +2306,14 @@ let
         };
       };
 
-      # Keep pkgs/tools/typesetting/typst-preview/default.nix in sync with this
+      # Keep pkgs/by-name/ty/typst-preview/package.nix in sync with this
       # extension
       mgt19937.typst-preview = buildVscodeMarketplaceExtension {
         mktplcRef = {
           name = "typst-preview";
           publisher = "mgt19937";
-          version = "0.9.2";
-          sha256 = "sha256-/2ZD5LOQ1vTIKab2qX+5AqNqaRs90MNz1jUMDaV1wUY=";
+          version = "0.10.5";
+          sha256 = "sha256-cR5Pyokzmf8dNlsUkcwwfPx3jtJCQHRwTpYk78ovgrM=";
         };
 
         buildInputs = [
@@ -2376,8 +2376,8 @@ let
         mktplcRef = {
           name = "direnv";
           publisher = "mkhl";
-          version = "0.15.2";
-          sha256 = "06lp4qgnksklgc6nvx1l9z38y7apbx0a6v886nd15aq9rq8my0ka";
+          version = "0.16.0";
+          sha256 = "sha256-u2AFjvhm3zio1ygW9yD9ZwbywLrEssd0O7/0AtfCvMo=";
         };
 
         meta = {
@@ -2749,8 +2749,8 @@ let
           publisher = "nvarner";
           # Please update the corresponding binary (typst-lsp) when updating
           # this extension.
-          version = "0.12.0";
-          sha256 = "sha256-5DwpgDstKJXo9jEWORXKr3B6Hnd/YOktiaJL2RFWCSA=";
+          version = "0.12.1";
+          sha256 = "sha256-JcfFaR1wU5XwapH8vnfVy7Cb7DfUWVeoLfBV3wEtCpE=";
         };
 
         nativeBuildInputs = [ jq moreutils ];
@@ -3111,8 +3111,8 @@ let
         mktplcRef = {
           name = "crates";
           publisher = "serayuzgur";
-          version = "0.6.0";
-          sha256 = "080zd103vjrz86vllr1ricq2vi3hawn4534n492m7xdcry9l9dpc";
+          version = "0.6.5";
+          sha256 = "sha256-HgqM4PKGk3R5MLY4cVjKxv79p5KlOkVDeDbv7/6FmpM=";
         };
         meta = {
           license = lib.licenses.mit;
@@ -3557,8 +3557,8 @@ let
         mktplcRef = {
           name = "uiua-vscode";
           publisher = "uiua-lang";
-          version = "0.0.26";
-          sha256 = "sha256-EKWThidMgbd+a4Vw4SQo988ggVbCTnCakohvq3/mZQ0=";
+          version = "0.0.27";
+          sha256 = "sha256-wEY1FZjgiQJ7VrJGZX0SgZqz/14v//jxgrqdafLjIfM=";
         };
         meta = {
           description = "VSCode language extension for Uiua";

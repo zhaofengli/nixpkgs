@@ -16,16 +16,18 @@
 , poppler_utils
 , liberation_ttf
 , xcbuild
+, pango
+, pkg-config
 }:
 
 let
-  version = "2.0.1";
+  version = "2.3.3";
 
   src = fetchFromGitHub {
     owner = "paperless-ngx";
     repo = "paperless-ngx";
     rev = "refs/tags/v${version}";
-    hash = "sha256-qSX+r99y7a/eITfaC/UYqSgcxx/xYOqJ4tY/iuvoeNA=";
+    hash = "sha256-2XnOap37ZQjT0qx2ygxXo7n1HJcIEoc5TrMI1JIk4G8=";
   };
 
   python = python3;
@@ -46,17 +48,22 @@ let
     pname = "paperless-ngx-frontend";
     inherit version src;
 
-    npmDepsHash = "sha256-uDaZ7j7IDgKy7wCWND2xzR1qHwUtdyjR4eyIAVy01dM=";
+    postPatch = ''
+      cd src-ui
+    '';
+
+    npmDepsHash = "sha256-BFfbRrpF8p0AfEdl/KDWWG7qN+F9edvTW3j9jgvLIrc=";
 
     nativeBuildInputs = [
+      pkg-config
       python3
     ] ++ lib.optionals stdenv.isDarwin [
       xcbuild
     ];
 
-    postPatch = ''
-      cd src-ui
-    '';
+    buildInputs = [
+      pango
+    ];
 
     CYPRESS_INSTALL_BINARY = "0";
     NG_CLI_ANALYTICS = "false";
@@ -204,7 +211,7 @@ python.pkgs.buildPythonApplication rec {
     whitenoise
     whoosh
     zipp
-    zope_interface
+    zope-interface
     zxing-cpp
   ]
   ++ redis.optional-dependencies.hiredis

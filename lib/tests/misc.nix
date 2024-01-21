@@ -697,6 +697,51 @@ runTests {
     expected = false;
   };
 
+  testHasAttrByPathNonStrict = {
+    expr = hasAttrByPath [] (throw "do not use");
+    expected = true;
+  };
+
+  testLongestValidPathPrefix_empty_empty = {
+    expr = attrsets.longestValidPathPrefix [ ] { };
+    expected = [ ];
+  };
+
+  testLongestValidPathPrefix_empty_nonStrict = {
+    expr = attrsets.longestValidPathPrefix [ ] (throw "do not use");
+    expected = [ ];
+  };
+
+  testLongestValidPathPrefix_zero = {
+    expr = attrsets.longestValidPathPrefix [ "a" (throw "do not use") ] { d = null; };
+    expected = [ ];
+  };
+
+  testLongestValidPathPrefix_zero_b = {
+    expr = attrsets.longestValidPathPrefix [ "z" "z" ] "remarkably harmonious";
+    expected = [ ];
+  };
+
+  testLongestValidPathPrefix_one = {
+    expr = attrsets.longestValidPathPrefix [ "a" "b" "c" ] { a = null; };
+    expected = [ "a" ];
+  };
+
+  testLongestValidPathPrefix_two = {
+    expr = attrsets.longestValidPathPrefix [ "a" "b" "c" ] { a.b = null; };
+    expected = [ "a" "b" ];
+  };
+
+  testLongestValidPathPrefix_three = {
+    expr = attrsets.longestValidPathPrefix [ "a" "b" "c" ] { a.b.c = null; };
+    expected = [ "a" "b" "c" ];
+  };
+
+  testLongestValidPathPrefix_three_extra = {
+    expr = attrsets.longestValidPathPrefix [ "a" "b" "c" ] { a.b.c.d = throw "nope"; };
+    expected = [ "a" "b" "c" ];
+  };
+
   testFindFirstIndexExample1 = {
     expr = lists.findFirstIndex (x: x > 3) (abort "index found, so a default must not be evaluated") [ 1 6 4 ];
     expected = 1;
@@ -1914,6 +1959,18 @@ runTests {
     expr = (with types; int).description;
     expected = "signed integer";
   };
+  testTypeDescriptionIntsPositive = {
+    expr = (with types; ints.positive).description;
+    expected = "positive integer, meaning >0";
+  };
+  testTypeDescriptionIntsPositiveOrEnumAuto = {
+    expr = (with types; either ints.positive (enum ["auto"])).description;
+    expected = ''positive integer, meaning >0, or value "auto" (singular enum)'';
+  };
+  testTypeDescriptionListOfPositive = {
+    expr = (with types; listOf ints.positive).description;
+    expected = "list of (positive integer, meaning >0)";
+  };
   testTypeDescriptionListOfInt = {
     expr = (with types; listOf int).description;
     expected = "list of signed integer";
@@ -2009,5 +2066,38 @@ runTests {
   testPlatformMatchMissingSystem = {
     expr = meta.platformMatch { } "x86_64-linux";
     expected = false;
+  };
+
+  testPackagesFromDirectoryRecursive = {
+    expr = packagesFromDirectoryRecursive {
+      callPackage = path: overrides: import path overrides;
+      directory = ./packages-from-directory;
+    };
+    expected = {
+      a = "a";
+      b = "b";
+      # Note: Other files/directories in `./test-data/c/` are ignored and can be
+      # used by `package.nix`.
+      c = "c";
+      my-namespace = {
+        d = "d";
+        e = "e";
+        f = "f";
+        my-sub-namespace = {
+          g = "g";
+          h = "h";
+        };
+      };
+    };
+  };
+
+  # Check that `packagesFromDirectoryRecursive` can process a directory with a
+  # top-level `package.nix` file into a single package.
+  testPackagesFromDirectoryRecursiveTopLevelPackageNix = {
+    expr = packagesFromDirectoryRecursive {
+      callPackage = path: overrides: import path overrides;
+      directory = ./packages-from-directory/c;
+    };
+    expected = "c";
   };
 }

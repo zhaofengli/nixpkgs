@@ -61,11 +61,11 @@ let
 in
 stdenv.mkDerivation rec {
   pname = "samba";
-  version = "4.19.2";
+  version = "4.19.4";
 
   src = fetchurl {
     url = "mirror://samba/pub/samba/stable/${pname}-${version}.tar.gz";
-    hash = "sha256-nmPwUF4cYx8dsLepNJpR6SXAJsoDrz/V2BIii7WX05M=";
+    hash = "sha256-QCbZO4ZtsZjIyhaFsPXVJ5P2XG5jyzZBY69mH9/wlow=";
   };
 
   outputs = [ "out" "dev" "man" ];

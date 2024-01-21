@@ -227,10 +227,6 @@ lib.makeScope pkgs.newScope (self: with self; {
   # 2. The contrib extensions available
   # 3. The core extensions
   extensions =
-  # Contrib conditional extensions
-   lib.optionalAttrs (!(lib.versionAtLeast php.version "8.3")) {
-    blackfire = callPackage ../development/tools/misc/blackfire/php-probe.nix { inherit php; };
-  } //
   # Contrib extensions
   {
     amqp = callPackage ../development/php-packages/amqp { };
@@ -238,6 +234,8 @@ lib.makeScope pkgs.newScope (self: with self; {
     apcu = callPackage ../development/php-packages/apcu { };
 
     ast = callPackage ../development/php-packages/ast { };
+
+    blackfire = callPackage ../development/tools/misc/blackfire/php-probe.nix { inherit php; };
 
     couchbase = callPackage ../development/php-packages/couchbase { };
 
@@ -372,6 +370,17 @@ lib.makeScope pkgs.newScope (self: with self; {
           configureFlags = [
             "--enable-dom"
           ];
+          patches = lib.optionals (lib.versionOlder php.version "8.2.14") [
+            # Fix tests with libxml 2.12
+            # Part of 8.3.1RC1+, 8.2.14RC1+
+            (fetchpatch {
+              url = "https://github.com/php/php-src/commit/061058a9b1bbd90d27d97d79aebcf2b5029767b0.patch";
+              hash = "sha256-0hOlAG+pOYp/gUU0MUMZvzWpgr0ncJi5GB8IeNxxyEU=";
+              excludes = [
+                "NEWS"
+              ];
+            })
+          ];
         }
         {
           name = "enchant";
@@ -478,6 +487,7 @@ lib.makeScope pkgs.newScope (self: with self; {
             lib.optional
               (!stdenv.isDarwin && lib.meta.availableOn stdenv.hostPlatform valgrind)
               valgrind.dev;
+          configureFlags = lib.optional php.ztsSupport "--disable-opcache-jit";
           zendExtension = true;
           postPatch = lib.optionalString stdenv.isDarwin ''
             # Tests are flaky on darwin
@@ -611,7 +621,9 @@ lib.makeScope pkgs.newScope (self: with self; {
           # The `sqlite3_bind_bug68849.phpt` test is currently broken for i686 Linux systems since sqlite 3.43, cf.:
           # - https://github.com/php/php-src/issues/12076
           # - https://www.sqlite.org/forum/forumpost/abbb95376ec6cd5f
-          patches = lib.optional (stdenv.isi686 && stdenv.isLinux) ../development/interpreters/php/skip-sqlite3_bind_bug68849.phpt.patch;
+          patches = lib.optionals (stdenv.isi686 && stdenv.isLinux) [
+            ../development/interpreters/php/skip-sqlite3_bind_bug68849.phpt.patch
+          ];
         }
         { name = "sysvmsg"; }
         { name = "sysvsem"; }

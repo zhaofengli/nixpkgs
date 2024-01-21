@@ -1044,7 +1044,11 @@ _defaultUnpack() {
         case "$fn" in
             *.tar.xz | *.tar.lzma | *.txz)
                 # Don't rely on tar knowing about .xz.
-                xz -d < "$fn" | tar xf - --warning=no-timestamp
+                # Additionally, we have multiple different xz binaries with different feature sets in different
+                # stages. The XZ_OPT env var is only used by the full "XZ utils" implementation, which supports
+                # the --threads (-T) flag. This allows us to enable multithreaded decompression exclusively on
+                # that implementation, without the use of complex bash conditionals and checks.
+                XZ_OPT="--threads=$NIX_BUILD_CORES" xz -d < "$fn" | tar xf - --warning=no-timestamp
                 ;;
             *.tar | *.tar.* | *.tgz | *.tbz2 | *.tbz)
                 # GNU tar can automatically select the decompression method
@@ -1259,6 +1263,10 @@ configurePhase() {
             if grep -q enable-static "$configureScript"; then
                 prependToVar configureFlags --disable-static
             fi
+        fi
+
+        if [ -z "${dontPatchShebangsInConfigure:-}" ]; then
+            patchShebangs --build "$configureScript"
         fi
     fi
 
@@ -1495,17 +1503,7 @@ distPhase() {
 
 showPhaseHeader() {
     local phase="$1"
-    case "$phase" in
-        unpackPhase) echo "unpacking sources";;
-        patchPhase) echo "patching sources";;
-        configurePhase) echo "configuring";;
-        buildPhase) echo "building";;
-        checkPhase) echo "running tests";;
-        installPhase) echo "installing";;
-        fixupPhase) echo "post-installation fixup";;
-        installCheckPhase) echo "running install tests";;
-        *) echo "$phase";;
-    esac
+    echo "Running phase: $phase"
 }
 
 
