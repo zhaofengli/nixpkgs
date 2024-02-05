@@ -676,6 +676,7 @@ If our package sets `includeStorePaths` to `false`, we'll end up with only the f
 dockerTools.streamLayeredImage {
   name = "hello";
   contents = [ hello ];
+  includeStorePaths = false;
 }
 ```
 
@@ -714,78 +715,376 @@ dockerTools.streamLayeredImage {
 ```
 :::
 
-## pullImage {#ssec-pkgs-dockerTools-fetchFromRegistry}
+[]{#ssec-pkgs-dockerTools-fetchFromRegistry}
+## pullImage {#ssec-pkgs-dockerTools-pullImage}
 
-This function is analogous to the `docker pull` command, in that it can be used to pull a Docker image from a Docker registry. By default [Docker Hub](https://hub.docker.com/) is used to pull images.
+This function is similar to the `docker pull` command, which means it can be used to pull a Docker image from a registry that implements the [Docker Registry HTTP API V2](https://distribution.github.io/distribution/spec/api/).
+By default, the `docker.io` registry is used.
 
-Its parameters are described in the example below:
+The image will be downloaded as an uncompressed Docker-compatible repository tarball, which is suitable for use with other `dockerTools` functions such as [`buildImage`](#ssec-pkgs-dockerTools-buildImage), [`buildLayeredImage`](#ssec-pkgs-dockerTools-buildLayeredImage), and [`streamLayeredImage`](#ssec-pkgs-dockerTools-streamLayeredImage).
+
+This function requires two different types of hashes/digests to be specified:
+
+- One of them is used to identify a unique image within the registry (see the documentation for the `imageDigest` attribute).
+- The other is used by Nix to ensure the contents of the output haven't changed (see the documentation for the `sha256` attribute).
+
+Both hashes are required because they must uniquely identify some content in two completely different systems (the Docker registry and the Nix store), but their values will not be the same.
+See [](#ex-dockerTools-pullImage-nixprefetchdocker) for a tool that can help gather these values.
+
+### Inputs {#ssec-pkgs-dockerTools-pullImage-inputs}
+
+`pullImage` expects a single argument with the following attributes:
+
+`imageName` (String)
+
+: Specifies the name of the image to be downloaded, as well as the registry endpoint.
+  By default, the `docker.io` registry is used.
+  To specify a different registry, prepend the endpoint to `imageName`, separated by a slash (`/`).
+  See [](#ex-dockerTools-pullImage-differentregistry) for how to do that.
+
+`imageDigest` (String)
+
+: Specifies the digest of the image to be downloaded.
+
+  :::{.tip}
+  **Why can't I specify a tag to pull from, and have to use a digest instead?**
+
+  Tags are often updated to point to different image contents.
+  The most common example is the `latest` tag, which is usually updated whenever a newer image version is available.
+
+  An image tag isn't enough to guarantee the contents of an image won't change, but a digest guarantees this.
+  Providing a digest helps ensure that you will still be able to build the same Nix code and get the same output even if newer versions of an image are released.
+  :::
+
+`sha256` (String)
+
+: The hash of the image after it is downloaded.
+  Internally, this is passed to the [`outputHash`](https://nixos.org/manual/nix/stable/language/advanced-attributes#adv-attr-outputHash) attribute of the resulting derivation.
+  This is needed to provide a guarantee to Nix that the contents of the image haven't changed, because Nix doesn't support the value in `imageDigest`.
+
+`finalImageName` (String; _optional_)
+
+: Specifies the name that will be used for the image after it has been downloaded.
+  This only applies after the image is downloaded, and is not used to identify the image to be downloaded in the registry.
+  Use `imageName` for that instead.
+
+  _Default value:_ the same value specified in `imageName`.
+
+`finalImageTag` (String; _optional_)
+
+: Specifies the tag that will be used for the image after it has been downloaded.
+  This only applies after the image is downloaded, and is not used to identify the image to be downloaded in the registry.
+
+  _Default value:_ `"latest"`.
+
+`os` (String; _optional_)
+
+: Specifies the operating system of the image to pull.
+  If specified, its value should follow the [OCI Image Configuration Specification](https://github.com/opencontainers/image-spec/blob/main/config.md#properties), which should still be compatible with Docker.
+  According to the linked specification, all possible values for `$GOOS` in [the Go docs](https://go.dev/doc/install/source#environment) should be valid, but will commonly be one of `darwin` or `linux`.
+
+  _Default value:_ `"linux"`.
+
+`arch` (String; _optional_)
+
+: Specifies the architecture of the image to pull.
+  If specified, its value should follow the [OCI Image Configuration Specification](https://github.com/opencontainers/image-spec/blob/main/config.md#properties), which should still be compatible with Docker.
+  According to the linked specification, all possible values for `$GOARCH` in [the Go docs](https://go.dev/doc/install/source#environment) should be valid, but will commonly be one of `386`, `amd64`, `arm`, or `arm64`.
+
+  _Default value:_ the same value from `pkgs.go.GOARCH`.
+
+`tlsVerify` (Boolean; _optional_)
+
+: Used to enable or disable HTTPS and TLS certificate verification when communicating with the chosen Docker registry.
+  Setting this to `false` will make `pullImage` connect to the registry through HTTP.
+
+  _Default value:_ `true`.
+
+`name` (String; _optional_)
+
+: The name used for the output in the Nix store path.
+
+  _Default value:_ a value derived from `finalImageName` and `finalImageTag`, with some symbols replaced.
+  It is recommended to treat the default as an opaque value.
+
+### Examples {#ssec-pkgs-dockerTools-pullImage-examples}
+
+::: {.example #ex-dockerTools-pullImage-niximage}
+# Pulling the nixos/nix Docker image from the default registry
+
+This example pulls the [`nixos/nix` image](https://hub.docker.com/r/nixos/nix) and saves it in the Nix store.
 
 ```nix
-pullImage {
+{ dockerTools }:
+dockerTools.pullImage {
   imageName = "nixos/nix";
-  imageDigest =
-    "sha256:473a2b527958665554806aea24d0131bacec46d23af09fef4598eeab331850fa";
+  imageDigest = "sha256:b8ea88f763f33dfda2317b55eeda3b1a4006692ee29e60ee54ccf6d07348c598";
   finalImageName = "nix";
-  finalImageTag = "2.11.1";
-  sha256 = "sha256-qvhj+Hlmviz+KEBVmsyPIzTB3QlVAFzwAY1zDPIBGxc=";
-  os = "linux";
-  arch = "x86_64";
+  finalImageTag = "2.19.3";
+  sha256 = "zRwlQs1FiKrvHPaf8vWOR/Tlp1C5eLn1d9pE4BZg3oA=";
+}
+```
+:::
+
+::: {.example #ex-dockerTools-pullImage-differentregistry}
+# Pulling the nixos/nix Docker image from a specific registry
+
+This example pulls the [`coreos/etcd` image](https://quay.io/repository/coreos/etcd) from the `quay.io` registry.
+
+```nix
+{ dockerTools }:
+dockerTools.pullImage {
+  imageName = "quay.io/coreos/etcd";
+  imageDigest = "sha256:24a23053f29266fb2731ebea27f915bb0fb2ae1ea87d42d890fe4e44f2e27c5d";
+  finalImageName = "etcd";
+  finalImageTag = "v3.5.11";
+  sha256 = "Myw+85f2/EVRyMB3axECdmQ5eh9p1q77FWYKy8YpRWU=";
+}
+```
+:::
+
+::: {.example #ex-dockerTools-pullImage-nixprefetchdocker}
+# Finding the digest and hash values to use for `dockerTools.pullImage`
+
+Since [`dockerTools.pullImage`](#ssec-pkgs-dockerTools-pullImage) requires two different hashes, one can run the `nix-prefetch-docker` tool to find out the values for the hashes.
+The tool outputs some text for an attribute set which you can pass directly to `pullImage`.
+
+```shell
+$ nix run nixpkgs#nix-prefetch-docker -- --image-name nixos/nix --image-tag 2.19.3 --arch amd64 --os linux
+(some output removed for clarity)
+Writing manifest to image destination
+-> ImageName: nixos/nix
+-> ImageDigest: sha256:498fa2d7f2b5cb3891a4edf20f3a8f8496e70865099ba72540494cd3e2942634
+-> FinalImageName: nixos/nix
+-> FinalImageTag: latest
+-> ImagePath: /nix/store/4mxy9mn6978zkvlc670g5703nijsqc95-docker-image-nixos-nix-latest.tar
+-> ImageHash: 1q6cf2pdrasa34zz0jw7pbs6lvv52rq2aibgxccbwcagwkg2qj1q
+{
+  imageName = "nixos/nix";
+  imageDigest = "sha256:498fa2d7f2b5cb3891a4edf20f3a8f8496e70865099ba72540494cd3e2942634";
+  sha256 = "1q6cf2pdrasa34zz0jw7pbs6lvv52rq2aibgxccbwcagwkg2qj1q";
+  finalImageName = "nixos/nix";
+  finalImageTag = "latest";
 }
 ```
 
-- `imageName` specifies the name of the image to be downloaded, which can also include the registry namespace (e.g. `nixos`). This argument is required.
+It is important to supply the `--arch` and `--os` arguments to `nix-prefetch-docker` to filter to a single image, in case there are multiple architectures and/or operating systems supported by the image name and tags specified.
+By default, `nix-prefetch-docker` will set `os` to `linux` and `arch` to `amd64`.
 
-- `imageDigest` specifies the digest of the image to be downloaded. This argument is required.
-
-- `finalImageName`, if specified, this is the name of the image to be created. Note it is never used to fetch the image since we prefer to rely on the immutable digest ID. By default it's equal to `imageName`.
-
-- `finalImageTag`, if specified, this is the tag of the image to be created. Note it is never used to fetch the image since we prefer to rely on the immutable digest ID. By default it's `latest`.
-
-- `sha256` is the checksum of the whole fetched image. This argument is required.
-
-- `os`, if specified, is the operating system of the fetched image. By default it's `linux`.
-
-- `arch`, if specified, is the cpu architecture of the fetched image. By default it's `x86_64`.
-
-`nix-prefetch-docker` command can be used to get required image parameters:
-
-```ShellSession
-$ nix run nixpkgs#nix-prefetch-docker -- --image-name mysql --image-tag 5
+Run `nix-prefetch-docker --help` for a list of all supported arguments:
+```shell
+$ nix run nixpkgs#nix-prefetch-docker -- --help
+(output removed for clarity)
 ```
-
-Since a given `imageName` may transparently refer to a manifest list of images which support multiple architectures and/or operating systems, you can supply the `--os` and `--arch` arguments to specify exactly which image you want. By default it will match the OS and architecture of the host the command is run on.
-
-```ShellSession
-$ nix-prefetch-docker --image-name mysql --image-tag 5 --arch x86_64 --os linux
-```
-
-Desired image name and tag can be set using `--final-image-name` and `--final-image-tag` arguments:
-
-```ShellSession
-$ nix-prefetch-docker --image-name mysql --image-tag 5 --final-image-name eu.gcr.io/my-project/mysql --final-image-tag prod
-```
+:::
 
 ## exportImage {#ssec-pkgs-dockerTools-exportImage}
 
-This function is analogous to the `docker export` command, in that it can be used to flatten a Docker image that contains multiple layers. It is in fact the result of the merge of all the layers of the image. As such, the result is suitable for being imported in Docker with `docker import`.
+This function is similar to the `docker container export` command, which means it can be used to export an image's filesystem as an uncompressed tarball archive.
+The difference is that `docker container export` is applied to containers, but `dockerTools.exportImage` applies to Docker images.
+The resulting archive will not contain any image metadata (such as command to run with `docker container run`), only the filesystem contents.
 
-> **_NOTE:_** Using this function requires the `kvm` device to be available.
+You can use this function to import an archive in Docker with `docker image import`.
+See [](#ex-dockerTools-exportImage-importingDocker) to understand how to do that.
 
-The parameters of `exportImage` are the following:
+:::{.caution}
+`exportImage` works by unpacking the given image inside a VM.
+Because of this, using this function requires the `kvm` device to be available, see [`system-features`](https://nixos.org/manual/nix/stable/command-ref/conf-file.html#conf-system-features).
+:::
+
+### Inputs {#ssec-pkgs-dockerTools-exportImage-inputs}
+
+`exportImage` expects an argument with the following attributes:
+
+`fromImage` (Attribute Set or String)
+
+: The repository tarball of the image whose filesystem will be exported.
+  It must be a valid Docker image, such as one exported by `docker image save`, or another image built with the `dockerTools` utility functions.
+
+  If `name` is not specified, `fromImage` must be an Attribute Set corresponding to a derivation, i.e. it can't be a path to a tarball.
+  If `name` is specified, `fromImage` can be either an Attribute Set corresponding to a derivation or simply a path to a tarball.
+
+  See [](#ex-dockerTools-exportImage-naming) and [](#ex-dockerTools-exportImage-fromImagePath) to understand the connection between `fromImage`, `name`, and the name used for the output of `exportImage`.
+
+`fromImageName` (String or Null; _optional_)
+
+: Used to specify the image within the repository tarball in case it contains multiple images.
+  A value of `null` means that `exportImage` will use the first image available in the repository.
+
+  :::{.note}
+  This must be used with `fromImageTag`. Using only `fromImageName` without `fromImageTag` will make `exportImage` use the first image available in the repository.
+  :::
+
+  _Default value:_ `null`.
+
+`fromImageTag` (String or Null; _optional_)
+
+: Used to specify the image within the repository tarball in case it contains multiple images.
+  A value of `null` means that `exportImage` will use the first image available in the repository.
+
+  :::{.note}
+  This must be used with `fromImageName`. Using only `fromImageTag` without `fromImageName` will make `exportImage` use the first image available in the repository
+  :::
+
+  _Default value:_ `null`.
+
+`diskSize` (Number; _optional_)
+
+: Controls the disk size (in megabytes) of the VM used to unpack the image.
+
+  _Default value:_ 1024.
+
+`name` (String; _optional_)
+
+: The name used for the output in the Nix store path.
+
+  _Default value:_ the value of `fromImage.name`.
+
+### Examples {#ssec-pkgs-dockerTools-exportImage-examples}
+
+:::{.example #ex-dockerTools-exportImage-hello}
+# Exporting a Docker image with `dockerTools.exportImage`
+
+This example first builds a layered image with [`dockerTools.buildLayeredImage`](#ssec-pkgs-dockerTools-buildLayeredImage), and then exports its filesystem with `dockerTools.exportImage`.
 
 ```nix
-exportImage {
-  fromImage = someLayeredImage;
-  fromImageName = null;
-  fromImageTag = null;
-
-  name = someLayeredImage.name;
+{ dockerTools, hello }:
+dockerTools.exportImage {
+  name = "hello";
+  fromImage = dockerTools.buildLayeredImage {
+    name = "hello";
+    contents = [ hello ];
+  };
 }
 ```
 
-The parameters relative to the base image have the same synopsis as described in [buildImage](#ssec-pkgs-dockerTools-buildImage), except that `fromImage` is the only required argument in this case.
+When building the package above, we can see the layers of the Docker image being unpacked to produce the final output:
 
-The `name` argument is the name of the derivation output, which defaults to `fromImage.name`.
+```shell
+$ nix-build
+(some output removed for clarity)
+Unpacking base image...
+From-image name or tag wasn't set. Reading the first ID.
+Unpacking layer 5731199219418f175d1580dbca05677e69144425b2d9ecb60f416cd57ca3ca42/layer.tar
+tar: Removing leading `/' from member names
+Unpacking layer e2897bf34bb78c4a65736510204282d9f7ca258ba048c183d665bd0f3d24c5ec/layer.tar
+tar: Removing leading `/' from member names
+Unpacking layer 420aa5876dca4128cd5256da7dea0948e30ef5971712f82601718cdb0a6b4cda/layer.tar
+tar: Removing leading `/' from member names
+Unpacking layer ea5f4e620e7906c8ecbc506b5e6f46420e68d4b842c3303260d5eb621b5942e5/layer.tar
+tar: Removing leading `/' from member names
+Unpacking layer 65807b9abe8ab753fa97da8fb74a21fcd4725cc51e1b679c7973c97acd47ebcf/layer.tar
+tar: Removing leading `/' from member names
+Unpacking layer b7da2076b60ebc0ea6824ef641978332b8ac908d47b2d07ff31b9cc362245605/layer.tar
+Executing post-mount steps...
+Packing raw image...
+[    1.660036] reboot: Power down
+/nix/store/x6a5m7c6zdpqz1d8j7cnzpx9glzzvd2h-hello
+```
+
+The following command lists some of the contents of the output to verify that the structure of the archive is as expected:
+
+```shell
+$ tar --exclude '*/share/*' --exclude 'nix/store/*/*' -tvf /nix/store/x6a5m7c6zdpqz1d8j7cnzpx9glzzvd2h-hello
+drwxr-xr-x root/0            0 1979-12-31 16:00 ./
+drwxr-xr-x root/0            0 1979-12-31 16:00 ./bin/
+lrwxrwxrwx root/0            0 1979-12-31 16:00 ./bin/hello -> /nix/store/h92a9jd0lhhniv2q417hpwszd4jhys7q-hello-2.12.1/bin/hello
+dr-xr-xr-x root/0            0 1979-12-31 16:00 ./nix/
+dr-xr-xr-x root/0            0 1979-12-31 16:00 ./nix/store/
+dr-xr-xr-x root/0            0 1979-12-31 16:00 ./nix/store/05zbwhz8a7i2v79r9j21pl6m6cj0xi8k-libunistring-1.1/
+dr-xr-xr-x root/0            0 1979-12-31 16:00 ./nix/store/ayg5rhjhi9ic73hqw33mjqjxwv59ndym-xgcc-13.2.0-libgcc/
+dr-xr-xr-x root/0            0 1979-12-31 16:00 ./nix/store/h92a9jd0lhhniv2q417hpwszd4jhys7q-hello-2.12.1/
+dr-xr-xr-x root/0            0 1979-12-31 16:00 ./nix/store/m59xdgkgnjbk8kk6k6vbxmqnf82mk9s0-libidn2-2.3.4/
+dr-xr-xr-x root/0            0 1979-12-31 16:00 ./nix/store/p3jshbwxiwifm1py0yq544fmdyy98j8a-glibc-2.38-27/
+drwxr-xr-x root/0            0 1979-12-31 16:00 ./share/
+```
+:::
+
+:::{.example #ex-dockerTools-exportImage-importingDocker}
+# Importing an archive built with `dockerTools.exportImage` in Docker
+
+We will use the same package from [](#ex-dockerTools-exportImage-hello) and import it into Docker.
+
+```nix
+{ dockerTools, hello }:
+dockerTools.exportImage {
+  name = "hello";
+  fromImage = dockerTools.buildLayeredImage {
+    name = "hello";
+    contents = [ hello ];
+  };
+}
+```
+
+Building and importing it into Docker:
+
+```shell
+$ nix-build
+(output removed for clarity)
+/nix/store/x6a5m7c6zdpqz1d8j7cnzpx9glzzvd2h-hello
+$ docker image import /nix/store/x6a5m7c6zdpqz1d8j7cnzpx9glzzvd2h-hello
+sha256:1d42dba415e9b298ea0decf6497fbce954de9b4fcb2984f91e307c8fedc1f52f
+$ docker image ls
+REPOSITORY                              TAG                IMAGE ID       CREATED         SIZE
+<none>                                  <none>             1d42dba415e9   4 seconds ago   32.6MB
+```
+:::
+
+:::{.example #ex-dockerTools-exportImage-naming}
+# Exploring output naming with `dockerTools.exportImage`
+
+`exportImage` does not require a `name` attribute if `fromImage` is a derivation, which means that the following works:
+
+```nix
+{ dockerTools, hello }:
+dockerTools.exportImage {
+  fromImage = dockerTools.buildLayeredImage {
+    name = "hello";
+    contents = [ hello ];
+  };
+}
+```
+
+However, since [`dockerTools.buildLayeredImage`](#ssec-pkgs-dockerTools-buildLayeredImage)'s output ends with `.tar.gz`, the output of `exportImage` will also end with `.tar.gz`, even though the archive created with `exportImage` is uncompressed:
+
+```shell
+$ nix-build
+(output removed for clarity)
+/nix/store/by3f40xvc4l6bkis74l0fj4zsy0djgkn-hello.tar.gz
+$ file /nix/store/by3f40xvc4l6bkis74l0fj4zsy0djgkn-hello.tar.gz
+/nix/store/by3f40xvc4l6bkis74l0fj4zsy0djgkn-hello.tar.gz: POSIX tar archive (GNU)
+```
+
+If the archive was actually compressed, the output of file would've mentioned that fact.
+Because of this, it may be important to set a proper `name` attribute when using `exportImage` with other functions from `dockerTools`.
+:::
+
+:::{.example #ex-dockerTools-exportImage-fromImagePath}
+# Using `dockerTools.exportImage` with a path as `fromImage`
+
+It is possible to use a path as the value of the `fromImage` attribute when calling `dockerTools.exportImage`.
+However, when doing so, a `name` attribute **MUST** be specified, or you'll encounter an error when evaluating the Nix code.
+
+For this example, we'll assume a Docker tarball image named `image.tar.gz` exists in the same directory where our package is defined:
+
+```nix
+{ dockerTools }:
+dockerTools.exportImage {
+  name = "filesystem.tar";
+  fromImage = ./image.tar.gz;
+}
+```
+
+Building this will give us the expected output:
+
+```shell
+$ nix-build
+(output removed for clarity)
+/nix/store/w13l8h3nlkg0zv56k7rj0ai0l2zlf7ss-filesystem.tar
+```
+
+If you don't specify a `name` attribute, you'll encounter an evaluation error and the package won't build.
+:::
 
 ## Environment Helpers {#ssec-pkgs-dockerTools-helpers}
 
@@ -844,6 +1143,18 @@ buildImage {
 ```
 
 Creating base files like `/etc/passwd` or `/etc/login.defs` is necessary for shadow-utils to manipulate users and groups.
+
+When using `buildLayeredImage`, you can put this in `fakeRootCommands` if you `enableFakechroot`:
+```nix
+buildLayeredImage {
+  name = "shadow-layered";
+
+  fakeRootCommands = ''
+    ${pkgs.dockerTools.shadowSetup}
+  '';
+  enableFakechroot = true;
+}
+```
 
 ## fakeNss {#ssec-pkgs-dockerTools-fakeNss}
 

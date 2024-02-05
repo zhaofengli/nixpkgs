@@ -97,7 +97,6 @@
 , errcheck
 , go-motion
 , go-tools
-, gocode
 , gocode-gomod
 , godef
 , gogetdoc
@@ -110,6 +109,7 @@
 , iferr
 , impl
 , reftools
+, revive
 , # hurl dependencies
   hurl
 , # must be lua51Packages
@@ -282,6 +282,10 @@
 
   cmp-snippy = super.cmp-snippy.overrideAttrs {
     dependencies = with self; [ nvim-cmp nvim-snippy ];
+  };
+
+  cmp-tabby = super.cmp-tabby.overrideAttrs {
+    dependencies = with self; [ nvim-cmp ];
   };
 
   cmp-tabnine = super.cmp-tabnine.overrideAttrs {
@@ -664,6 +668,10 @@
 
   harpoon2 = super.harpoon2.overrideAttrs {
     dependencies = with self; [ plenary-nvim ];
+  };
+
+  haskell-scope-highlighting-nvim = super.haskell-scope-highlighting-nvim.overrideAttrs {
+    dependencies = with self; [ nvim-treesitter ];
   };
 
   hex-nvim = super.hex-nvim.overrideAttrs {
@@ -1112,7 +1120,7 @@
         pname = "sg-nvim-rust";
         inherit (old) version src;
 
-        cargoHash = "sha256-U+EGS0GMWzE2yFyMH04gXpR9lR7HRMgWBecqICfTUbE=";
+        cargoHash = "sha256-BDNFZ/7nnfvtBA7T6a7MDNJsq/cOI9tgW0kxUoIcbV8=";
 
         nativeBuildInputs = [ pkg-config ];
 
@@ -1526,13 +1534,11 @@
   vim-go =
     let
       binPath = lib.makeBinPath [
-        # TODO: package commented packages
         asmfmt
         delve
         errcheck
         go-motion
-        go-tools # contains staticcheck
-        gocode
+        go-tools # contains staticcheck, keyify
         gocode-gomod
         godef
         gogetdoc
@@ -1540,15 +1546,12 @@
         golangci-lint
         gomodifytags
         gopls
-        # gorename
         gotags
-        gotools
-        # guru
+        gotools # contains guru, gorename
         iferr
         impl
-        # keyify
         reftools
-        # revive
+        revive
       ];
     in
     super.vim-go.overrideAttrs {

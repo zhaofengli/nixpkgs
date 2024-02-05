@@ -3,11 +3,12 @@
 , rustPlatform
 , fetchFromGitHub
 , Security
+, SystemConfiguration
 , nixosTests
 , nix-update-script
 }:
 
-let version = "1.6.0";
+let version = "1.6.1";
 in
 rustPlatform.buildRustPackage {
   pname = "meilisearch";
@@ -17,7 +18,7 @@ rustPlatform.buildRustPackage {
     owner = "meilisearch";
     repo = "MeiliSearch";
     rev = "refs/tags/v${version}";
-    hash = "sha256-B1psJeGWG0E5oPu+OVAxkdJNblqaBzB/CurpLxdESB8=";
+    hash = "sha256-bA0UWRX16HTB/XCuzRa1C71DxfMJx1fZ/xVZFkxq1SM=";
   };
 
   cargoBuildFlags = [
@@ -40,7 +41,7 @@ rustPlatform.buildRustPackage {
   buildNoDefaultFeatures = true;
 
   buildInputs = lib.optionals stdenv.isDarwin [
-    Security
+    Security SystemConfiguration
   ];
 
   passthru = {
