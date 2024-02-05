@@ -131,9 +131,6 @@ in stdenv.mkDerivation {
 
     substituteInPlace src/startup/CMakeLists.txt --replace SETUID ""
     substituteInPlace src/external/basic_cmds/CMakeLists.txt --replace SETGID ""
-
-    # https://github.com/darlinghq/darling-wtf/pull/3
-    rm src/external/WTF/darling/include/wtf/mac/AppKitCompatibilityDeclarations.h
   '';
 
   nativeBuildInputs = [
