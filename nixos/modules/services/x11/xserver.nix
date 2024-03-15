@@ -710,9 +710,9 @@ in
           '';
         }
       # Needed since 1.18; see https://bugs.freedesktop.org/show_bug.cgi?id=89023#c5
-      // (let cfgPath = "/X11/xorg.conf.d/10-evdev.conf"; in
+      // (let cfgPath = "X11/xorg.conf.d/10-evdev.conf"; in
         {
-          ${cfgPath}.source = xorg.xf86inputevdev.out + "/share" + cfgPath;
+          ${cfgPath}.source = xorg.xf86inputevdev.out + "/share/" + cfgPath;
         });
 
     environment.systemPackages = utils.removePackagesByName
@@ -748,6 +748,8 @@ in
     # the value below is used by default on several other distros.
     boot.kernel.sysctl."fs.inotify.max_user_instances" = mkDefault 524288;
     boot.kernel.sysctl."fs.inotify.max_user_watches" = mkDefault 524288;
+
+    programs.gnupg.agent.pinentryPackage = lib.mkDefault pkgs.pinentry-gnome3;
 
     systemd.defaultUnit = mkIf cfg.autorun "graphical.target";
 

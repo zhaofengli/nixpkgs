@@ -364,6 +364,7 @@ in {
           "proc-sys-fs-binfmt_misc.mount"
           "systemd-binfmt.service"
         ];
+        services.systemd-binfmt.after = [ "systemd-tmpfiles-setup.service" ];
         services.systemd-binfmt.restartTriggers = [ (builtins.toJSON config.boot.binfmt.registrations) ];
       })
     ];

@@ -407,7 +407,8 @@ lib.pipe ((callFile ./common/builder.nix {}) ({
     inherit langC langCC langObjC langObjCpp langAda langFortran langGo langD langJava version;
     isGNU = true;
     hardeningUnsupportedFlags = lib.optional is48 "stackprotector"
-      ++ lib.optional (!atLeast12) "fortify3"
+      ++ lib.optional (!atLeast11) "zerocallusedregs"
+      ++ lib.optionals (!atLeast12) [ "fortify3" "trivialautovarinit" ]
       ++ lib.optionals (langFortran) [ "fortify" "format" ];
   };
 

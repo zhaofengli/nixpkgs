@@ -5,11 +5,11 @@
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "sketchybar-app-font";
-  version = "2.0.3";
+  version = "2.0.8";
 
   src = fetchurl {
     url = "https://github.com/kvndrsslr/sketchybar-app-font/releases/download/v${finalAttrs.version}/sketchybar-app-font.ttf";
-    hash = "sha256-KeyUx/u0YARmNdVC9RQtAL3QFOgV59uyg53y0Lknvyw=";
+    hash = "sha256-WX30kF0DF85RNMapVrADCh1LKLnYpJdpgG/3dGWhuRs=";
   };
 
   dontUnpack = true;
@@ -28,7 +28,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       A ligature-based symbol font and a mapping function for sketchybar, inspired by simple-bar's usage of community-contributed minimalistic app icons.
     '';
     homepage = "https://github.com/kvndrsslr/sketchybar-app-font";
-    license = lib.licenses.unlicense;
+    license = lib.licenses.cc0;
     maintainers = with lib.maintainers; [ khaneliman ];
   };
 })

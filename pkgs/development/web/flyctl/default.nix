@@ -1,17 +1,17 @@
-{ lib, buildGoModule, fetchFromGitHub, testers, flyctl, installShellFiles }:
+{ lib, buildGo122Module, fetchFromGitHub, testers, flyctl, installShellFiles }:
 
-buildGoModule rec {
+buildGo122Module rec {
   pname = "flyctl";
-  version = "0.1.146";
+  version = "0.2.17";
 
   src = fetchFromGitHub {
     owner = "superfly";
     repo = "flyctl";
     rev = "v${version}";
-    hash = "sha256-FXEYZEMwUsDWoN+MHjg6Au0rgZTE4N0ViktmEi2nH7c=";
+    hash = "sha256-XE1kZdR9ZbWMqp0neouZBvNtIJbOdzp/aMe+uA85zL8=";
   };
 
-  vendorHash = "sha256-hfNrhaRZoRdbvh/MnwKWFbepGkCuCsbcW88tWSPwCO0=";
+  vendorHash = "sha256-ZX7hcxQJdSLwY37DnV3vKcBW+K9F5RMPUeMtWzm48Dc=";
 
   subPackages = [ "." ];
 

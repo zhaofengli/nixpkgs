@@ -12,16 +12,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "pixi";
-  version = "0.11.1";
+  version = "0.15.2";
 
   src = fetchFromGitHub {
     owner = "prefix-dev";
     repo = "pixi";
     rev = "v${version}";
-    hash = "sha256-NOa8OvZs+BoJQ9qIU1lpMmEOecZpmwwCNYpDk1LUSTI=";
+    hash = "sha256-bh8Uu6Q2AND50Qzivc6k1Z8JWudkHC2i4YW1Hxa69SM=";
   };
 
-  cargoHash = "sha256-rDtr9ITYH5o/QPG1Iozh05iTA8c0i+3DnabXLzyqdrg=";
+  cargoHash = "sha256-yMIcPwnuN7F2ZrOtJw8T+nxeSzLsYn+iC34bYeWpi/w=";
 
   nativeBuildInputs = [
     pkg-config
@@ -35,6 +35,13 @@ rustPlatform.buildRustPackage rec {
     with darwin.apple_sdk_11_0.frameworks; [ CoreFoundation IOKit SystemConfiguration Security ]
   );
 
+  # There are some CI failures with Rattler. Tests on Aarch64 has been skipped.
+  # See https://github.com/prefix-dev/pixi/pull/241.
+  doCheck = !stdenv.isAarch64;
+
+  preCheck = ''
+    export HOME="$(mktemp -d)"
+  '';
 
   checkFlags = [
     # Skip tests requiring network
@@ -49,7 +56,7 @@ rustPlatform.buildRustPackage rec {
   ];
 
   postInstall = ''
-    installShellCompletion --cmd pix \
+    installShellCompletion --cmd pixi \
       --bash <($out/bin/pixi completion --shell bash) \
       --fish <($out/bin/pixi completion --shell fish) \
       --zsh <($out/bin/pixi completion --shell zsh)

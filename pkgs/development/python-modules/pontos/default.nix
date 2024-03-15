@@ -11,13 +11,14 @@
 , python-dateutil
 , pythonOlder
 , semver
+, shtab
 , rich
 , tomlkit
 }:
 
 buildPythonPackage rec {
   pname = "pontos";
-  version = "24.1.2";
+  version = "24.3.1";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
@@ -26,7 +27,7 @@ buildPythonPackage rec {
     owner = "greenbone";
     repo = "pontos";
     rev = "refs/tags/v${version}";
-    hash = "sha256-t8mfAi5EG/k5dXsEjC5IpBn/adpSOhqCIkpZ2IMzMkQ=";
+    hash = "sha256-EYfhbIFD2p6ZZ4i6NCA22LS6mAZoJCJSYlTmRExWgw4=";
   };
 
   nativeBuildInputs = [
@@ -40,6 +41,7 @@ buildPythonPackage rec {
     packaging
     python-dateutil
     semver
+    shtab
     rich
     tomlkit
   ] ++ httpx.optional-dependencies.http2;

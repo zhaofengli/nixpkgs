@@ -1,6 +1,7 @@
 { lib
 , buildPythonPackage
 , fetchFromGitHub
+, setuptools
 , aiohttp
 , semver
 , deepmerge
@@ -11,8 +12,8 @@
 
 buildPythonPackage rec {
   pname = "blebox-uniapi";
-  version = "2.2.1";
-  format = "setuptools";
+  version = "2.3.0";
+  pyproject = true;
 
   disabled = pythonOlder "3.9";
 
@@ -20,13 +21,17 @@ buildPythonPackage rec {
     owner = "blebox";
     repo = "blebox_uniapi";
     rev = "refs/tags/v${version}";
-    hash = "sha256-aVYk/N8dH0jc9BLQ2nZXulMCUqwEWpSX/JTiAxdn2sM=";
+    hash = "sha256-nqxbwHzx2cnojw/XX9XQoVvOCCd88tulY0m9xEHU3m4=";
   };
 
   postPatch = ''
     substituteInPlace setup.py \
-      --replace "pytest-runner" ""
+      --replace-fail "pytest-runner" ""
   '';
+
+  nativeBuildInputs = [
+    setuptools
+  ];
 
   propagatedBuildInputs = [
     aiohttp

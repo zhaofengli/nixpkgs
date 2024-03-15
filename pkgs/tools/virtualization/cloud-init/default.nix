@@ -17,14 +17,14 @@
 
 python3.pkgs.buildPythonApplication rec {
   pname = "cloud-init";
-  version = "23.4.2";
+  version = "23.4.4";
   namePrefix = "";
 
   src = fetchFromGitHub {
     owner = "canonical";
     repo = "cloud-init";
     rev = "refs/tags/${version}";
-    hash = "sha256-Ae6xvXZR2ikriYekZbHfXG7iL0LlT7exwaaGt5odplg=";
+    hash = "sha256-imA3C2895W4vbBT9TsELT1H9QfNIxntNQLsniv+/FGg=";
   };
 
   patches = [

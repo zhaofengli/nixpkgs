@@ -18,8 +18,6 @@ import ../make-test-python.nix (
     nodes.machine =
       { lib, ... }:
       {
-        environment.systemPackages = [ pkgs.lxd-to-incus ];
-
         virtualisation = {
           diskSize = 6144;
           cores = 2;
@@ -69,6 +67,7 @@ import ../make-test-python.nix (
 
           incus.enable = true;
         };
+        networking.nftables.enable = true;
       };
 
     testScript = ''
