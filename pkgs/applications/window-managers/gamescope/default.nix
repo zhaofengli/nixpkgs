@@ -1,6 +1,5 @@
 { stdenv
 , fetchFromGitHub
-, fetchpatch
 , meson
 , pkg-config
 , ninja
@@ -11,6 +10,8 @@
 , wayland
 , wayland-protocols
 , libxkbcommon
+, glm
+, gbenchmark
 , libcap
 , libavif
 , SDL2
@@ -24,7 +25,6 @@
 , wlroots
 , libliftoff
 , libdisplay-info
-, glm
 , lib
 , makeBinaryWrapper
 , nix-update-script
@@ -122,7 +122,6 @@ stdenv.mkDerivation (finalAttrs: {
     libcap
     stb
     libdisplay-info
-    glm
   ];
 
   postInstall = lib.optionalString enableExecutable ''
