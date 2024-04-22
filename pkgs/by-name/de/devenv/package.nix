@@ -1,14 +1,18 @@
-{ stdenv
-, lib
-, openssl
+{ lib
+, stdenv
+, fetchFromGitHub
+, makeWrapper
+, rustPlatform
+, testers
+
+, cachix
 , darwin
 , libgit2
-, makeWrapper
 , nix
+, openssl
 , pkg-config
-, rustPlatform
-, cachix
-, fetchFromGitHub
+
+, devenv  # required to run version test
 }:
 
 let
@@ -17,15 +21,15 @@ let
     src = fetchFromGitHub {
       owner = "domenkozar";
       repo = "nix";
-      rev = "c5bbf14ecbd692eeabf4184cc8d50f79c2446549";
-      hash = "sha256-zvCqeUO2GLOm7jnU23G4EzTZR7eylcJN+HJ5svjmubI=";
+      rev = "ecd0af0c1f56de32cbad14daa1d82a132bf298f8";
+      hash = "sha256-92xq7eXlxIT5zFNccLpjiP7sdQqQI30Gyui2p/PfKZM=";
     };
     buildInputs = old.buildInputs ++ [ libgit2 ];
     doCheck = false;
     doInstallCheck = false;
   });
 
-  version = "1.0.1";
+  version = "1.0.4";
 in rustPlatform.buildRustPackage {
   pname = "devenv";
   inherit version;
@@ -34,12 +38,10 @@ in rustPlatform.buildRustPackage {
     owner = "cachix";
     repo = "devenv";
     rev = "v${version}";
-    hash = "sha256-9LnGe0KWqXj18IV+A1panzXQuTamrH/QcasaqnuqiE0=";
+    hash = "sha256-JODoFPcYKOr39dErx8JFSjeWKmO5PUsHJrF2VU6MFEg=";
   };
 
-  cargoLock = {
-    lockFile = ./Cargo.lock;
-  };
+  cargoHash = "sha256-//THEzW0OYEDSLrOELBaWnwjDbUc4jpwRDQfWJO/saA=";
 
   nativeBuildInputs = [ makeWrapper pkg-config ];
 
@@ -50,6 +52,13 @@ in rustPlatform.buildRustPackage {
   postInstall = ''
     wrapProgram $out/bin/devenv --set DEVENV_NIX ${devenv_nix} --prefix PATH ":" "$out/bin:${cachix}/bin"
   '';
+
+  passthru.tests = {
+    version = testers.testVersion {
+      package = devenv;
+      command = "export XDG_DATA_HOME=$PWD; devenv version";
+    };
+  };
 
   meta = {
     changelog = "https://github.com/cachix/devenv/releases/tag/v${version}";

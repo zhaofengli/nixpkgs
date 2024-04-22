@@ -18,6 +18,7 @@
 , pytest-mock
 , pytestCheckHook
 , pythonOlder
+, pythonRelaxDepsHook
 , pyyaml
 , requests
 , setuptools
@@ -39,7 +40,12 @@ buildPythonPackage rec {
     hash = "sha256-x6f5hhTdOPDVFiBvRhfrXq1wd5keYiuUshXnT0IkjX0=";
   };
 
+  pythonRelaxDeps = [
+    "aiohttp"
+  ];
+
   nativeBuildInputs = [
+    pythonRelaxDepsHook
     setuptools
   ];
 
@@ -91,11 +97,10 @@ buildPythonPackage rec {
     "papermill"
   ];
 
-  pytestFlagsArray = [
-    "-W" "ignore::pytest.PytestRemovedIn8Warning"
-  ];
-
-  disabledTests = lib.optionals stdenv.isDarwin [
+  disabledTests = [
+    # pytest 8 compat
+    "test_read_with_valid_file_extension"
+  ] ++ lib.optionals stdenv.isDarwin [
     # might fail due to the sandbox
     "test_end2end_autosave_slow_notebook"
   ];

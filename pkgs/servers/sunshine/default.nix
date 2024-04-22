@@ -2,6 +2,7 @@
 , stdenv
 , fetchFromGitHub
 , autoPatchelfHook
+, autoAddDriverRunpath
 , makeWrapper
 , buildNpmPackage
 , cmake
@@ -22,6 +23,7 @@
 , curl
 , pcre
 , pcre2
+, python3
 , libuuid
 , libselinux
 , libsepol
@@ -49,13 +51,13 @@ let
 in
 stdenv'.mkDerivation rec {
   pname = "sunshine";
-  version = "0.22.2";
+  version = "0.23.0";
 
   src = fetchFromGitHub {
     owner = "LizardByte";
     repo = "Sunshine";
     rev = "v${version}";
-    sha256 = "sha256-So8fX0XQoW2cdTWWENoE07EU6e8vvjeTpizLoaDTjeg=";
+    sha256 = "sha256-K43LZ7zouTRUI4xhiHuRzu2tN7mUl1nTapuR34JR/Ac=";
     fetchSubmodules = true;
   };
 
@@ -68,7 +70,7 @@ stdenv'.mkDerivation rec {
   ui = buildNpmPackage {
     inherit src version;
     pname = "sunshine-ui";
-    npmDepsHash = "sha256-0487ntbJZ20MZHezQ+Z3EJkidF3Dgoh/mynYwR7k/+I=";
+    npmDepsHash = "sha256-I7IrCR7eQ97a8cPB8F8+T0zX8iJcwh+YtZ9QRtEVZtI=";
 
     # use generated package-lock.json as upstream does not provide one
     postPatch = ''
@@ -84,10 +86,12 @@ stdenv'.mkDerivation rec {
   nativeBuildInputs = [
     cmake
     pkg-config
-    autoPatchelfHook
+    python3
     makeWrapper
+    # Avoid fighting upstream's usage of vendored ffmpeg libraries
+    autoPatchelfHook
   ] ++ lib.optionals cudaSupport [
-    cudaPackages.autoAddDriverRunpath
+    autoAddDriverRunpath
   ];
 
   buildInputs = [
@@ -160,6 +164,10 @@ stdenv'.mkDerivation rec {
       --subst-var-by PROJECT_NAME 'Sunshine' \
       --subst-var-by PROJECT_DESCRIPTION 'Self-hosted game stream host for Moonlight' \
       --replace-fail '/usr/bin/env systemctl start --u sunshine' 'sunshine'
+
+    substituteInPlace packaging/linux/sunshine.service.in \
+      --subst-var-by PROJECT_DESCRIPTION 'Self-hosted game stream host for Moonlight' \
+      --subst-var-by SUNSHINE_EXECUTABLE_PATH $out/bin/sunshine
   '';
 
   preBuild = ''
