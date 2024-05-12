@@ -57,6 +57,7 @@ mapAliases ({
   Babel = babel; # added 2022-05-06
   backports_csv = throw "backports_csv has been removed, since we no longer need to backport to python2"; # added 2023-07-28
   backports_functools_lru_cache = throw "backports_functools_lru_cache has been removed, since we no longer need to backport to python3.2"; # added 2023-07-28
+  backports_shutil_get_terminal_size = backports-shutil-get-terminal-size; # added 2024-04-21
   backports_tempfile = throw "backports_tempfile has been removed, since we no longer need to backport to python3.3"; # added 2023-07-28
   backports_unittest-mock = throw "backports_unittest-mock has been removed, since we no longer need to backport to python3.2"; # added 2023-07-28
   backports_weakref = throw "backports_weakref has been removed, since we no longer need to backport to python3.3"; # added 2023-07-28
@@ -149,6 +150,7 @@ mapAliases ({
   factory_boy = factory-boy; # added 2023-10-08
   fake_factory = throw "fake_factory has been removed because it is unused and deprecated by upstream since 2016."; # added 2022-05-30
   fastnlo_toolkit = fastnlo-toolkit; # added 2024-01-03
+  fastpair = throw "fastpair is unmaintained upstream and has therefore been removed"; # added 2024-05-01
   faulthandler = throw "faulthandler is built into ${python.executable}"; # added 2021-07-12
   inherit (super.pkgs) fetchPypi; # added 2023-05-25
   filebrowser_safe = filebrowser-safe; # added 2024-01-03
@@ -276,6 +278,7 @@ mapAliases ({
   mailman-hyperkitty = throw "Please use pkgs.mailmanPackages.mailman-hyperkitty"; # added 2022-04-29
   mailman-web = throw "Please use pkgs.mailman-web"; # added 2022-04-29
   manticore = throw "manticore has been removed because its dependency wasm no longer builds and is unmaintained"; # added 2023-05-20
+  marshmallow-enum = throw "marshmallow-enum has been removed because it was archived in 2022 and had no maintainer"; # added 2024-05-10
   markerlib = throw "markerlib has been removed because it's abandoned since 2013"; # added 2023-05-19
   memory_profiler = memory-profiler; # added 2023-10-09
   mir_eval = mir-eval; # added 2024-01-07
@@ -329,6 +332,7 @@ mapAliases ({
   pyblake2 = throw "pyblake2 is deprecated in favor of hashlib"; # added 2023-04-23
   pyblock = throw "pyblock has been removed, since it is abandoned and broken"; # added 2023-06-20
   pydrive = throw "pydrive is broken and deprecated and has been replaced with pydrive2."; # added 2022-06-01
+  pyjet = throw "pyjet is deprecated, use fastjet instead"; # added 2023-05-10
   pygame_sdl2 = pygame-sdl2; # added 2024-01-07
   pygbm = throw "pygbm has been removed, since it is abandoned and broken"; # added 2023-06-20
   PyGithub = pygithub; # added 2023-02-19
@@ -341,7 +345,6 @@ mapAliases ({
   pyialarmxr = pyialarmxr-homeassistant; # added 2022-06-07
   pyialarmxr-homeassistant = throw "The package was removed together with the component support in home-assistant 2022.7.0"; # added 2022-07-07
   PyICU = pyicu; # Added 2022-12-22
-  pyjson5 = json5; # added 2022-08-28
   pyhs100 = throw "pyhs100 has been removed in favor of python-kasa."; # added 2024-01-05
   pylibgen = throw "pylibgen is unmaintained upstreamed, and removed from nixpkgs"; # added 2020-06-20
   PyLD = pyld; # added 2022-06-22
@@ -476,6 +479,7 @@ mapAliases ({
   smpp_pdu = smpp-pdu; # added 2024-03-05
   somecomfort = throw "somecomfort was removed because Home Assistant switched to aiosomecomfort"; # added 2023-02-01
   sorl_thumbnail = sorl-thumbnail; # added 2023-11-12
+  spacy_models = spacy-models; # added 2024-04-21
   SPARQLWrapper = sparqlwrapper;
   spark_parser = spark-parser; # added 2024-01-07
   sphinx-jquery = sphinxcontrib-jquery; # added 2023-02-24

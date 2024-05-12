@@ -5,14 +5,14 @@
 
 buildGoModule rec {
   pname = "kcl-cli";
-  version = "0.8.5";
+  version = "0.8.8";
   src = fetchFromGitHub {
     owner = "kcl-lang";
     repo = "cli";
     rev = "v${version}";
-    hash = "sha256-ZjEMgQukhBGY3LWqsGmLj3lKfLtNNaQugQs0cSLMb80=";
+    hash = "sha256-Bk/sCNMDupdY/YyKT+VoPIzEfjFDa5z9pevcCPnTX8U=";
   };
-  vendorHash = "sha256-jmqKMB85HxAlwH7FVjHrLCZQYuAJrguRfzIz1yMypjw=";
+  vendorHash = "sha256-Xv8Tfq9Kb1xGFCWZQwBFDX9xZW9j99td/DUb7jBtkpE=";
   ldflags = [
     "-X=kcl-lang.io/cli/pkg/version.version=${version}"
   ];

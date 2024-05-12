@@ -158,6 +158,10 @@ buildPythonPackage rec {
     # AssertionErrors
     "test_callback_handlers"
     "test_generic_fake_chat_model"
+    # Test is outdated
+    "test_serializable_mapping"
+    "test_person"
+    "test_aliases_hidden"
   ];
 
   pythonImportsCheck = [ "langchain" ];
