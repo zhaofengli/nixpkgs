@@ -798,7 +798,7 @@ in {
     extraConfig = mkOption {
       type = types.lines;
       default = "";
-      description = lib.mdDoc "[not for upstream] Extra configurations.";
+      description = "[not for upstream] Extra configurations.";
     };
   };
 
