@@ -2,16 +2,16 @@
 
 buildGoModule rec {
   pname = "golangci-lint";
-  version = "1.58.0";
+  version = "1.58.2";
 
   src = fetchFromGitHub {
     owner = "golangci";
     repo = "golangci-lint";
     rev = "v${version}";
-    hash = "sha256-qG/H6/FePQFJdiSnf1zh5Pos9KjuicRJ3HzDM0QXPSE=";
+    hash = "sha256-LVkBIoRzmGQ6aJTOEyW51pdPqi7YOvuuAnaQwm0Fuyw=";
   };
 
-  vendorHash = "sha256-bT8MUeLk7LgLlqk3aBqsVU139ZH4y1ZFsQ67Lxj4OBg=";
+  vendorHash = "sha256-BqNBglFoQQHhXIlI0UYerz0JLKmIzjjwqg2NYIeE14E=";
 
   subPackages = [ "cmd/golangci-lint" ];
 
@@ -38,6 +38,6 @@ buildGoModule rec {
     changelog = "https://github.com/golangci/golangci-lint/blob/v${version}/CHANGELOG.md";
     mainProgram = "golangci-lint";
     license = licenses.gpl3Plus;
-    maintainers = with maintainers; [ anpryl manveru mic92 ];
+    maintainers = with maintainers; [ SuperSandro2000 mic92 ];
   };
 }

@@ -130,6 +130,7 @@ in {
   apparmor = handleTest ./apparmor.nix {};
   archi = handleTest ./archi.nix {};
   armagetronad = handleTest ./armagetronad.nix {};
+  artalk = handleTest ./artalk.nix {};
   atd = handleTest ./atd.nix {};
   atop = handleTest ./atop.nix {};
   atuin = handleTest ./atuin.nix {};
@@ -144,6 +145,7 @@ in {
   bcachefs = handleTestOn ["x86_64-linux" "aarch64-linux"] ./bcachefs.nix {};
   beanstalkd = handleTest ./beanstalkd.nix {};
   bees = handleTest ./bees.nix {};
+  benchexec = handleTest ./benchexec.nix {};
   binary-cache = handleTest ./binary-cache.nix {};
   bind = handleTest ./bind.nix {};
   bird = handleTest ./bird.nix {};
@@ -204,6 +206,7 @@ in {
   code-server = handleTest ./code-server.nix {};
   coder = handleTest ./coder.nix {};
   collectd = handleTest ./collectd.nix {};
+  commafeed = handleTest ./commafeed.nix {};
   connman = handleTest ./connman.nix {};
   consul = handleTest ./consul.nix {};
   consul-template = handleTest ./consul-template.nix {};
@@ -243,6 +246,7 @@ in {
   deepin = handleTest ./deepin.nix {};
   deluge = handleTest ./deluge.nix {};
   dendrite = handleTest ./matrix/dendrite.nix {};
+  devpi-server = handleTest ./devpi-server.nix {};
   dex-oidc = handleTest ./dex-oidc.nix {};
   dhparams = handleTest ./dhparams.nix {};
   disable-installer-tools = handleTest ./disable-installer-tools.nix {};
@@ -308,6 +312,7 @@ in {
   fenics = handleTest ./fenics.nix {};
   ferm = handleTest ./ferm.nix {};
   ferretdb = handleTest ./ferretdb.nix {};
+  filesender = handleTest ./filesender.nix {};
   filesystems-overlayfs = runTest ./filesystems-overlayfs.nix;
   firefly-iii = handleTest ./firefly-iii.nix {};
   firefox = handleTest ./firefox.nix { firefoxPackage = pkgs.firefox; };
@@ -586,7 +591,7 @@ in {
   mysql-backup = handleTest ./mysql/mysql-backup.nix {};
   mysql-replication = handleTest ./mysql/mysql-replication.nix {};
   n8n = handleTest ./n8n.nix {};
-  nagios = handleTest ./nagios.nix {};
+  nagios = handleTestOn [ "x86_64-linux" "aarch64-linux" ] ./nagios.nix {};
   nar-serve = handleTest ./nar-serve.nix {};
   nat.firewall = handleTest ./nat.nix { withFirewall = true; };
   nat.standalone = handleTest ./nat.nix { withFirewall = false; };
@@ -757,6 +762,7 @@ in {
   pretix = runTest ./web-apps/pretix.nix;
   printing-socket = handleTest ./printing.nix { socket = true; };
   printing-service = handleTest ./printing.nix { socket = false; };
+  private-gpt = handleTest ./private-gpt.nix {};
   privoxy = handleTest ./privoxy.nix {};
   prometheus = handleTest ./prometheus.nix {};
   prometheus-exporters = handleTest ./prometheus-exporters.nix {};
@@ -871,7 +877,8 @@ in {
   swap-random-encryption = handleTest ./swap-random-encryption.nix {};
   sway = handleTest ./sway.nix {};
   swayfx = handleTest ./swayfx.nix {};
-  switchTest = handleTest ./switch-test.nix {};
+  switchTest = handleTest ./switch-test.nix { ng = false; };
+  switchTestNg = handleTest ./switch-test.nix { ng = true; };
   sympa = handleTest ./sympa.nix {};
   syncthing = handleTest ./syncthing.nix {};
   syncthing-no-settings = handleTest ./syncthing-no-settings.nix {};
@@ -884,7 +891,7 @@ in {
   systemd-binfmt = handleTestOn ["x86_64-linux"] ./systemd-binfmt.nix {};
   systemd-boot = handleTest ./systemd-boot.nix {};
   systemd-bpf = handleTest ./systemd-bpf.nix {};
-  systemd-confinement = handleTest ./systemd-confinement.nix {};
+  systemd-confinement = handleTest ./systemd-confinement {};
   systemd-coredump = handleTest ./systemd-coredump.nix {};
   systemd-cryptenroll = handleTest ./systemd-cryptenroll.nix {};
   systemd-credentials-tpm2 = handleTest ./systemd-credentials-tpm2.nix {};
@@ -923,6 +930,7 @@ in {
   systemd-oomd = handleTest ./systemd-oomd.nix {};
   systemd-portabled = handleTest ./systemd-portabled.nix {};
   systemd-repart = handleTest ./systemd-repart.nix {};
+  systemd-resolved = handleTest ./systemd-resolved.nix {};
   systemd-shutdown = handleTest ./systemd-shutdown.nix {};
   systemd-sysupdate = runTest ./systemd-sysupdate.nix;
   systemd-sysusers-mutable = runTest ./systemd-sysusers-mutable.nix;
@@ -1001,7 +1009,7 @@ in {
   vault-dev = handleTest ./vault-dev.nix {};
   vault-postgresql = handleTest ./vault-postgresql.nix {};
   vaultwarden = handleTest ./vaultwarden.nix {};
-  vector = handleTest ./vector.nix {};
+  vector = handleTest ./vector {};
   vengi-tools = handleTest ./vengi-tools.nix {};
   victoriametrics = handleTest ./victoriametrics.nix {};
   vikunja = handleTest ./vikunja.nix {};
@@ -1037,7 +1045,9 @@ in {
   xterm = handleTest ./xterm.nix {};
   xxh = handleTest ./xxh.nix {};
   yabar = handleTest ./yabar.nix {};
+  ydotool = handleTest ./ydotool.nix {};
   yggdrasil = handleTest ./yggdrasil.nix {};
+  your_spotify = handleTest ./your_spotify.nix {};
   zammad = handleTest ./zammad.nix {};
   zeronet-conservancy = handleTest ./zeronet-conservancy.nix {};
   zfs = handleTest ./zfs.nix {};

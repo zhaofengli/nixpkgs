@@ -301,7 +301,7 @@ in {
       message = "boot.binfmt.registrations.\"${name}\" cannot have fixBinary when the interpreter is invoked through a shell.";
     }) cfg.registrations;
 
-    boot.binfmt.registrations = builtins.listToAttrs (map (system: {
+    boot.binfmt.registrations = builtins.listToAttrs (map (system: assert system != pkgs.stdenv.hostPlatform.system; {
       name = system;
       value = { config, ... }: let
         staticEmulator = getStaticEmulator system;
