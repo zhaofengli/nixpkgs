@@ -15,13 +15,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "fooyin";
-  version = "0.4.2";
+  version = "0.5.0";
 
   src = fetchFromGitHub {
     owner = "ludouzi";
     repo = "fooyin";
     rev = "v" + finalAttrs.version;
-    hash = "sha256-1U7eqXVcp0lO/X92oNQ3mWdozgJ1eroQPojscSWH6+I=";
+    hash = "sha256-OgO0o3OaL/1MOgpi5QIDzVQI8eM0zPgPVLWzICMgV7w=";
   };
 
   buildInputs = [
@@ -52,7 +52,7 @@ stdenv.mkDerivation (finalAttrs: {
   env.LANG = "C.UTF-8";
 
   meta = with lib; {
-    description = "A customisable music player";
+    description = "Customisable music player";
     mainProgram = "fooyin";
     license = licenses.gpl3Only;
     maintainers = with maintainers; [ peterhoeg ];

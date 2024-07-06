@@ -155,7 +155,7 @@ in
             gdm # for gnome-login.session
             config.services.displayManager.sessionData.desktops
             pkgs.gnome.gnome-control-center # for accessibility icon
-            pkgs.gnome.adwaita-icon-theme
+            pkgs.adwaita-icon-theme
             pkgs.hicolor-icon-theme # empty icon theme as a base
           ];
         } // optionalAttrs (xSessionWrapper != null) {
@@ -183,7 +183,7 @@ in
 
     # Otherwise GDM will not be able to start correctly and display Wayland sessions
     systemd.packages = with pkgs.gnome; [ gdm gnome-session gnome-shell ];
-    environment.systemPackages = [ pkgs.gnome.adwaita-icon-theme ];
+    environment.systemPackages = [ pkgs.adwaita-icon-theme ];
 
     # We dont use the upstream gdm service
     # it has to be disabled since the gdm package has it
@@ -321,6 +321,22 @@ in
         session   include       login
       '';
 
+      login.fprintAuth = mkIf config.services.fprintd.enable false;
+      gdm-fingerprint.text = mkIf config.services.fprintd.enable ''
+        auth       required                    pam_shells.so
+        auth       requisite                   pam_nologin.so
+        auth       requisite                   pam_faillock.so      preauth
+        auth       required                    ${pkgs.fprintd}/lib/security/pam_fprintd.so
+        auth       optional                    pam_permit.so
+        auth       required                    pam_env.so
+        auth       [success=ok default=1]      ${pkgs.gnome.gdm}/lib/security/pam_gdm.so
+
+        account    include                     login
+
+        password   required                    pam_deny.so
+
+        session    include                     login
+      '';
     };
 
   };

@@ -7,19 +7,22 @@
 , zlib
 , stdenv
 , darwin
+, nix-update-script
+, testers
+, tinymist
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "tinymist";
   # Please update the corresponding vscode extension when updating
   # this derivation.
-  version = "0.11.9";
+  version = "0.11.12";
 
   src = fetchFromGitHub {
     owner = "Myriad-Dreamin";
     repo = "tinymist";
     rev = "refs/tags/v${version}";
-    hash = "sha256-Oa88WBkV9q17KNJuc/sGSQS39yVyqme66SfB0ZZw7b8=";
+    hash = "sha256-hqTVfEKaAG18JpUZajm0XaoX6kw26aE37T/kfoNNxk8=";
   };
 
   cargoLock = {
@@ -50,12 +53,20 @@ rustPlatform.buildRustPackage rec {
     "--skip=e2e"
   ];
 
-  meta = with lib; {
+  passthru = {
+    updateScript = nix-update-script { };
+    tests.version = testers.testVersion {
+      command = "${meta.mainProgram} -V";
+      package = tinymist;
+    };
+  };
+
+  meta = {
     changelog = "https://github.com/Myriad-Dreamin/tinymist/blob/${src.rev}/CHANGELOG.md";
     description = "Tinymist is an integrated language service for Typst";
     homepage = "https://github.com/Myriad-Dreamin/tinymist";
-    license = licenses.asl20;
+    license = lib.licenses.asl20;
     mainProgram = "tinymist";
-    maintainers = with maintainers; [ lampros ];
+    maintainers = with lib.maintainers; [ lampros ];
   };
 }

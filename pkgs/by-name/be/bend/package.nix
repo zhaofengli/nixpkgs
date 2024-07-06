@@ -1,6 +1,5 @@
 {
   rustPlatform,
-  fetchCrate,
   fetchFromGitHub,
   lib,
   makeWrapper,
@@ -9,18 +8,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "Bend";
-  version = "0.2.9";
+  version = "0.2.34";
 
   src = fetchFromGitHub {
     owner = "HigherOrderCO";
     repo = "Bend";
     rev = "refs/tags/${version}";
-    hash = "sha256-MEfB2SBJN7uEwfZGoEL7DQXsr1fccdZyGyzHtNv9wow=";
+    hash = "sha256-3leAt1M3Six5+KcCcz7sorpVHGkKj7xGWZ0KJnh+bNs=";
   };
 
-  cargoHash = "sha256-+i+Y3MgCBVN3REmPwAjm2SiF9FJ0i05czmPKB8JtAFM=";
-
-  RUSTC_BOOTSTRAP = true;
+  cargoHash = "sha256-VynLnpZLUCqclIlbt7y6kd8ZJQGLa892J2UjDATgAhE=";
 
   nativeBuildInputs = [
     hvm

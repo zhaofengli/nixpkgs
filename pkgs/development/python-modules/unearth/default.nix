@@ -16,14 +16,14 @@
 
 buildPythonPackage rec {
   pname = "unearth";
-  version = "0.15.2";
+  version = "0.16.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-OB8+aWnbCyjZ/C+/shaGBXm/NBvWlUcvLGLivM6ebT0=";
+    hash = "sha256-fbqR8SCat+n4pn8HoVveSa4tobikb9rYsCIroYuRAhI=";
   };
 
   build-system = [ pdm-backend ];
@@ -47,7 +47,7 @@ buildPythonPackage rec {
   pythonImportsCheck = [ "unearth" ];
 
   meta = with lib; {
-    description = "A utility to fetch and download Python packages";
+    description = "Utility to fetch and download Python packages";
     mainProgram = "unearth";
     homepage = "https://github.com/frostming/unearth";
     changelog = "https://github.com/frostming/unearth/releases/tag/${version}";

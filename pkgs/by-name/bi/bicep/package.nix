@@ -1,21 +1,26 @@
-{ lib
-, stdenv
-, buildDotnetModule
-, fetchFromGitHub
-, dotnetCorePackages
-, mono
+{
+  lib,
+  stdenv,
+  buildDotnetModule,
+  fetchFromGitHub,
+  dotnetCorePackages,
+  mono,
 }:
 
 buildDotnetModule rec {
   pname = "bicep";
-  version = "0.27.1";
+  version = "0.28.1";
 
   src = fetchFromGitHub {
     owner = "Azure";
     repo = "bicep";
     rev = "v${version}";
-    hash = "sha256-7yEsxKUG2jhki1u5CObdjN4JMnEcAYR+SoGPaNJ+9Fs=";
+    hash = "sha256-9yWfzYrs7LxVmb+AZUI+G0TQQteJP7gpISJGdY0qKAg=";
   };
+
+  postPatch = ''
+    substituteInPlace src/Directory.Build.props --replace-fail "<TreatWarningsAsErrors>true</TreatWarningsAsErrors>" ""
+  '';
 
   projectFile = "src/Bicep.Cli/Bicep.Cli.csproj";
 
@@ -34,11 +39,11 @@ buildDotnetModule rec {
   passthru.updateScript = ./updater.sh;
 
   meta = {
-    broken = stdenv.isDarwin;
     description = "Domain Specific Language (DSL) for deploying Azure resources declaratively";
     homepage = "https://github.com/Azure/bicep/";
     changelog = "https://github.com/Azure/bicep/releases/tag/v${version}";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ khaneliman ];
+    mainProgram = "bicep";
   };
 }

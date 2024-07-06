@@ -443,7 +443,7 @@ self: super: builtins.intersectAttrs super {
   # Tries to run GUI in tests
   leksah = dontCheck (overrideCabal (drv: {
     executableSystemDepends = (drv.executableSystemDepends or []) ++ (with pkgs; [
-      gnome.adwaita-icon-theme # Fix error: Icon 'window-close' not present in theme ...
+      adwaita-icon-theme # Fix error: Icon 'window-close' not present in theme ...
       wrapGAppsHook3           # Fix error: GLib-GIO-ERROR **: No GSettings schemas are installed on the system
       gtk3                    # Fix error: GLib-GIO-ERROR **: Settings schema 'org.gtk.Settings.FileChooser' is not installed
     ]);
@@ -770,9 +770,12 @@ self: super: builtins.intersectAttrs super {
     preInstall = drv.preInstall or "" + ''
       installTargets="install"
       installFlagsArray+=(
-        "BUILDER=:"
         "PREFIX="
         "DESTDIR=$out"
+        # Prevent Makefile from calling cabal/Setup again
+        "BUILDER=:"
+        # Make Haskell build dependencies available
+        "GHC=${self.buildHaskellPackages.ghc.targetPrefix}ghc -global-package-db -package-db $setupPackageConfDir"
       )
     '';
     installPhase = null;
@@ -973,7 +976,7 @@ self: super: builtins.intersectAttrs super {
     preCheck = ''
       export HOME=$TMPDIR/home
       export PATH=$PWD/dist/build/ihaskell:$PATH
-      export GHC_PACKAGE_PATH=$PWD/dist/package.conf.inplace/:$GHC_PACKAGE_PATH
+      export NIX_GHC_PACKAGE_PATH_FOR_TEST=$PWD/dist/package.conf.inplace/:$packageConfDir:
     '';
   }) super.ihaskell;
 
@@ -1035,6 +1038,8 @@ self: super: builtins.intersectAttrs super {
         pkgs.buildPackages.makeWrapper
       ];
       postInstall = ''
+        ${drv.postInstall or ""}
+
         wrapProgram $out/bin/cabal2nix \
           --prefix PATH ":" "${
             pkgs.lib.makeBinPath [ pkgs.nix pkgs.nix-prefetch-scripts ]
@@ -1068,6 +1073,14 @@ self: super: builtins.intersectAttrs super {
             pkgs.nix-prefetch-docker
           ]
         }"
+      ''
+      # Prevent erroneous references to other libraries that use Paths_ modules
+      # on aarch64-darwin. Note that references to the data outputs are not removed.
+      + lib.optionalString (with pkgs.stdenv; hostPlatform.isDarwin && hostPlatform.isAarch64) ''
+        remove-references-to -t "${self.shake.out}" "$out/bin/.nvfetcher-wrapped"
+        remove-references-to -t "${self.js-jquery.out}" "$out/bin/.nvfetcher-wrapped"
+        remove-references-to -t "${self.js-flot.out}" "$out/bin/.nvfetcher-wrapped"
+        remove-references-to -t "${self.js-dgtable.out}" "$out/bin/.nvfetcher-wrapped"
       '';
     }) super.nvfetcher);
 

@@ -55,12 +55,12 @@ self: super: {
   th-abstraction = doDistribute self.th-abstraction_0_7_0_0;
   ghc-lib-parser = doDistribute self.ghc-lib-parser_9_8_2_20240223;
   ghc-lib-parser-ex = doDistribute self.ghc-lib-parser-ex_9_8_0_2;
-  ghc-lib = doDistribute self.ghc-lib_9_10_1_20240511;
+  ghc-lib = doDistribute self.ghc-lib_9_8_2_20240223;
   megaparsec = doDistribute self.megaparsec_9_6_1;
   # TODO: remove when aeson updates or launches a revision
   # see https://github.com/haskell/aeson/issues/1089 and https://github.com/haskell/aeson/pulls/1088
-  aeson = doJailbreak (doDistribute self.aeson_2_2_1_0);
-  attoparsec-aeson = doDistribute self.attoparsec-aeson_2_2_0_1;
+  aeson = doJailbreak (doDistribute self.aeson_2_2_2_0);
+  attoparsec-aeson = doDistribute self.attoparsec-aeson_2_2_2_0;
   xmonad = doDistribute self.xmonad_0_18_0;
   apply-refact = self.apply-refact_0_14_0_0;
   ormolu = self.ormolu_0_7_4_0;
@@ -68,6 +68,7 @@ self: super: {
   stylish-haskell = self.stylish-haskell_0_14_6_0;
   hlint = self.hlint_3_8;
   ghc-syntax-highlighter = self.ghc-syntax-highlighter_0_0_11_0;
+  websockets = self.websockets_0_13_0_0;
 
   # A given major version of ghc-exactprint only supports one version of GHC.
   ghc-exactprint = self.ghc-exactprint_1_8_0_0;
@@ -131,8 +132,10 @@ self: super: {
   hip = appendConfigureFlag "--ghc-options=-fsimpl-tick-factor=200" super.hip;
 
   # Fix build with text-2.x.
-  libmpd = appendPatch (pkgs.fetchpatch
-      { url = "https://github.com/vimus/libmpd-haskell/pull/138.patch";
+  libmpd = appendPatch
+    (pkgs.fetchpatch {
+        name = "138.patch"; # https://github.com/vimus/libmpd-haskell/pull/138
+        url = "https://github.com/vimus/libmpd-haskell/compare/95d3b3bab5858d6d1f0e079d0ab7c2d182336acb...f1cbf247261641565a3937b90721f7955d254c5e.patch";
         sha256 = "Q4fA2J/Tq+WernBo+UIMdj604ILOMlIYkG4Pr046DfM=";
       })
     super.libmpd;

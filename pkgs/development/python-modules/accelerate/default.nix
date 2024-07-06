@@ -88,6 +88,7 @@ buildPythonPackage rec {
     ++ lib.optionals (pythonAtLeast "3.12") [
       # RuntimeError: Dynamo is not supported on Python 3.12+
       "test_convert_to_fp32"
+      "test_dynamo_extract_model"
       "test_send_to_device_compiles"
     ]
     ++ lib.optionals (stdenv.isLinux && stdenv.isAarch64) [
@@ -119,7 +120,7 @@ buildPythonPackage rec {
 
   meta = with lib; {
     homepage = "https://huggingface.co/docs/accelerate";
-    description = "A simple way to train and use PyTorch models with multi-GPU, TPU, mixed-precision";
+    description = "Simple way to train and use PyTorch models with multi-GPU, TPU, mixed-precision";
     changelog = "https://github.com/huggingface/accelerate/releases/tag/v${version}";
     license = licenses.asl20;
     maintainers = with maintainers; [ bcdarwin ];

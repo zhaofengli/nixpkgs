@@ -8,7 +8,7 @@
 }:
 let
   pname = "tracexec";
-  version = "0.2.2";
+  version = "0.4.0";
 in
 rustPlatform.buildRustPackage {
   inherit pname version;
@@ -17,10 +17,10 @@ rustPlatform.buildRustPackage {
     owner = "kxxt";
     repo = "tracexec";
     rev = "refs/tags/v${version}";
-    hash = "sha256-X2hLaBndeYLBMnDe2MT4pgZiPj0COHG2uTvAbW+JVd4=";
+    hash = "sha256-Rhxg3VmdMSo1xlazvToIdvkBvuFUKTq82U3PnedGHHs=";
   };
 
-  cargoHash = "sha256-3xANOv+A4soDcKMINy+RnI8l6uS3koZpw3CMIUCmK5A=";
+  cargoHash = "sha256-rioZfUJD4ZOpXGCWsBDQkYwW9XtTjFnGgMKl0mPF5XM=";
 
   nativeBuildInputs = [
     cargo-about
@@ -58,7 +58,7 @@ rustPlatform.buildRustPackage {
 
   meta = {
     changelog = "https://github.com/kxxt/tracexec/blob/v${version}/CHANGELOG.md";
-    description = "A small utility for tracing execve{,at} and pre-exec behavior";
+    description = "Small utility for tracing execve{,at} and pre-exec behavior";
     homepage = "https://github.com/kxxt/tracexec";
     license = lib.licenses.gpl2Plus;
     mainProgram = "tracexec";

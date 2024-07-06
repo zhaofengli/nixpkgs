@@ -7,22 +7,21 @@
   imagemagick,
   copyDesktopItems,
   makeDesktopItem,
-  electron_28,
+  electron
 }:
 
 let
-  electron = electron_28;
   electronDist = "${electron}/${if stdenv.isDarwin then "Applications" else "libexec/electron"}";
 in
 buildNpmPackage rec {
   pname = "blockbench";
-  version = "4.10.1";
+  version = "4.10.2";
 
   src = fetchFromGitHub {
     owner = "JannisX11";
     repo = "blockbench";
     rev = "v${version}";
-    hash = "sha256-LuWxjBsOBo6tSlSGaDWrNYcTerIpU+rw3r+zN6gtYb0=";
+    hash = "sha256-Ch+vPSvdqfJF2gNgZN2x5KSY1S1CYfHCyMyUf4W+Vn8=";
   };
 
   nativeBuildInputs =
@@ -32,7 +31,7 @@ buildNpmPackage rec {
       copyDesktopItems
     ];
 
-  npmDepsHash = "sha256-CHZdCiewkmToDHhTTvOqQfWrphOw1oGLgwSRRH3YFWE=";
+  npmDepsHash = "sha256-au6GzBTxPcYcqrPEnQ+yEhVRdAbiUa/Ocq7UCPdiox4=";
 
   env.ELECTRON_SKIP_BINARY_DOWNLOAD = 1;
 
@@ -103,7 +102,6 @@ buildNpmPackage rec {
     license = lib.licenses.gpl3Only;
     mainProgram = "blockbench";
     maintainers = with lib.maintainers; [
-      ckie
       tomasajt
     ];
   };

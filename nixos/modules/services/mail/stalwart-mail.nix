@@ -7,27 +7,28 @@ let
   configFormat = pkgs.formats.toml { };
   configFile = configFormat.generate "stalwart-mail.toml" cfg.settings;
   dataDir = "/var/lib/stalwart-mail";
-  stalwartAtLeast = versionAtLeast cfg.package.version;
+  useLegacyStorage = versionOlder config.system.stateVersion "24.11";
+
+  parsePorts = listeners: let
+    parseAddresses = listeners: lib.flatten(lib.mapAttrsToList (name: value: value.bind) listeners);
+    splitAddress = addr: strings.splitString ":" addr;
+    extractPort = addr: strings.toInt(builtins.foldl' (a: b: b) "" (splitAddress addr));
+  in
+    builtins.map(address: extractPort address) (parseAddresses listeners);
 
 in {
   options.services.stalwart-mail = {
     enable = mkEnableOption "the Stalwart all-in-one email server";
 
-    package = mkOption {
-      type = types.package;
-      description = ''
-        Which package to use for the Stalwart mail server.
+    package = mkPackageOption pkgs "stalwart-mail" { };
 
-        ::: {.note}
-        Upgrading from version 0.6.0 to version 0.7.0 or higher requires manual
-        intervention. See <https://github.com/stalwartlabs/mail-server/blob/main/UPGRADING.md>
-        for upgrade instructions.
-        :::
+    openFirewall = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to open TCP firewall ports, which are specified in
+        {option}`services.stalwart-mail.settings.listener` on all interfaces.
       '';
-      default = pkgs.stalwart-mail_0_6;
-      defaultText = lib.literalExpression "pkgs.stalwart-mail_0_6";
-      example = lib.literalExpression "pkgs.stalwart-mail";
-      relatedPackages = [ "stalwart-mail_0_6" "stalwart-mail" ];
     };
 
     settings = mkOption {
@@ -44,100 +45,123 @@ in {
 
   config = mkIf cfg.enable {
 
-    warnings = lib.optionals (!stalwartAtLeast "0.7.0") [
-      ''
-        Versions of stalwart-mail < 0.7.0 will get deprecated in NixOS 24.11.
-        Please set services.stalwart-mail.package to pkgs.stalwart-mail to
-        upgrade to the latest version.
-        Please note that upgrading to version >= 0.7 requires manual
-        intervention, see <https://github.com/stalwartlabs/mail-server/blob/main/UPGRADING.md>
-        for upgrade instructions.
-      ''
-    ];
-
     # Default config: all local
     services.stalwart-mail.settings = {
-      global.tracing.method = mkDefault "stdout";
-      global.tracing.level = mkDefault "info";
-      queue.path = mkDefault "${dataDir}/queue";
-      report.path = mkDefault "${dataDir}/reports";
-      store.db.type = mkDefault "sqlite";
-      store.db.path = mkDefault "${dataDir}/data/index.sqlite3";
-      store.blob.type = mkDefault "fs";
-      store.blob.path = mkDefault "${dataDir}/data/blobs";
+      tracer.stdout = {
+        type = mkDefault "stdout";
+        level = mkDefault "info";
+        ansi = mkDefault false;  # no colour markers to journald
+        enable = mkDefault true;
+      };
+      store = if useLegacyStorage then {
+        # structured data in SQLite, blobs on filesystem
+        db.type = mkDefault "sqlite";
+        db.path = mkDefault "${dataDir}/data/index.sqlite3";
+        fs.type = mkDefault "fs";
+        fs.path = mkDefault "${dataDir}/data/blobs";
+      } else {
+        # everything in RocksDB
+        db.type = mkDefault "rocksdb";
+        db.path = mkDefault "${dataDir}/db";
+        db.compression = mkDefault "lz4";
+      };
       storage.data = mkDefault "db";
       storage.fts = mkDefault "db";
       storage.lookup = mkDefault "db";
-      storage.blob = mkDefault "blob";
+      storage.blob = mkDefault (if useLegacyStorage then "fs" else "db");
+      directory.internal.type = mkDefault "internal";
+      directory.internal.store = mkDefault "db";
+      storage.directory = mkDefault "internal";
       resolver.type = mkDefault "system";
       resolver.public-suffix = lib.mkDefault [
         "file://${pkgs.publicsuffix-list}/share/publicsuffix/public_suffix_list.dat"
       ];
+      config.resource = {
+        spam-filter = lib.mkDefault "file://${cfg.package}/etc/stalwart/spamfilter.toml";
+      };
     };
 
-    systemd.services.stalwart-mail = {
-      wantedBy = [ "multi-user.target" ];
-      after = [ "local-fs.target" "network.target" ];
+    # This service stores a potentially large amount of data.
+    # Running it as a dynamic user would force chown to be run everytime the
+    # service is restarted on a potentially large number of files.
+    # That would cause unnecessary and unwanted delays.
+    users = {
+      groups.stalwart-mail = { };
+      users.stalwart-mail = {
+        isSystemUser = true;
+        group = "stalwart-mail";
+      };
+    };
 
-      preStart = ''
-        mkdir -p ${dataDir}/{queue,reports,data/blobs}
-      '';
+    systemd = {
+      packages = [ cfg.package ];
+      services.stalwart-mail = {
+        wantedBy = [ "multi-user.target" ];
+        after = [ "local-fs.target" "network.target" ];
 
-      serviceConfig = {
-        ExecStart =
-          "${cfg.package}/bin/stalwart-mail --config=${configFile}";
+        preStart = if useLegacyStorage then ''
+          mkdir -p ${dataDir}/data/blobs
+        '' else ''
+          mkdir -p ${dataDir}/db
+        '';
 
-        # Base from template resources/systemd/stalwart-mail.service
-        Type = "simple";
-        LimitNOFILE = 65536;
-        KillMode = "process";
-        KillSignal = "SIGINT";
-        Restart = "on-failure";
-        RestartSec = 5;
-        StandardOutput = "journal";
-        StandardError = "journal";
-        SyslogIdentifier = "stalwart-mail";
+        serviceConfig = {
+          ExecStart = [
+            ""
+            "${cfg.package}/bin/stalwart-mail --config=${configFile}"
+          ];
 
-        DynamicUser = true;
-        User = "stalwart-mail";
-        StateDirectory = "stalwart-mail";
+          StandardOutput = "journal";
+          StandardError = "journal";
 
-        # Bind standard privileged ports
-        AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
-        CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
+          StateDirectory = "stalwart-mail";
 
-        # Hardening
-        DeviceAllow = [ "" ];
-        LockPersonality = true;
-        MemoryDenyWriteExecute = true;
-        PrivateDevices = true;
-        PrivateUsers = false;  # incompatible with CAP_NET_BIND_SERVICE
-        ProcSubset = "pid";
-        PrivateTmp = true;
-        ProtectClock = true;
-        ProtectControlGroups = true;
-        ProtectHome = true;
-        ProtectHostname = true;
-        ProtectKernelLogs = true;
-        ProtectKernelModules = true;
-        ProtectKernelTunables = true;
-        ProtectProc = "invisible";
-        ProtectSystem = "strict";
-        RestrictAddressFamilies = [ "AF_INET" "AF_INET6" ];
-        RestrictNamespaces = true;
-        RestrictRealtime = true;
-        RestrictSUIDSGID = true;
-        SystemCallArchitectures = "native";
-        SystemCallFilter = [ "@system-service" "~@privileged" ];
-        UMask = "0077";
+          # Bind standard privileged ports
+          AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
+          CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
+
+          # Hardening
+          DeviceAllow = [ "" ];
+          LockPersonality = true;
+          MemoryDenyWriteExecute = true;
+          PrivateDevices = true;
+          PrivateUsers = false;  # incompatible with CAP_NET_BIND_SERVICE
+          ProcSubset = "pid";
+          PrivateTmp = true;
+          ProtectClock = true;
+          ProtectControlGroups = true;
+          ProtectHome = true;
+          ProtectHostname = true;
+          ProtectKernelLogs = true;
+          ProtectKernelModules = true;
+          ProtectKernelTunables = true;
+          ProtectProc = "invisible";
+          ProtectSystem = "strict";
+          RestrictAddressFamilies = [ "AF_INET" "AF_INET6" ];
+          RestrictNamespaces = true;
+          RestrictRealtime = true;
+          RestrictSUIDSGID = true;
+          SystemCallArchitectures = "native";
+          SystemCallFilter = [ "@system-service" "~@privileged" ];
+          UMask = "0077";
+        };
+        unitConfig.ConditionPathExists = [
+          ""
+          "${configFile}"
+        ];
       };
     };
 
     # Make admin commands available in the shell
     environment.systemPackages = [ cfg.package ];
+
+    networking.firewall = mkIf (cfg.openFirewall
+      && (builtins.hasAttr "listener" cfg.settings.server)) {
+      allowedTCPPorts = parsePorts cfg.settings.server.listener;
+    };
   };
 
   meta = {
-    maintainers = with maintainers; [ happysalada pacien ];
+    maintainers = with maintainers; [ happysalada pacien onny ];
   };
 }

@@ -2,15 +2,15 @@
 
 buildGoModule rec {
   pname = "kubernetes-helm";
-  version = "3.15.0";
+  version = "3.15.2";
 
   src = fetchFromGitHub {
     owner = "helm";
     repo = "helm";
     rev = "v${version}";
-    sha256 = "sha256-0YBpxXM/+mU0y1lf/h3xFbF5nfbjk6D9qT10IMR9XUY=";
+    sha256 = "sha256-gZfL9ejW9Md5X1S8Zvlc4OpywJfU2rlT+p78imgPjpw=";
   };
-  vendorHash = "sha256-VPahAeeRz3fk1475dlCofiLVAKXMhpvspENmQmlPyPM=";
+  vendorHash = "sha256-2q5IziYSW2FFfRZvWKz6dVnJfauRlE9lRrb4/l2EGC0=";
 
   subPackages = [ "cmd/helm" ];
   ldflags = [
@@ -65,7 +65,7 @@ buildGoModule rec {
 
   meta = with lib; {
     homepage = "https://github.com/kubernetes/helm";
-    description = "A package manager for kubernetes";
+    description = "Package manager for kubernetes";
     mainProgram = "helm";
     license = licenses.asl20;
     maintainers = with maintainers; [ rlupton20 edude03 saschagrunert Frostman Chili-Man techknowlogick ];

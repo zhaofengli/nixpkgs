@@ -119,6 +119,8 @@ let
 
     bwd = callPackage ../development/ocaml-modules/bwd { };
 
+    bytestring = callPackage ../development/ocaml-modules/bytestring { };
+
     bz2 = callPackage ../development/ocaml-modules/bz2 { };
 
     ### C ###
@@ -231,6 +233,8 @@ let
 
     color = callPackage ../development/ocaml-modules/color { };
 
+    colors = callPackage ../development/ocaml-modules/colors { };
+
     conduit = callPackage ../development/ocaml-modules/conduit { };
 
     conduit-async = callPackage ../development/ocaml-modules/conduit/async.nix { };
@@ -240,6 +244,8 @@ let
     conduit-lwt-unix = callPackage ../development/ocaml-modules/conduit/lwt-unix.nix { };
 
     conduit-mirage = callPackage ../development/ocaml-modules/conduit/mirage.nix { };
+
+    config = callPackage ../development/ocaml-modules/config { };
 
     config-file = callPackage ../development/ocaml-modules/config-file { };
 
@@ -460,6 +466,8 @@ let
 
     eqaf = callPackage ../development/ocaml-modules/eqaf { };
 
+    eqaf-cstruct = callPackage ../development/ocaml-modules/eqaf/cstruct.nix { };
+
     erm_xml = callPackage ../development/ocaml-modules/erm_xml { };
 
     erm_xmpp = callPackage ../development/ocaml-modules/erm_xmpp { };
@@ -473,6 +481,8 @@ let
     extlib-1-7-7 = callPackage ../development/ocaml-modules/extlib/1.7.7.nix { };
 
     ezjsonm = callPackage ../development/ocaml-modules/ezjsonm { };
+
+    ezjsonm-encoding = callPackage ../development/ocaml-modules/ezjsonm-encoding { };
 
     ezxmlm = callPackage ../development/ocaml-modules/ezxmlm { };
 
@@ -599,6 +609,8 @@ let
     github-data = callPackage ../development/ocaml-modules/github/data.nix {  };
     github-jsoo = callPackage ../development/ocaml-modules/github/jsoo.nix {  };
     github-unix = callPackage ../development/ocaml-modules/github/unix.nix {  };
+
+    gluon = callPackage ../development/ocaml-modules/gluon { };
 
     gluten = callPackage ../development/ocaml-modules/gluten { };
     gluten-eio = callPackage ../development/ocaml-modules/gluten/eio.nix { };
@@ -950,6 +962,8 @@ let
 
     letsencrypt-mirage = callPackage ../development/ocaml-modules/letsencrypt/mirage.nix { };
 
+    libc = callPackage ../development/ocaml-modules/libc { };
+
     lilv = callPackage ../development/ocaml-modules/lilv {
       inherit (pkgs) lilv;
     };
@@ -1037,6 +1051,8 @@ let
     };
 
     mec = callPackage ../development/ocaml-modules/mec { };
+
+    memprof-limits = callPackage ../development/ocaml-modules/memprof-limits { };
 
     memtrace = callPackage ../development/ocaml-modules/memtrace { };
 
@@ -1634,6 +1650,8 @@ let
 
     ringo = callPackage ../development/ocaml-modules/ringo { };
 
+    rio = callPackage ../development/ocaml-modules/rio { };
+
     riot = callPackage ../development/ocaml-modules/riot { };
 
     rock = callPackage ../development/ocaml-modules/rock { };
@@ -1711,6 +1729,8 @@ let
     };
 
     spelll = callPackage ../development/ocaml-modules/spelll { };
+
+    spices = callPackage ../development/ocaml-modules/spices { };
 
     srt = callPackage ../development/ocaml-modules/srt {
       inherit (pkgs) srt;

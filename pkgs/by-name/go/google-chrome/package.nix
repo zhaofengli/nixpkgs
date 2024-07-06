@@ -32,7 +32,7 @@
 , pulseSupport ? true, libpulseaudio
 
 , gsettings-desktop-schemas
-, gnome
+, adwaita-icon-theme
 
 # For video acceleration via VA-API (--enable-features=VaapiVideoDecoder)
 , libvaSupport ? true, libva
@@ -64,11 +64,11 @@ let
 
 in stdenv.mkDerivation (finalAttrs: {
   pname = "google-chrome";
-  version = "125.0.6422.76";
+  version = "126.0.6478.126";
 
   src = fetchurl {
     url = "https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${finalAttrs.version}-1_amd64.deb";
-    hash = "sha256-hLGEwaTx11tqiS7skoNVwCEw+1GZ0pNHpfe11IFjTFc=";
+    hash = "sha256-PsHK27Vc9mzFHwQh6s4ySoiDbuLZgrlFuPZ6PxMbCSQ=";
   };
 
   nativeBuildInputs = [ patchelf makeWrapper ];
@@ -77,7 +77,7 @@ in stdenv.mkDerivation (finalAttrs: {
     gsettings-desktop-schemas glib gtk3
 
     # needed for XDG_ICON_DIRS
-    gnome.adwaita-icon-theme
+    adwaita-icon-theme
   ];
 
   unpackPhase = ''
@@ -155,7 +155,7 @@ in stdenv.mkDerivation (finalAttrs: {
   };
 
   meta = {
-    description = "A freeware web browser developed by Google";
+    description = "Freeware web browser developed by Google";
     homepage = "https://www.google.com/chrome/browser/";
     license = lib.licenses.unfree;
     sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];

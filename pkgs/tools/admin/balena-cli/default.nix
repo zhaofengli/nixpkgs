@@ -18,16 +18,16 @@ let
   };
 in buildNpmPackage' rec {
   pname = "balena-cli";
-  version = "18.2.3";
+  version = "18.2.17";
 
   src = fetchFromGitHub {
     owner = "balena-io";
     repo = "balena-cli";
     rev = "v${version}";
-    hash = "sha256-TjwiNQqGZbezZu3Ul5IIug5vVNhx1op+ZRXQlxnurVI=";
+    hash = "sha256-sWe7D89bL7mWanxCAOAso6J9fuxPFh3PHUL2mR8aOBs=";
   };
 
-  npmDepsHash = "sha256-OQ8i76cKFbdEH6Fj41ifAeGyIMAACOgo7dMxByULJMk=";
+  npmDepsHash = "sha256-lYgt0du8OfJitVbfWiUqrEGulvs/OxqF4AdxyGCRCJY=";
 
   postPatch = ''
     ln -s npm-shrinkwrap.json package-lock.json
@@ -58,7 +58,7 @@ in buildNpmPackage' rec {
   };
 
   meta = with lib; {
-    description = "A command line interface for balenaCloud or openBalena";
+    description = "Command line interface for balenaCloud or openBalena";
     longDescription = ''
       The balena CLI is a Command Line Interface for balenaCloud or openBalena. It is a software
       tool available for Windows, macOS and Linux, used through a command prompt / terminal window.

@@ -10,7 +10,7 @@
 
 buildPythonPackage rec {
   pname = "xdoctest";
-  version = "1.1.3";
+  version = "1.1.5";
   pyproject = true;
 
   disabled = pythonOlder "3.6";
@@ -19,7 +19,7 @@ buildPythonPackage rec {
     owner = "Erotemic";
     repo = "xdoctest";
     rev = "refs/tags/v${version}";
-    hash = "sha256-MOjT8adJoSxigSG2Gy5gqRfYswjUsgbBOV1ZU0LBDN8=";
+    hash = "sha256-lC4xX5V5iasQdR4tkLEvtMe/OjSp6+A7D2QGX6TFY4E=";
   };
 
   nativeBuildInputs = [
@@ -37,7 +37,7 @@ buildPythonPackage rec {
   pythonImportsCheck = [ "xdoctest" ];
 
   meta = with lib; {
-    description = "A rewrite of Python's builtin doctest module (with pytest plugin integration) with AST instead of REGEX";
+    description = "Rewrite of Python's builtin doctest module (with pytest plugin integration) with AST instead of REGEX";
     homepage = "https://github.com/Erotemic/xdoctest";
     changelog = "https://github.com/Erotemic/xdoctest/blob/${src.rev}/CHANGELOG.md";
     license = licenses.asl20;

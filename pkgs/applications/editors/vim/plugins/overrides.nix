@@ -7,6 +7,7 @@
 , fetchFromSourcehut
 , fetchpatch
 , fetchurl
+, neovimUtils
 , substituteAll
 , # Language dependencies
   fetchYarnDeps
@@ -24,7 +25,6 @@
 , fzf
 , gawk
 , git
-, gnome
 , himalaya
 , htop
 , jq
@@ -57,9 +57,13 @@
 , xorg
 , xxd
 , zathura
+, zenity
 , zsh
 , # codeium-nvim dependencies
   codeium
+, # codesnap-nvim dependencies
+  clang
+, libuv
 , # command-t dependencies
   getconf
 , ruby
@@ -75,6 +79,8 @@
 , CoreServices
 , # nvim-treesitter dependencies
   callPackage
+, # Preview-nvim dependencies
+  md-tui
 , # sg.nvim dependencies
   darwin
 , # sved dependencies
@@ -135,7 +141,7 @@
   barbecue-nvim = super.barbecue-nvim.overrideAttrs {
     dependencies = with self; [ nvim-lspconfig nvim-navic nvim-web-devicons ];
     meta = {
-      description = "A VS Code like winbar for Neovim";
+      description = "VS Code like winbar for Neovim";
       homepage = "https://github.com/utilyre/barbecue.nvim";
       license = lib.licenses.mit;
       maintainers = with lib.maintainers; [ lightquantum ];
@@ -213,6 +219,10 @@
     postPatch = ''
       sed -i -e 's/require "health"/vim.health/' lua/clipboard-image/health.lua
     '';
+  };
+
+  cmp-ai = super.cmp-ai.overrideAttrs {
+    dependencies = with self; [ nvim-cmp plenary-nvim ];
   };
 
   cmp-clippy = super.cmp-clippy.overrideAttrs {
@@ -396,6 +406,56 @@
     '';
   };
 
+  codesnap-nvim =
+    let
+      version = "1.4.0";
+      src = fetchFromGitHub {
+        owner = "mistricky";
+        repo = "codesnap.nvim";
+        rev = "refs/tags/v${version}";
+        hash = "sha256-fBeojxvi++3ShqxvFQ5/sv8WbpVrN7+XRPZWWrbpEL4=";
+      };
+      codesnap-lib = rustPlatform.buildRustPackage {
+        pname = "codesnap-lib";
+        inherit version src;
+
+        sourceRoot = "${src.name}/generator";
+
+        cargoHash = "sha256-lDy+FUph4CognY0oN7qhFsbnoC3gxguwq5YVtsiP1lo=";
+
+        nativeBuildInputs = [
+          pkg-config
+          rustPlatform.bindgenHook
+        ];
+
+        buildInputs = [
+          libuv.dev
+        ] ++ lib.optionals stdenv.isDarwin [
+          darwin.apple_sdk.frameworks.AppKit
+        ];
+      };
+    in
+    buildVimPlugin {
+      pname = "codesnap.nvim";
+      inherit version src;
+
+      # - Remove the shipped pre-built binaries
+      # - Copy the resulting binary from the codesnap-lib derivation
+      # Note: the destination should be generator.so, even on darwin
+      # https://github.com/mistricky/codesnap.nvim/blob/main/scripts/build_generator.sh
+      postInstall = let
+        extension = if stdenv.isDarwin then "dylib" else "so";
+      in ''
+        rm -r $out/lua/*.so
+        cp ${codesnap-lib}/lib/libgenerator.${extension} $out/lua/generator.so
+      '';
+
+      doInstallCheck = true;
+      nvimRequireCheck = "codesnap";
+
+      meta.homepage = "https://github.com/mistricky/codesnap.nvim/";
+    };
+
   command-t = super.command-t.overrideAttrs {
     nativeBuildInputs = [ getconf ruby ];
     buildPhase = ''
@@ -453,13 +513,17 @@
     dependencies = with self; [ copilot-lua plenary-nvim ];
   };
 
-  copilot-vim = super.copilot-vim.overrideAttrs {
+  copilot-vim = super.copilot-vim.overrideAttrs (old: {
     postInstall = ''
-      substituteInPlace $out/autoload/copilot/agent.vim \
+      substituteInPlace $out/autoload/copilot/client.vim \
         --replace "  let node = get(g:, 'copilot_node_command', ''\'''\')" \
                   "  let node = get(g:, 'copilot_node_command', '${nodejs}/bin/node')"
     '';
-  };
+
+    meta = old.meta // {
+      license = lib.licenses.unfree;
+    };
+  });
 
   coq_nvim = super.coq_nvim.overrideAttrs {
     passthru.python3Dependencies = ps:
@@ -1007,6 +1071,10 @@
     dependencies = [ self.plenary-nvim ];
   };
 
+  neotest-playwright = super.neotest-playwright.overrideAttrs {
+    dependencies = [ self.telescope-nvim ];
+  };
+
   neo-tree-nvim = super.neo-tree-nvim.overrideAttrs {
     dependencies = with self; [ plenary-nvim nui-nvim ];
   };
@@ -1036,6 +1104,13 @@
 
     doInstallCheck = true;
     nvimRequireCheck = "dapui";
+  };
+
+  nvim-genghis = super.nvim-genghis.overrideAttrs {
+    dependencies = [ self.dressing-nvim ];
+
+    doInstallCheck = true;
+    nvimRequireCheck = "genghis";
   };
 
   nvim-lsputils = super.nvim-lsputils.overrideAttrs {
@@ -1089,21 +1164,20 @@
         inherit (old) version src;
         sourceRoot = "${old.src.name}/spectre_oxi";
 
-        cargoHash = "sha256-seBq1zJNzNVfCQckIHq7rHI/Y8MyxP88cee3NO7NYgo=";
-
+        cargoHash = "sha256-ZBlxJjkHb2buvXK6VGP6FMnSFk8RUX7IgHjNofnGDAs=";
 
         preCheck = ''
           mkdir tests/tmp/
         '';
       };
     in
-    (lib.optionalAttrs stdenv.isLinux {
+    {
       dependencies = with self;
         [ plenary-nvim ];
       postInstall = ''
         ln -s ${spectre_oxi}/lib/libspectre_oxi.* $out/lua/spectre_oxi.so
       '';
-    }));
+    });
 
   nvim-teal-maker = super.nvim-teal-maker.overrideAttrs {
     postPatch = ''
@@ -1157,6 +1231,10 @@
     dependencies = with self; [ (nvim-treesitter.withPlugins (p: [ p.org ])) ];
   };
 
+  otter-nvim = super.otter-nvim.overrideAttrs {
+    dependencies = [ self.nvim-lspconfig ];
+  };
+
   overseer-nvim = super.overseer-nvim.overrideAttrs {
     doCheck = true;
     checkPhase = ''
@@ -1199,6 +1277,15 @@
     nvimRequireCheck = "plenary";
   };
 
+  Preview-nvim = super.Preview-nvim.overrideAttrs {
+    patches = [
+      (substituteAll {
+        src = ./patches/preview-nvim/hardcode-mdt-binary-path.patch;
+        mdt = lib.getExe md-tui;
+      })
+    ];
+  };
+
   range-highlight-nvim = super.range-highlight-nvim.overrideAttrs {
     dependencies = with self; [ cmd-parser-nvim ];
   };
@@ -1215,6 +1302,10 @@
     ];
   };
 
+  rocks-nvim = neovimUtils.buildNeovimPlugin { luaAttr = "rocks-nvim"; };
+
+  rocks-config-nvim = neovimUtils.buildNeovimPlugin { luaAttr = "rocks-config-nvim"; };
+
   roslyn-nvim = super.roslyn-nvim.overrideAttrs {
     dependencies = with self; [ nvim-lspconfig ];
   };
@@ -1225,7 +1316,7 @@
         pname = "sg-nvim-rust";
         inherit (old) version src;
 
-        cargoHash = "sha256-iGNLk3ckm90i5m05V/va+hO9RMiOUKL19dkszoUCwlU=";
+        cargoHash = "sha256-dqa5Rd3NeOSqv18F1QdkrWEypJ0bvVwIDwrMOyBVsDM=";
 
         nativeBuildInputs = [ pkg-config ];
 
@@ -1268,12 +1359,12 @@
 
   sniprun =
     let
-      version = "1.3.13";
+      version = "1.3.14";
       src = fetchFromGitHub {
         owner = "michaelb";
         repo = "sniprun";
         rev = "refs/tags/v${version}";
-        hash = "sha256-PQ3nAZ+bMbHHJWD7cV6h1b3g3TzrakA/N8vVumIooMg=";
+        hash = "sha256-9vglmQ9sy0aCbj4H81ublHclpoSfOA7ss5CNdoX54sY=";
       };
       sniprun-bin = rustPlatform.buildRustPackage {
         pname = "sniprun-bin";
@@ -1283,7 +1374,7 @@
           darwin.apple_sdk.frameworks.Security
         ];
 
-        cargoHash = "sha256-I8R2V9zoLqiM4lu0D7URoVof68wtKHI+8T8fVrUg7i4=";
+        cargoHash = "sha256-p4rZBgB3xQC14hRRTjNZT1G1gbaKydlKu6MYNSLk6iA=";
 
         nativeBuildInputs = [ makeWrapper ];
 
@@ -1305,6 +1396,12 @@
       '';
 
       propagatedBuildInputs = [ sniprun-bin ];
+
+      meta = {
+        homepage = "https://github.com/michaelb/sniprun/";
+        changelog = "https://github.com/michaelb/sniprun/releases/tag/v${version}";
+        maintainers = with lib.maintainers; [ GaetanLepage ];
+      };
     };
 
   # The GitHub repository returns 404, which breaks the update script
@@ -1467,6 +1564,11 @@
     '';
   };
 
+  todo-comments-nvim = super.todo-comments-nvim.overrideAttrs {
+    dependencies = [ self.plenary-nvim ];
+    nvimRequireCheck = "todo-comments";
+  };
+
   tup =
     let
       # Based on the comment at the top of https://github.com/gittup/tup/blob/master/contrib/syntax/tup.vim
@@ -1512,7 +1614,7 @@
 
   vCoolor-vim = super.vCoolor-vim.overrideAttrs {
     # on linux can use either Zenity or Yad.
-    propagatedBuildInputs = [ gnome.zenity ];
+    propagatedBuildInputs = [ zenity ];
     meta = {
       description = "Simple color selector/picker plugin";
       license = lib.licenses.publicDomain;
@@ -1896,7 +1998,7 @@
     '';
 
     meta = with lib; {
-      description = "A code-completion engine for Vim";
+      description = "Code-completion engine for Vim";
       homepage = "https://github.com/Valloric/YouCompleteMe";
       license = licenses.gpl3;
       maintainers = with maintainers; [ marcweber jagajaga ];

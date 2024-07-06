@@ -19,6 +19,7 @@
   nose,
   pycrypto,
   pyqtgraph,
+  pyqt5,
   visualizationSupport ? false,
 }:
 
@@ -61,6 +62,7 @@ buildPythonPackage rec {
     ++ lib.optionals visualizationSupport [
       matplotlib
       pyqtgraph
+      pyqt5
     ]
     ++ lib.optionals (!stdenv.isDarwin) [
       cramfsprogs
@@ -84,7 +86,7 @@ buildPythonPackage rec {
 
   meta = with lib; {
     homepage = "https://github.com/ReFirmLabs/binwalk";
-    description = "A tool for searching a given binary image for embedded files";
+    description = "Tool for searching a given binary image for embedded files";
     mainProgram = "binwalk";
     maintainers = [ maintainers.koral ];
     license = licenses.mit;

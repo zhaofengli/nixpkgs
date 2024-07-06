@@ -2,6 +2,7 @@
   lib,
   archinfo,
   buildPythonPackage,
+  cart,
   cffi,
   fetchFromGitHub,
   minidump,
@@ -18,14 +19,14 @@
 
 let
   # The binaries are following the argr projects release cycle
-  version = "9.2.102";
+  version = "9.2.108";
 
   # Binary files from https://github.com/angr/binaries (only used for testing and only here)
   binaries = fetchFromGitHub {
     owner = "angr";
     repo = "binaries";
     rev = "refs/tags/v${version}";
-    hash = "sha256-6FVxlQ1MiJP2mtu4V/mPAyaeCRdBp/sk+u4fdFqxTyA=";
+    hash = "sha256-d3Hs3k7PmOZqvLoiHD9HctaEHHOafCefjUcKGBPIiHU=";
   };
 in
 buildPythonPackage rec {
@@ -39,13 +40,14 @@ buildPythonPackage rec {
     owner = "angr";
     repo = "cle";
     rev = "refs/tags/v${version}";
-    hash = "sha256-BPKNrFBEKV8UuSdrl+HIgBqFClHTvRsGidz+X81bBLI=";
+    hash = "sha256-3zzTH6WKAavB/lkLBastOdeKegO8IyKRGN7k2vnX5WA=";
   };
 
   build-system = [ setuptools ];
 
   dependencies = [
     archinfo
+    cart
     cffi
     minidump
     pefile

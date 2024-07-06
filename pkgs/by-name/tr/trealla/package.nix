@@ -23,13 +23,13 @@ assert lib.elem lineEditingLibrary [
 ];
 stdenv.mkDerivation (finalAttrs: {
   pname = "trealla";
-  version = "2.52.6";
+  version = "2.53.2";
 
   src = fetchFromGitHub {
     owner = "trealla-prolog";
     repo = "trealla";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-JTyXpaoHpf10fUNxx+qllhS0D9rfOP64BpjLQ9bob8k=";
+    hash = "sha256-LquQDKgh1yZ0kUuLIDHM3b8Xe8mdh/ZjILGvnOMm+Os=";
   };
 
   postPatch = ''
@@ -80,7 +80,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = {
     homepage = "https://trealla-prolog.github.io/trealla/";
-    description = "A compact, efficient Prolog interpreter written in ANSI C";
+    description = "Compact, efficient Prolog interpreter written in ANSI C";
     longDescription = ''
       Trealla is a compact, efficient Prolog interpreter with ISO Prolog
       aspirations.

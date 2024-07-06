@@ -46,8 +46,6 @@ in
           TRUNK_LINK_FAILURE_MODE = 0;
           NVSWITCH_FAILURE_MODE = 0;
           ABORT_CUDA_JOBS_ON_FM_EXIT = 1;
-          TOPOLOGY_FILE_PATH = "${nvidia_x11.fabricmanager}/share/nvidia-fabricmanager/nvidia/nvswitch";
-          DATABASE_PATH = "${nvidia_x11.fabricmanager}/share/nvidia-fabricmanager/nvidia/nvswitch";
         };
         defaultText = lib.literalExpression ''
           {
@@ -69,8 +67,6 @@ in
             TRUNK_LINK_FAILURE_MODE=0;
             NVSWITCH_FAILURE_MODE=0;
             ABORT_CUDA_JOBS_ON_FM_EXIT=1;
-            TOPOLOGY_FILE_PATH="''${nvidia_x11.fabricmanager}/share/nvidia-fabricmanager/nvidia/nvswitch";
-            DATABASE_PATH="''${nvidia_x11.fabricmanager}/share/nvidia-fabricmanager/nvidia/nvswitch";
           }
         '';
         description = ''
@@ -206,6 +202,19 @@ in
         option is supported is used
       '';
 
+      prime.reverseSync.setupCommands.enable =
+        (lib.mkEnableOption ''
+          configure the display manager to be able to use the outputs
+          attached to the NVIDIA GPU.
+          Disable in order to configure the NVIDIA GPU outputs manually using xrandr.
+          Note that this configuration will only be successful when a display manager
+          for which the {option}`services.xserver.displayManager.setupCommands`
+          option is supported is used
+        '')
+        // {
+          default = true;
+        };
+
       nvidiaSettings =
         (lib.mkEnableOption ''
           nvidia-settings, NVIDIA's GUI configuration tool
@@ -275,7 +284,7 @@ in
               softdep nvidia post: nvidia-uvm
             '';
           };
-          systemd.tmpfiles.rules = lib.optional config.virtualisation.docker.enableNvidia "L+ /run/nvidia-docker/bin - - - - ${nvidia_x11.bin}/origBin";
+          systemd.tmpfiles.rules = lib.mkIf config.virtualisation.docker.enableNvidia [ "L+ /run/nvidia-docker/bin - - - - ${nvidia_x11.bin}/origBin" ];
           services.udev.extraRules = ''
             # Create /dev/nvidia-uvm when the nvidia-uvm module is loaded.
             KERNEL=="nvidia", RUN+="${pkgs.runtimeShell} -c 'mknod -m 666 /dev/nvidiactl c 195 255'"
@@ -284,12 +293,13 @@ in
             KERNEL=="nvidia_uvm", RUN+="${pkgs.runtimeShell} -c 'mknod -m 666 /dev/nvidia-uvm c $$(grep nvidia-uvm /proc/devices | cut -d \  -f 1) 0'"
             KERNEL=="nvidia_uvm", RUN+="${pkgs.runtimeShell} -c 'mknod -m 666 /dev/nvidia-uvm-tools c $$(grep nvidia-uvm /proc/devices | cut -d \  -f 1) 1'"
           '';
-          hardware.opengl = {
+          hardware.graphics = {
             extraPackages = [ nvidia_x11.out ];
             extraPackages32 = [ nvidia_x11.lib32 ];
           };
           environment.systemPackages = [ nvidia_x11.bin ];
         })
+
         # X11
         (lib.mkIf nvidiaEnabled {
           assertions = [
@@ -436,11 +446,13 @@ in
               providerCmdParams =
                 if syncCfg.enable then "\"${gpuProviderName}\" NVIDIA-0" else "NVIDIA-G0 \"${gpuProviderName}\"";
             in
-            lib.optionalString (syncCfg.enable || reverseSyncCfg.enable) ''
-              # Added by nvidia configuration module for Optimus/PRIME.
-              ${lib.getExe pkgs.xorg.xrandr} --setprovideroutputsource ${providerCmdParams}
-              ${lib.getExe pkgs.xorg.xrandr} --auto
-            '';
+            lib.optionalString
+              (syncCfg.enable || (reverseSyncCfg.enable && reverseSyncCfg.setupCommands.enable))
+              ''
+                # Added by nvidia configuration module for Optimus/PRIME.
+                ${lib.getExe pkgs.xorg.xrandr} --setprovideroutputsource ${providerCmdParams}
+                ${lib.getExe pkgs.xorg.xrandr} --auto
+              '';
 
           environment.etc = {
             "nvidia/nvidia-application-profiles-rc" = lib.mkIf nvidia_x11.useProfiles {
@@ -451,10 +463,11 @@ in
             "egl/egl_external_platform.d".source = "/run/opengl-driver/share/egl/egl_external_platform.d/";
           };
 
-          hardware.opengl = {
+          hardware.graphics = {
             extraPackages = [ pkgs.nvidia-vaapi-driver ];
             extraPackages32 = [ pkgs.pkgsi686Linux.nvidia-vaapi-driver ];
           };
+
           environment.systemPackages =
             lib.optional cfg.nvidiaSettings nvidia_x11.settings
             ++ lib.optional cfg.nvidiaPersistenced nvidia_x11.persistenced
@@ -527,16 +540,12 @@ in
                 };
               })
             ];
+
           services.acpid.enable = true;
 
           services.dbus.packages = lib.optional cfg.dynamicBoost.enable nvidia_x11.bin;
 
-          hardware.firmware =
-            let
-              isOpen = cfg.open;
-              isNewUnfree = lib.versionAtLeast nvidia_x11.version "555";
-            in
-            lib.optional (isOpen || isNewUnfree) nvidia_x11.firmware;
+          hardware.firmware = lib.optional (cfg.open || lib.versionAtLeast nvidia_x11.version "555") nvidia_x11.firmware;
 
           systemd.tmpfiles.rules =
             [
@@ -615,7 +624,14 @@ in
                     TimeoutStartSec = 240;
                     ExecStart =
                       let
-                        nv-fab-conf = settingsFormat.generate "fabricmanager.conf" cfg.datacenter.settings;
+                        # Since these rely on the `nvidia_x11.fabricmanager` derivation, they're
+                        # unsuitable to be mentioned in the configuration defaults, but they _can_
+                        # be overridden in `cfg.datacenter.settings` if needed.
+                        fabricManagerConfDefaults = {
+                          TOPOLOGY_FILE_PATH = "${nvidia_x11.fabricmanager}/share/nvidia-fabricmanager/nvidia/nvswitch";
+                          DATABASE_PATH = "${nvidia_x11.fabricmanager}/share/nvidia-fabricmanager/nvidia/nvswitch";
+                        };
+                        nv-fab-conf = settingsFormat.generate "fabricmanager.conf" (fabricManagerConfDefaults // cfg.datacenter.settings);
                       in
                       "${lib.getExe nvidia_x11.fabricmanager} -c ${nv-fab-conf}";
                     LimitCORE = "infinity";

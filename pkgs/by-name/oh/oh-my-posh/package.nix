@@ -6,16 +6,16 @@
 
 buildGoModule rec {
   pname = "oh-my-posh";
-  version = "19.29.0";
+  version = "21.17.2";
 
   src = fetchFromGitHub {
     owner = "jandedobbeleer";
     repo = pname;
     rev = "refs/tags/v${version}";
-    hash = "sha256-vn3P9upO6d0jpZzrG77/xkhfn4NINnBZ3YymlRdoONw=";
+    hash = "sha256-9+gzjDxkDMOy7r3M6MVepNJ44HJszyzYs5LrM8x3m6Q=";
   };
 
-  vendorHash = "sha256-mZNhsvEI1AbsAhoK7AuNgrQvYlkGrrpPVuv3R5nssC4=";
+  vendorHash = "sha256-yArae/1TxiQkNCkElFOHdujWzLCfltSV72I8tQKDyw8=";
 
   sourceRoot = "${src.name}/src";
 
@@ -52,7 +52,7 @@ buildGoModule rec {
   '';
 
   meta = with lib; {
-    description = "A prompt theme engine for any shell";
+    description = "Prompt theme engine for any shell";
     mainProgram = "oh-my-posh";
     homepage = "https://ohmyposh.dev";
     changelog = "https://github.com/JanDeDobbeleer/oh-my-posh/releases/tag/v${version}";

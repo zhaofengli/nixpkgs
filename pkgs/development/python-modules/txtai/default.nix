@@ -50,9 +50,11 @@
   xmltodict,
   # native check inputs
   unittestCheckHook,
+
+  pythonAtLeast,
 }:
 let
-  version = "7.1.0";
+  version = "7.2.0";
   api = [
     aiohttp
     fastapi
@@ -154,7 +156,7 @@ buildPythonPackage {
     owner = "neuml";
     repo = "txtai";
     rev = "refs/tags/v${version}";
-    hash = "sha256-L+L2jRkCQKOgd1k3N4mft0Kt6kvCN81lgSQUjoon5rk=";
+    hash = "sha256-2d31wzUz0/FcrejDIog2EI4BXgjd7XXpN4tRXpLk5DI=";
   };
 
   nativeBuildInputs = [ pythonRelaxDepsHook ];
@@ -195,11 +197,13 @@ buildPythonPackage {
     "-v"
   ];
 
-  meta = with lib; {
+  meta = {
     description = "Semantic search and workflows powered by language models";
     changelog = "https://github.com/neuml/txtai/releases/tag/v${version}";
     homepage = "https://github.com/neuml/txtai";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ happysalada ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [ happysalada ];
+    # This should be addressed in a newer version, but we first need to wait for python311Packages.faiss to be updated
+    broken = pythonAtLeast "3.12";
   };
 }

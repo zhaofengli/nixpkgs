@@ -24,6 +24,10 @@
   mpi,
   buildDocs ? false,
 
+  # tests.cudaAvailable:
+  callPackage,
+  torchWithCuda,
+
   # Native build inputs
   cmake,
   symlinkJoin,
@@ -201,12 +205,13 @@ let
       MPISupport && cudaSupport && (mpi.cudatoolkit != cudaPackages.cudatoolkit);
     "Magma cudaPackages does not match cudaPackages" =
       cudaSupport && (effectiveMagma.cudaPackages != cudaPackages);
+    "Rocm support is currently broken because `rocmPackages.hipblaslt` is unpackaged. (2024-06-09)" = rocmSupport;
   };
 in
 buildPythonPackage rec {
   pname = "torch";
   # Don't forget to update torch-bin to the same version.
-  version = "2.3.0";
+  version = "2.3.1";
   pyproject = true;
 
   disabled = pythonOlder "3.8.0";
@@ -224,7 +229,7 @@ buildPythonPackage rec {
     repo = "pytorch";
     rev = "refs/tags/v${version}";
     fetchSubmodules = true;
-    hash = "sha256-UmH4Mv5QL7Mz4Y4pvxn8F1FGBR/UzYZjE2Ys8Oc0FWQ=";
+    hash = "sha256-vpgtOqzIDKgRuqdT8lB/g6j+oMIH1RPxdbjtlzZFjV8=";
   };
 
   patches =
@@ -498,7 +503,7 @@ buildPythonPackage rec {
     ++ lib.optionals MPISupport [ mpi ]
     ++ lib.optionals rocmSupport [ rocmtoolkit_joined ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     astunparse
     cffi
     click
@@ -611,6 +616,23 @@ buildPythonPackage rec {
       install_name_tool -change @rpath/libc10.dylib $lib/lib/libc10.dylib $lib/lib/libshm.dylib
     '';
 
+  # See https://github.com/NixOS/nixpkgs/issues/296179
+  #
+  # This is a quick hack to add `libnvrtc` to the runpath so that torch can find
+  # it when it is needed at runtime.
+  extraRunpaths = lib.optionals cudaSupport [ "${lib.getLib cudaPackages.cuda_nvrtc}/lib" ];
+  postPhases = lib.optionals stdenv.isLinux [ "postPatchelfPhase" ];
+  postPatchelfPhase = ''
+    while IFS= read -r -d $'\0' elf ; do
+      for extra in $extraRunpaths ; do
+        echo patchelf "$elf" --add-rpath "$extra" >&2
+        patchelf "$elf" --add-rpath "$extra"
+      done
+    done < <(
+      find "''${!outputLib}" "$out" -type f -iname '*.so' -print0
+    )
+  '';
+
   # Builds in 2+h with 2 cores, and ~15m with a big-parallel builder.
   requiredSystemFeatures = [ "big-parallel" ];
 
@@ -621,25 +643,26 @@ buildPythonPackage rec {
       rocmSupport
       rocmPackages
       ;
+    cudaCapabilities = if cudaSupport then supportedCudaCapabilities else [ ];
     # At least for 1.10.2 `torch.fft` is unavailable unless BLAS provider is MKL. This attribute allows for easy detection of its availability.
     blasProvider = blas.provider;
     # To help debug when a package is broken due to CUDA support
     inherit brokenConditions;
-    cudaCapabilities = if cudaSupport then supportedCudaCapabilities else [ ];
+    tests = callPackage ./tests.nix { };
   };
 
-  meta = with lib; {
+  meta = {
     changelog = "https://github.com/pytorch/pytorch/releases/tag/v${version}";
     # keep PyTorch in the description so the package can be found under that name on search.nixos.org
     description = "PyTorch: Tensors and Dynamic neural networks in Python with strong GPU acceleration";
     homepage = "https://pytorch.org/";
-    license = licenses.bsd3;
-    maintainers = with maintainers; [
+    license = lib.licenses.bsd3;
+    maintainers = with lib.maintainers; [
       teh
       thoughtpolice
       tscholak
     ]; # tscholak esp. for darwin-related builds
-    platforms = with platforms; linux ++ lib.optionals (!cudaSupport && !rocmSupport) darwin;
+    platforms = with lib.platforms; linux ++ lib.optionals (!cudaSupport && !rocmSupport) darwin;
     broken = builtins.any trivial.id (builtins.attrValues brokenConditions);
   };
 }

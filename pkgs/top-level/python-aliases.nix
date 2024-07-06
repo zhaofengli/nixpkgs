@@ -36,11 +36,13 @@ mapAliases ({
   abodepy = jaraco-abode; # added 2023-02-01
   acebinf = throw "acebinf has been removed because it is abandoned and broken."; # Added 2023-05-19
   adafruit-nrfutil = throw "adafruit-nrfutil has been promoted to a top-level attribute name: `pkgs.adafruit-nrfutil`."; # Added 2023-11-19
+  aioaladdinconnect = throw "aioaladdinconnect has been removed, as the API is supported was obsoleted on 2024-01-24."; # Added 2024-06-07
   aioh2 = throw "aioh2 has been removed because it is abandoned and broken."; # Added 2022-03-30
   aionotify = throw "aionotify has been removed because is unmaintained and incompatible with python3.11."; # Added 2023-10-27
   aiosenseme = throw "aiosenseme has been removed, because it does no longer work with the latest firmware and has become unmaintained"; # Added 2023-07-05
   aioquic-mitmproxy = throw "aioquic-mitmproxy has been removed because mitmproxy no longer uses it"; # Added 2024-01-16
   amazon_kclpy = amazon-kclpy; # added 2023-08-08
+  ambiclimate = throw "ambiclimate has been removed, because the service has been terminated after 2024-03-31."; # Added 2024-06-07
   ansible-base = throw "ansible-base has been removed, because it is end of life"; # added 2022-03-30
   ansible-doctor = throw "ansible-doctor has been promoted to a top-level attribute name: `pkgs.ansible-doctor`"; # Added 2023-05-16
   ansible-later = throw "ansible-later has been promoted to a top-level attribute name: `pkgs.ansible-later`"; # Added 2023-05-16
@@ -130,16 +132,20 @@ mapAliases ({
   django_hijack_admin = django-hijack-admin; # added 2023-05-16
   django-hijack-admin = throw "django-hijack-admin has been removed, since it is no longer compatible to django-hijack"; # added 2023-06-21
   django_modelcluster = django-modelcluster; # added 2022-04-02
+  django-mysql = throw "django-mysql has been removed, since it was an unused leaf package"; # added 2024-07-02
   django_nose = django-nose; # added 2023-07-25
+  django-nose = throw "django-nose has been removed since it has not been maintained and there are no dependent packages"; # added 2024-05-21
   django_reversion = django-reversion; # added 2022-06-18
   django_polymorphic = django-polymorphic; # added 2022-05-24
   django_redis = django-redis; # added 2021-10-11
   django_silk = django-silk; # added 2023-07-25
+  django-sr = throw "django-sr has been removed since it has been unmaintained for 10 years"; # added 2024-05-26
   django_tagging = django-tagging; # added 2023-07-25
   django_taggit = django-taggit; # added 2021-10-11
   django_treebeard = django-treebeard; # added 2023-07-25
   dns = dnspython; # added 2017-12-10
   docker_pycreds = docker-pycreds; # added 2024-01-03
+  docker-py = throw "docker-py was renamed to docker in version 2.0.0 back in 2016"; # added 2024-05-29
   doctest-ignore-unicode = throw "doctest-ignore-unicode has been removed since it has been unmaintained for 11 years"; # added 2024-05-20
   dogpile_cache = dogpile-cache; # added 2021-10-28
   dogpile-core = throw "dogpile-core is no longer maintained, use dogpile-cache instead"; # added 2021-11-20
@@ -155,6 +161,7 @@ mapAliases ({
   face_recognition_models = face-recognition-models; # added 2022-10-15
   factory_boy = factory-boy; # added 2023-10-08
   fake_factory = throw "fake_factory has been removed because it is unused and deprecated by upstream since 2016."; # added 2022-05-30
+  faster-fifo = throw "faster-fifo has been removed since it was an unused leaf package"; # added 2024-07-02
   fastnlo_toolkit = fastnlo-toolkit; # added 2024-01-03
   fastpair = throw "fastpair is unmaintained upstream and has therefore been removed"; # added 2024-05-01
   faulthandler = throw "faulthandler is built into ${python.executable}"; # added 2021-07-12
@@ -221,6 +228,7 @@ mapAliases ({
   hglib = python-hglib; # added 2023-10-13
   homeassistant-bring-api = bring-api; # added 2024-04-11
   homeassistant-pyozw = throw "homeassistant-pyozw has been removed, as it was packaged for home-assistant which has removed it as a dependency."; # added 2024-01-05
+  htmllaundry = throw "htmllaundry has been removed because it is abandoned"; # added 2024-06-04
   HTSeq = htseq; # added 2023-02-19
   hyperkitty = throw "Please use pkgs.mailmanPackages.hyperkitty"; # added 2022-04-29
   ihatemoney = throw "ihatemoney was removed because it is no longer maintained downstream"; # added 2023-04-08
@@ -305,6 +313,7 @@ mapAliases ({
   ninja-python = ninja; # add 2022-08-03
   nosejs = throw "nosejs has been removed since it has not been maintained for 15 years and there are no dependent packages"; # added 2024-05-21
   nose-cov = throw "nose-cov has been removed, it was archived and unmaintained since 2012"; # added 2024-05-21
+  nosexcover = throw "nosexcover has been removed since it has not been maintained and there are no dependent packages"; # added 2024-05-21
   nose-cover3 = throw "nose-cover3 has been removed, it was using setuptools 2to3 translation feature, which has been removed in setuptools 58"; # added 2022-02-16
   nose-cprof = throw "nose-cprof has been removed since it has not been maintained for 7 years and there are no dependent packages"; # added 2024-05-21
   nose-exclude = throw "nose-exclude has been removed since it has not been maintained since 2016"; # added 2024-05-21
@@ -359,6 +368,7 @@ mapAliases ({
   pychef = throw "pychef has been removed because it's been archived upstream and abandoned since 2017."; # added 2022-11-14
   PyChromecast = pychromecast; # added 2023-02-19
   pycryptodome-test-vectors = throw "pycryptodome-test-vectors has been removed because it is an internal package to pycryptodome"; # added 2022-05-28
+  pyfftw = throw "pyfftw has been removed because it is unmaintained and broken."; # Added 2024-06-17
   pyflunearyou = pyoutbreaksnearme; # added 2023-02-11
   pyialarmxr = pyialarmxr-homeassistant; # added 2022-06-07
   pyialarmxr-homeassistant = throw "The package was removed together with the component support in home-assistant 2022.7.0"; # added 2022-07-07
@@ -389,6 +399,7 @@ mapAliases ({
   pyramid_multiauth = pyramid-multiauth; # added 2023-08-24
   pyreadability = readability-lxml; # added 2022-05-24
   pyres = throw "pyres has been removed, since it is abandoned and broken"; # added 2023-06-20
+  pygeos = throw "pygeos has been removed, since it was merged with shapely 2.0"; # added 2024-05-26
   pyRFC3339 = pyrfc3339; # added 2024-01-07
   pyroute2-core = throw "pyroute2 migrated back to a single package scheme in version 0.7.1"; # added 2022-07-16
   pyroute2-ethtool = throw "pyroute2 migrated back to a single package scheme in version 0.7.1"; # added 2022-07-16
@@ -486,6 +497,7 @@ mapAliases ({
   sapi-python-client = kbcstorage; # added 2022-04-20
   scikitimage = scikit-image; # added 2023-05-14
   scikitlearn = scikit-learn; # added 2021-07-21
+  scikits-samplerate = throw "scikits-samplerate has been removed, it was unsed and unmaintained since 2015"; # added 2024-05-23
   selectors34 = throw "selectors34 has been removed: functionality provided by Python itself; archived by upstream."; # added 2021-06-10
   sequoia = throw "python3Packages.sequoia was replaced by pysequoia - built from a dedicated repository, with a new API."; # added 2023-06-24
   setuptools_dso = setuptools-dso; # added 2024-03-03
@@ -494,6 +506,7 @@ mapAliases ({
   sharkiqpy = sharkiq; # added 2022-05-21
   shouldbe = throw "shouldbe was removed, because it was disabled on all python version since 3.8 and last updated in 2019."; # added 2024-05-12
   sip_4 = sip4; # added 2024-01-07
+  slackclient = slack-sdk; # added 2024-06-27
   ssh-mitm = throw "ssh-mitm was removed in favor of the top-level ssh-mitm"; # added 2023-05-09
   smart_open = smart-open; # added 2021-03-14
   smmap2 = throw "smmap2 has been deprecated, use smmap instead."; # added 2020-03-14
@@ -528,6 +541,10 @@ mapAliases ({
   Theano = theano; # added 2023-02-19
   TheanoWithCuda = theanoWithCuda; # added 2023-02-19
   TheanoWithoutCuda = theanoWithoutCuda; # added 2023-02-19
+  theano = throw "theano has been removed because it is no longer maintained"; # added 2024-05-20
+  theanoWithCuda = throw "theano has been removed because it is no longer maintained"; # added 2024-05-20
+  theanoWithoutCuda = throw "theano has been removed because it is no longer maintained"; # added 2024-05-20
+  theano-pymc = throw "theano-pymc has been removed because it is no longer maintained"; # added 2024-05-20
   thumborPexif = throw "thumborPexif has been removed, because it was unused."; # added 2024-01-07
   torchgpipe = throw "torchgpipe has been removed, because it appears unmaintained and Pytorch now includes pipeline parallelism support"; # added 2024-05-18
   torrent_parser = torrent-parser; # added 2023-11-04
@@ -570,6 +587,7 @@ mapAliases ({
   zc_buildout_nix = throw "zc_buildout_nix was pinned to a version no longer compatible with other modules";
   zc-buildout221 = zc-buildout; # added 2021-07-21
   zc_lockfile = zc-lockfile; # added 2024-01-06
+  zipstream = throw "zipstream has been removed, because it has been unmaintained for 6 years and there are no dependent packages"; # added 2024-05-26
   zipstream-new = throw "zipstream-new has been removed, because it  was packaged as a dependency for octoprint, which has switched to zipstream-ng since."; # added 2024-01-05
   zope_broken = throw "zope_broken has been removed because it is obsolete and not needed in zodb>=3.10"; # added 2023-07-26
   zope_component = zope-component; # added 2023-07-28

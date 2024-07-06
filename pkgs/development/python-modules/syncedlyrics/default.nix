@@ -12,7 +12,7 @@
 
 buildPythonPackage rec {
   pname = "syncedlyrics";
-  version = "0.9.0";
+  version = "1.0.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -21,7 +21,7 @@ buildPythonPackage rec {
     owner = "rtcq";
     repo = "syncedlyrics";
     rev = "refs/tags/v${version}";
-    hash = "sha256-Q0Hu403Hxr4iDuZfGQjgTSuNMVgsqd9zLRl9Vc1YzyQ=";
+    hash = "sha256-W3cg/+nU0Zp5pDhkoHqUemYImlDKlZDVbB7jZ3dScnk=";
   };
 
   build-system = [
@@ -44,10 +44,10 @@ buildPythonPackage rec {
 
   meta = with lib; {
     description = "Module to get LRC format (synchronized) lyrics";
-    mainProgram = "syncedlyrics";
     homepage = "https://github.com/rtcq/syncedlyrics";
     changelog = "https://github.com/rtcq/syncedlyrics/releases/tag/v${version}";
     license = licenses.mit;
     maintainers = with maintainers; [ fab ];
+    mainProgram = "syncedlyrics";
   };
 }

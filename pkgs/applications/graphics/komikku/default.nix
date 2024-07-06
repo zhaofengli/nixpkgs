@@ -19,7 +19,7 @@
 
 python3.pkgs.buildPythonApplication rec {
   pname = "komikku";
-  version = "1.46.0";
+  version = "1.49.0";
 
   format = "other";
 
@@ -28,7 +28,7 @@ python3.pkgs.buildPythonApplication rec {
     owner = "valos";
     repo = "Komikku";
     rev = "v${version}";
-    hash = "sha256-0yobGclfZzv0S0HtqeTr4vzK5d6PTQNWMszP0B4k770=";
+    hash = "sha256-AMlhhsbwLhofV/Sy/EXuE4l0UAwZf2Gxn9+x3MHno4Y=";
   };
 
   nativeBuildInputs = [
@@ -62,6 +62,7 @@ python3.pkgs.buildPythonApplication rec {
     natsort
     piexif
     pillow
+    pillow-heif
     curl-cffi
     pygobject3
     python-magic

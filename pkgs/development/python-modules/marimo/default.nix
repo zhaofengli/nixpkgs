@@ -23,14 +23,14 @@
 
 buildPythonPackage rec {
   pname = "marimo";
-  version = "0.6.2";
+  version = "0.6.25";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-sp3lQPLpU5qvHKQ02c/Ga1M8IsbmOX5nz2XPBMbGj30=";
+    hash = "sha256-zv1mlaR/3nRhZBjjcXaOSR574NE2um48DqHhHirRfSU=";
   };
 
   build-system = [ setuptools ];
@@ -57,7 +57,7 @@ buildPythonPackage rec {
   pythonImportsCheck = [ "marimo" ];
 
   meta = with lib; {
-    description = "A reactive Python notebook that's reproducible, git-friendly, and deployable as scripts or apps";
+    description = "Reactive Python notebook that's reproducible, git-friendly, and deployable as scripts or apps";
     homepage = "https://github.com/marimo-team/marimo";
     changelog = "https://github.com/marimo-team/marimo/releases/tag/${version}";
     license = licenses.asl20;

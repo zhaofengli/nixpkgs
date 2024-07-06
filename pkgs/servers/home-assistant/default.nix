@@ -30,15 +30,6 @@ let
     # Override the version of some packages pinned in Home Assistant's setup.py and requirements_all.txt
 
     (self: super: {
-      aioaladdinconnect = super.aioaladdinconnect.overridePythonAttrs (oldAttrs: rec {
-        version = "0.1.58";
-        src = fetchPypi {
-          pname = "AIOAladdinConnect";
-          inherit version;
-          hash = "sha256-ymynaOKvnqqHIEuQc+5CagsaH5cHnQit8ileoUO6G+I=";
-        };
-      });
-
       aioelectricitymaps = super.aioelectricitymaps.overridePythonAttrs (oldAttrs: rec {
         version = "0.4.0";
         src = fetchFromGitHub {
@@ -102,13 +93,15 @@ let
         '';
       });
 
-      anova-wifi = super.anova-wifi.overridePythonAttrs (old: rec {
-        version = "0.10.3";
+      aiowithings = super.aiowithings.overridePythonAttrs (oldAttrs: rec {
+        version = "2.1.0";
         src = fetchFromGitHub {
-          owner = "Lash-L";
-          repo = "anova_wifi";
-          rev = "refs/tags/v${version}";
-          hash = "sha256-tCmvp29KSCkc+g0w0odcB7vGjtDx6evac7XsHEF0syM=";
+          inherit (oldAttrs.src)
+            owner
+            repo
+          ;
+          rev = "refs/tags/${version}";
+          hash = "sha256-+pIIVCR+QsW9M3pH9Ss3dMvkeKM1OdhQ1y+s/T6pHtk=";
         };
       });
 
@@ -178,16 +171,6 @@ let
           hash = "sha256-QaMFVvglipN0kG1+ZQNKk7WTydSyIPn2qa32UtvLidw=";
         };
       });
-
-      homematicip = super.homematicip.overridePythonAttrs rec {
-        version = "1.1.0";
-        src = fetchFromGitHub {
-          owner = "hahn-th";
-          repo = "homematicip-rest-api";
-          rev = "refs/tags/${version}";
-          hash = "sha256-tx7/amXG3rLdUFgRPQcuf57qkBLAPxPWjLGSO7MrcWU=";
-        };
-      };
 
       intellifire4py = super.intellifire4py.overridePythonAttrs (oldAttrs: rec {
         version = "2.2.2";
@@ -265,6 +248,16 @@ let
         ];
 
         patches = [];
+      });
+
+      pymelcloud = super.pymelcloud.overridePythonAttrs (oldAttrs: {
+        version = "2.5.9";
+        src = fetchFromGitHub {
+          owner = "vilppuvuorinen";
+          repo = "pymelcloud";
+          rev = "33a827b6cd0b34f276790faa49bfd0994bb7c2e4"; # 2.5.x branch
+          sha256 = "sha256-Q3FIo9YJwtWPHfukEBjBANUQ1N1vr/DMnl1dgiN7vYg=";
+        };
       });
 
       notifications-android-tv = super.notifications-android-tv.overridePythonAttrs (oldAttrs: rec {
@@ -448,14 +441,20 @@ let
         ];
       };
 
-      tesla-powerwall = super.tesla-powerwall.overridePythonAttrs (oldAttrs: rec {
-        version = "0.5.1";
+      slack-sdk = super.slack-sdk.overridePythonAttrs (oldAttrs: rec {
+        version = "2.5.0";
         src = fetchFromGitHub {
-          owner = "jrester";
-          repo = "tesla_powerwall";
-          rev = "refs/tags/v${version}";
-          hash = "sha256-if/FCfxAB48WGXZOMvCtdSOW2FWO43OrlcHZbXIPmGE=";
+          owner = "slackapi";
+          repo = "python-slackclient";
+          rev = "refs/tags/${version}";
+          hash = "sha256-U//HUe6e41wOOzoaDl4yXPnEASCzpGBIScHStWMN8tk=";
         };
+        postPatch = ''
+          substituteInPlace setup.py \
+            --replace-fail "pytest-runner" ""
+        '';
+        pythonImportsCheck = [ "slack" ];
+        doCheck = false; # Tests changed a lot for > 3
       });
 
       tuf = super.tuf.overridePythonAttrs rec {
@@ -550,12 +549,12 @@ let
   extraBuildInputs = extraPackages python.pkgs;
 
   # Don't forget to run update-component-packages.py after updating
-  hassVersion = "2024.5.4";
+  hassVersion = "2024.6.4";
 
 in python.pkgs.buildPythonApplication rec {
   pname = "homeassistant";
   version = assert (componentPackages.version == hassVersion); hassVersion;
-  format = "pyproject";
+  pyproject = true;
 
   # check REQUIRED_PYTHON_VER in homeassistant/const.py
   disabled = python.pythonOlder "3.11";
@@ -568,13 +567,13 @@ in python.pkgs.buildPythonApplication rec {
     owner = "home-assistant";
     repo = "core";
     rev = "refs/tags/${version}";
-    hash = "sha256-YJluhc1MCRxeDtn8R9tF2QYA6qCiYpjOpRJaQeay3lk=";
+    hash = "sha256-WIAFTVNHzrKTRONmOc/lq5PvC34PDKF7UfIokLCVzNY=";
   };
 
   # Secondary source is pypi sdist for translations
   sdist = fetchPypi {
     inherit pname version;
-    hash = "sha256-e2evRFP/l2HHcDgMUWQEM7xvvAfLRwdFtz+u2mwXepI=";
+    hash = "sha256-Ymv3AlArAD2rSXQwMhEVeynwhAo8ZMrtV1zUK4U8xqQ=";
   };
 
   build-system = with python.pkgs; [
@@ -594,6 +593,7 @@ in python.pkgs.buildPythonApplication rec {
     "orjson"
     "pillow"
     "pyopenssl"
+    "requests"
     "sqlalchemy"
     "typing-extensions"
     "urllib3"
@@ -631,8 +631,8 @@ in python.pkgs.buildPythonApplication rec {
     aiohttp
     aiohttp-cors
     aiohttp-fast-url-dispatcher
-    aiohttp-isal
-    aiohttp-session
+    aiohttp-fast-zlib
+    aiozoneinfo
     astral
     async-interrupt
     atomicwrites-homeassistant

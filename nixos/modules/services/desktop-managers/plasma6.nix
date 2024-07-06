@@ -8,7 +8,7 @@
   cfg = config.services.desktopManager.plasma6;
 
   inherit (pkgs) kdePackages;
-  inherit (lib) literalExpression mkDefault mkIf mkOption mkPackageOptionMD types;
+  inherit (lib) literalExpression mkDefault mkIf mkOption mkPackageOption types;
 
   activationScript = ''
     # will be rebuilt automatically
@@ -29,7 +29,7 @@ in {
         description = "Enable Qt 5 integration (theming, etc). Disable for a pure Qt 6 system.";
       };
 
-      notoPackage = mkPackageOptionMD pkgs "Noto fonts - used for UI by default" {
+      notoPackage = mkPackageOption pkgs "Noto fonts - used for UI by default" {
         default = ["noto-fonts"];
         example = "noto-fonts-lgc-plus";
       };
@@ -142,11 +142,11 @@ in {
         okular
         kate
         khelpcenter
-        print-manager
         dolphin
         dolphin-plugins
         spectacle
         ffmpegthumbs
+        krdp
       ];
     in
       requiredPackages
@@ -168,12 +168,13 @@ in {
         )
         kio-extras-kf5
       ]
-      # Optional hardware support features
+      # Optional and hardware support features
       ++ lib.optionals config.hardware.bluetooth.enable [bluedevil bluez-qt pkgs.openobex pkgs.obexftp]
       ++ lib.optional config.networking.networkmanager.enable plasma-nm
       ++ lib.optional config.hardware.pulseaudio.enable plasma-pa
       ++ lib.optional config.services.pipewire.pulse.enable plasma-pa
       ++ lib.optional config.powerManagement.enable powerdevil
+      ++ lib.optional config.services.printing.enable print-manager
       ++ lib.optional config.services.colord.enable colord-kde
       ++ lib.optional config.services.hardware.bolt.enable plasma-thunderbolt
       ++ lib.optional config.services.samba.enable kdenetwork-filesharing
@@ -202,7 +203,7 @@ in {
     environment.sessionVariables.KPACKAGE_DEP_RESOLVERS_PATH = "${kdePackages.frameworkintegration.out}/libexec/kf6/kpackagehandlers";
 
     # Enable GTK applications to load SVG icons
-    services.xserver.gdk-pixbuf.modulePackages = [pkgs.librsvg];
+    programs.gdk-pixbuf.modulePackages = [pkgs.librsvg];
 
     fonts.packages = [cfg.notoPackage pkgs.hack-font];
     fonts.fontconfig.defaultFonts = {
@@ -263,9 +264,12 @@ in {
         enable = true;
         package = kdePackages.kwallet-pam;
       };
-      kde.kwallet = {
-        enable = true;
-        package = kdePackages.kwallet-pam;
+      kde = {
+        allowNullPassword = true;
+        kwallet = {
+          enable = true;
+          package = kdePackages.kwallet-pam;
+        };
       };
       kde-fingerprint = lib.mkIf config.services.fprintd.enable { fprintAuth = true; };
       kde-smartcard = lib.mkIf config.security.pam.p11.enable { p11Auth = true; };

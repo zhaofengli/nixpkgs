@@ -68,7 +68,7 @@ let
   effectiveStdenv = if cudaSupport then cudaPackages.backendStdenv else inputs.stdenv;
 
   meta = with lib; {
-    description = "JAX is Autograd and XLA, brought together for high-performance machine learning research.";
+    description = "JAX is Autograd and XLA, brought together for high-performance machine learning research";
     homepage = "https://github.com/google/jax";
     license = licenses.asl20;
     maintainers = with maintainers; [ ndl ];
@@ -374,13 +374,20 @@ let
       sha256 =
         (
           if cudaSupport then
-            { x86_64-linux = "sha256-VGNMf5/DgXbgsu1w5J1Pmrukw+7UO31BNU+crKVsX5k="; }
+            { x86_64-linux = "sha256-Uf0VMRE0jgaWEYiuphWkWloZ5jMeqaWBl3lSvk2y1HI="; }
           else
             {
-              x86_64-linux = "sha256-uOoAyMBLHPX6jzdN43b5wZV5eW0yI8sCDD7BSX2h4oQ=";
-              aarch64-linux = "sha256-+SnGKY9LIT1Qhu/x6Uh7sHRaAEjlc//qyKj1m4t16PA=";
+              x86_64-linux = "sha256-NzJJg6NlrPGMiR8Fn8u4+fu0m+AulfmN5Xqk63Um6sw=";
+              aarch64-linux = "sha256-Ro3qzrUxSR+3TH6ROoJTq+dLSufrDN/9oEo2MRkx7wM=";
             }
         ).${effectiveStdenv.system} or (throw "jaxlib: unsupported system: ${effectiveStdenv.system}");
+
+        # Non-reproducible fetch https://github.com/NixOS/nixpkgs/issues/321920#issuecomment-2184940546
+        preInstall = ''
+          cat << \EOF > "$bazelOut/external/go_sdk/versions.json"
+          []
+          EOF
+        '';
     };
 
     buildAttrs = {
@@ -418,7 +425,7 @@ let
       throw "Unsupported target platform: ${effectiveStdenv.hostPlatform}";
 in
 buildPythonPackage {
-  inherit meta pname version;
+  inherit pname version;
   format = "wheel";
 
   src =
@@ -471,4 +478,11 @@ buildPythonPackage {
   # Without it there are complaints about libcudart.so.11.0 not being found
   # because RPATH path entries added above are stripped.
   dontPatchELF = cudaSupport;
+
+  passthru = {
+    # Note "bazel.*.tar.gz" can be accessed as `jaxlib.bazel-build.deps`
+    inherit bazel-build;
+  };
+
+  inherit meta;
 }

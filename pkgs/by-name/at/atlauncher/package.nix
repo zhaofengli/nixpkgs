@@ -4,10 +4,10 @@
 , lib
 , makeDesktopItem
 , makeWrapper
-, stdenv
+, stdenvNoCC
 
-, gamemodeSupport ? stdenv.isLinux
-, textToSpeechSupport ? stdenv.isLinux
+, gamemodeSupport ? stdenvNoCC.isLinux
+, textToSpeechSupport ? stdenvNoCC.isLinux
 , additionalLibs ? [ ]
 
 , # dependencies
@@ -19,13 +19,13 @@
 , xorg
 }:
 
-stdenv.mkDerivation (finalAttrs: {
+stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "atlauncher";
-  version = "3.4.36.4";
+  version = "3.4.36.9";
 
   src = fetchurl {
     url = "https://github.com/ATLauncher/ATLauncher/releases/download/v${finalAttrs.version}/ATLauncher-${finalAttrs.version}.jar";
-    hash = "sha256-7l4D99rTOP+oyaa+O8GPGugr3Nv8EIt6EqK1L9ttFBA=";
+    hash = "sha256-2kO7CRkA3RlWcNqv2d5sJIaLPupUU0ox2wc3T16i7e8=";
   };
 
   env.ICON = fetchurl {
@@ -77,14 +77,15 @@ stdenv.mkDerivation (finalAttrs: {
     })
   ];
 
-  meta = with lib; {
-    description = "A simple and easy to use Minecraft launcher which contains many different modpacks for you to choose from and play";
+  meta = {
+    changelog = "https://github.com/ATLauncher/ATLauncher/blob/v${finalAttrs.version}/CHANGELOG.md";
+    description = "Simple and easy to use Minecraft launcher which contains many different modpacks for you to choose from and play";
     downloadPage = "https://atlauncher.com/downloads";
     homepage = "https://atlauncher.com";
-    license = licenses.gpl3;
+    license = lib.licenses.gpl3;
     mainProgram = "atlauncher";
-    maintainers = [ maintainers.getpsyched ];
-    platforms = platforms.all;
-    sourceProvenance = [ sourceTypes.binaryBytecode ];
+    maintainers = with lib.maintainers; [ getpsyched ];
+    platforms = lib.platforms.all;
+    sourceProvenance = [ lib.sourceTypes.binaryBytecode ];
   };
 })

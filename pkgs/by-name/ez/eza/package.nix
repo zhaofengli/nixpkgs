@@ -17,16 +17,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "eza";
-  version = "0.18.16";
+  version = "0.18.21";
 
   src = fetchFromGitHub {
     owner = "eza-community";
     repo = "eza";
     rev = "v${version}";
-    hash = "sha256-VaQLPQseLgxzDMnlMsfh5XGhjNYIBrMDBm2JsY2Gou4=";
+    hash = "sha256-d1xY0yu28a+TfIMUlQN/v3UgfhVVmQL9jGLJVc8o/Xc=";
   };
 
-  cargoHash = "sha256-zxIGYNdgAJQHng1jfaJPwAlbflJi0W5osAf5F2Is0ws=";
+  cargoHash = "sha256-w8xAk4eBXAOD93IIjD5MIDerPMSvw2IN9QTOKc04DK4=";
 
   nativeBuildInputs = [ cmake pkg-config installShellFiles pandoc ];
   buildInputs = [ zlib ]
@@ -51,7 +51,7 @@ rustPlatform.buildRustPackage rec {
   '';
 
   meta = with lib; {
-    description = "A modern, maintained replacement for ls";
+    description = "Modern, maintained replacement for ls";
     longDescription = ''
       eza is a modern replacement for ls. It uses colours for information by
       default, helping you distinguish between many types of files, such as

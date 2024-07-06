@@ -6,11 +6,11 @@
 
 appimageTools.wrapType2 rec {
   pname = "lunar-client";
-  version = "3.2.7";
+  version = "3.2.11";
 
   src = fetchurl {
     url = "https://launcherupdates.lunarclientcdn.com/Lunar%20Client-${version}.AppImage";
-    hash = "sha512-dziL9lnpsiJ2BV+jNOhVMvZtYY/K4chyiZB5/fMCw9/4/3Boe/DO7s2steEOhxEsPqUcWaf1Sjs6DFSX/CHUqw==";
+    hash = "sha512-qRucW9x4LMmTb8pw0zY1EKXkPfjdahCi2PN/bfdB8CYA4wZp0bfZNaGtPpI/BKPlnR/nfpypEdnHsoqlL9KiCg==";
   };
 
   extraInstallCommands =
@@ -29,11 +29,11 @@ appimageTools.wrapType2 rec {
   passthru.updateScript = ./update.sh;
 
   meta = with lib; {
-    description = "Free Minecraft client with mods, cosmetics, and performance boost.";
+    description = "Free Minecraft client with mods, cosmetics, and performance boost";
     homepage = "https://www.lunarclient.com/";
     license = with licenses; [ unfree ];
     mainProgram = "lunar-client";
-    maintainers = with maintainers; [ zyansheep Technical27 surfaceflinger ];
+    maintainers = with maintainers; [ Technical27 surfaceflinger ];
     platforms = [ "x86_64-linux" ];
   };
 }

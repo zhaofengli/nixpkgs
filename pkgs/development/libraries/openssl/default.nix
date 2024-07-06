@@ -143,6 +143,15 @@ let
       # trying to build binaries statically.
       ++ lib.optional static "no-ct"
       ++ lib.optional withZlib "zlib"
+      # /dev/crypto support has been dropped in OpenBSD 5.7.
+      #
+      # OpenBSD's ports does this too,
+      # https://github.com/openbsd/ports/blob/a1147500c76970fea22947648fb92a093a529d7c/security/openssl/3.3/Makefile#L25.
+      #
+      # https://github.com/openssl/openssl/pull/10565 indicated the
+      # intent was that this would be configured properly automatically,
+      # but that doesn't appear to be the case.
+      ++ lib.optional stdenv.hostPlatform.isOpenBSD "no-devcryptoeng"
       ++ lib.optionals (stdenv.hostPlatform.isMips && stdenv.hostPlatform ? gcc.arch) [
       # This is necessary in order to avoid openssl adding -march
       # flags which ultimately conflict with those added by
@@ -221,7 +230,7 @@ let
     meta = with lib; {
       homepage = "https://www.openssl.org/";
       changelog = "https://github.com/openssl/openssl/blob/openssl-${version}/CHANGES.md";
-      description = "A cryptographic library that implements the SSL and TLS protocols";
+      description = "Cryptographic library that implements the SSL and TLS protocols";
       license = licenses.openssl;
       mainProgram = "openssl";
       maintainers = with maintainers; [ thillux ];

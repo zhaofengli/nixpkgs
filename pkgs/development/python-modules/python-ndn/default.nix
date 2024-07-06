@@ -52,10 +52,10 @@ buildPythonPackage rec {
   pythonImportsCheck = [ "ndn" ];
 
   meta = with lib; {
-    description = "An NDN client library with AsyncIO support";
+    description = "NDN client library with AsyncIO support";
     homepage = "https://github.com/named-data/python-ndn";
     changelog = "https://github.com/named-data/python-ndn/blob/${src.rev}/CHANGELOG.rst";
     license = licenses.asl20;
-    maintainers = with maintainers; [ janik ];
+    maintainers = with maintainers; [ ];
   };
 }

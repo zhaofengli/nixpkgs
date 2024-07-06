@@ -1,32 +1,40 @@
 {
   lib,
   buildPythonPackage,
-  cloudpickle,
-  einops,
+  pythonOlder,
   fetchFromGitHub,
-  jax,
+
+  # build-system
   jaxlib,
-  keras,
-  matplotlib,
+  pythonRelaxDepsHook,
+  setuptools-scm,
+
+  # dependencies
+  jax,
   msgpack,
   numpy,
   optax,
   orbax-checkpoint,
-  pytest-xdist,
-  pytestCheckHook,
-  pythonOlder,
-  pythonRelaxDepsHook,
   pyyaml,
   rich,
-  setuptools-scm,
-  tensorflow,
   tensorstore,
   typing-extensions,
+
+  # checks
+  cloudpickle,
+  einops,
+  keras,
+  pytest-xdist,
+  pytestCheckHook,
+  tensorflow,
+
+  # optional-dependencies
+  matplotlib,
 }:
 
 buildPythonPackage rec {
   pname = "flax";
-  version = "0.8.3";
+  version = "0.8.5";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
@@ -35,7 +43,7 @@ buildPythonPackage rec {
     owner = "google";
     repo = "flax";
     rev = "refs/tags/v${version}";
-    hash = "sha256-uDGTyksUZTTL6FiTJP+qteFLOjr75dcTj9yRJ6Jm8xU=";
+    hash = "sha256-6WOFq0758gtNdrlWqSQBlKmWVIGe5e4PAaGrvHoGjr0=";
   };
 
   build-system = [
@@ -86,7 +94,7 @@ buildPythonPackage rec {
     # `tensorflow_datasets`, `vocabulary`) so the benefits of trying to run them
     # would be limited anyway.
     "examples/*"
-    "flax/experimental/nnx/examples/*"
+    "flax/nnx/examples/*"
     # See https://github.com/google/flax/issues/3232.
     "tests/jax_utils_test.py"
     # Requires tree
@@ -98,11 +106,11 @@ buildPythonPackage rec {
     "test_overwrite_checkpoints0"
   ];
 
-  meta = with lib; {
+  meta = {
     description = "Neural network library for JAX";
     homepage = "https://github.com/google/flax";
     changelog = "https://github.com/google/flax/releases/tag/v${version}";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ ndl ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [ ndl ];
   };
 }

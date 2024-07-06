@@ -5,13 +5,13 @@
 }:
 
 buildPythonPackage rec {
-  version = "0.3";
+  version = "0.4.1";
   format = "setuptools";
   pname = "httpauth";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "0qas7876igyz978pgldp5r7n7pis8n4vf0v87gxr9l7p7if5lr3l";
+    sha256 = "sha256-C6rnFroAd5vOULBMwsLSyeSK5zPXOEgGHDSYt+Pm2dQ=";
   };
 
   doCheck = false;

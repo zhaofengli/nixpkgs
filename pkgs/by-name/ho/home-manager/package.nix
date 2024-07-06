@@ -16,14 +16,14 @@
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "home-manager";
-  version = "0-unstable-2024-05-17";
+  version = "0-unstable-2024-06-26";
 
   src = fetchFromGitHub {
     name = "home-manager-source";
     owner = "nix-community";
     repo = "home-manager";
-    rev = "e3ad5108f54177e6520535768ddbf1e6af54b59d";
-    hash = "sha256-W9pyM3/vePxrffHtzlJI6lDS3seANQ+Nqp+i58O46LI=";
+    rev = "1a4f12ae0bda877ec4099b429cf439aad897d7e9";
+    hash = "sha256-/Vmso2ZMoFE3M7d1MRsQ2K5sR8CVKnrM6t1ys9Xjpz4=";
   };
 
   nativeBuildInputs = [
@@ -80,7 +80,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   meta = {
     homepage = "https://nix-community.github.io/home-manager/";
-    description = "A Nix-based user environment configurator";
+    description = "Nix-based user environment configurator";
     longDescription = ''
       The Home-Manager project provides a basic system for managing a user
       environment using the Nix package manager together with the Nix libraries

@@ -1,23 +1,27 @@
-{ stdenv
-, fetchFromGitHub
-, lib
-, callPackage
-, gradle_7
-, perl
-, makeWrapper
-, openjdk17
-, unzip
-, makeDesktopItem
-, icoutils
-, xcbuild
-, protobuf
-, ghidra-extensions
+{
+  stdenv,
+  fetchFromGitHub,
+  lib,
+  callPackage,
+  gradle_7,
+  perl,
+  makeBinaryWrapper,
+  openjdk17,
+  unzip,
+  makeDesktopItem,
+  copyDesktopItems,
+  desktopToDarwinBundle,
+  xcbuild,
+  protobuf,
+  ghidra-extensions,
+  python3,
+  python3Packages,
 }:
 
 let
   pkg_path = "$out/lib/ghidra";
   pname = "ghidra";
-  version = "11.0.3";
+  version = "11.1.1";
 
   releaseName = "NIX";
   distroPrefix = "ghidra_${version}_${releaseName}";
@@ -25,7 +29,7 @@ let
     owner = "NationalSecurityAgency";
     repo = "Ghidra";
     rev = "Ghidra_${version}_build";
-    hash = "sha256-IiLxaJvfJcK275FDZEsUCGp7haJjp8O2fUIoM4F9H30=";
+    hash = "sha256-t96FcAK3JwO66dOf4OhpOfU8CQfAczfF61Cg7m+B3fA=";
     # populate values that require us to use git. By doing this in postFetch we
     # can delete .git afterwards and maintain better reproducibility of the src.
     leaveDotGit = true;
@@ -53,15 +57,6 @@ let
     ./0003-Remove-build-datestamp.patch
   ];
 
-  desktopItem = makeDesktopItem {
-    name = "ghidra";
-    exec = "ghidra";
-    icon = "ghidra";
-    desktopName = "Ghidra";
-    genericName = "Ghidra Software Reverse Engineering Suite";
-    categories = [ "Development" ];
-  };
-
   postPatch = ''
     # Set name of release (eg. PUBLIC, DEV, etc.)
     sed -i -e 's/application\.release\.name=.*/application.release.name=${releaseName}/' Ghidra/application.properties
@@ -83,26 +78,26 @@ let
 
   # Adds a gradle step that downloads all the dependencies to the gradle cache.
   addResolveStep = ''
-    cat >>build.gradle <<HERE
-task resolveDependencies {
-  doLast {
-    project.rootProject.allprojects.each { subProject ->
-      subProject.buildscript.configurations.each { configuration ->
-        resolveConfiguration(subProject, configuration, "buildscript config \''${configuration.name}")
-      }
-      subProject.configurations.each { configuration ->
-        resolveConfiguration(subProject, configuration, "config \''${configuration.name}")
+        cat >>build.gradle <<HERE
+    task resolveDependencies {
+      doLast {
+        project.rootProject.allprojects.each { subProject ->
+          subProject.buildscript.configurations.each { configuration ->
+            resolveConfiguration(subProject, configuration, "buildscript config \''${configuration.name}")
+          }
+          subProject.configurations.each { configuration ->
+            resolveConfiguration(subProject, configuration, "config \''${configuration.name}")
+          }
+        }
       }
     }
-  }
-}
-void resolveConfiguration(subProject, configuration, name) {
-  if (configuration.canBeResolved) {
-    logger.info("Resolving project {} {}", subProject.name, name)
-    configuration.resolve()
-  }
-}
-HERE
+    void resolveConfiguration(subProject, configuration, name) {
+      if (configuration.canBeResolved) {
+        logger.info("Resolving project {} {}", subProject.name, name)
+        configuration.resolve()
+      }
+    }
+    HERE
   '';
 
   # fake build to pre-download deps into fixed-output derivation
@@ -113,7 +108,10 @@ HERE
 
     postPatch = addResolveStep;
 
-    nativeBuildInputs = [ gradle perl ] ++ lib.optional stdenv.isDarwin xcbuild;
+    nativeBuildInputs = [
+      gradle
+      perl
+    ] ++ lib.optional stdenv.isDarwin xcbuild;
     buildPhase = ''
       runHook preBuild
       export HOME="$NIX_BUILD_TOP/home"
@@ -139,15 +137,51 @@ HERE
     '';
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = "sha256-nKfJiGoZlDEpbCmYVKNZXz2PYIosCd4nPFdy3MfprHc=";
+    outputHash = "sha256-66gL4UFlBUo2JIEOXoF6tFvXtBdEX4b2MeSrV1b6Vg4=";
   };
+in
+stdenv.mkDerivation (finalAttrs: {
+  inherit
+    pname
+    version
+    src
+    patches
+    postPatch
+    ;
 
-in stdenv.mkDerivation (finalAttrs: {
-  inherit pname version src patches postPatch;
+  # Don't create .orig files if the patch isn't an exact match.
+  patchFlags = [
+    "--no-backup-if-mismatch"
+    "-p1"
+  ];
 
-  nativeBuildInputs = [
-    gradle unzip makeWrapper icoutils protobuf
-  ] ++ lib.optional stdenv.isDarwin xcbuild;
+  desktopItems = [
+    (makeDesktopItem {
+      name = "ghidra";
+      exec = "ghidra";
+      icon = "ghidra";
+      desktopName = "Ghidra";
+      genericName = "Ghidra Software Reverse Engineering Suite";
+      categories = [ "Development" ];
+      terminal = false;
+      startupWMClass = "ghidra-Ghidra";
+    })
+  ];
+
+  nativeBuildInputs =
+    [
+      gradle
+      unzip
+      makeBinaryWrapper
+      copyDesktopItems
+      protobuf
+      python3
+      python3Packages.pip
+    ]
+    ++ lib.optionals stdenv.isDarwin [
+      xcbuild
+      desktopToDarwinBundle
+    ];
 
   dontStrip = true;
 
@@ -169,6 +203,7 @@ in stdenv.mkDerivation (finalAttrs: {
 
   installPhase = ''
     runHook preInstall
+
     mkdir -p "${pkg_path}" "$out/share/applications"
 
     ZIP=build/dist/$(ls build/dist)
@@ -178,15 +213,13 @@ in stdenv.mkDerivation (finalAttrs: {
     mv "${pkg_path}"/*/* "${pkg_path}"
     rmdir "''${f[@]}"
 
-    ln -s ${desktopItem}/share/applications/* $out/share/applications
-
-    icotool -x "Ghidra/RuntimeScripts/Windows/support/ghidra.ico"
-    rm ghidra_4_40x40x32.png
-    for f in ghidra_*.png; do
-      res=$(basename "$f" ".png" | cut -d"_" -f3 | cut -d"x" -f1-2)
-      mkdir -pv "$out/share/icons/hicolor/$res/apps"
-      mv "$f" "$out/share/icons/hicolor/$res/apps/ghidra.png"
+    for f in Ghidra/Framework/Gui/src/main/resources/images/GhidraIcon*.png; do
+      res=$(basename "$f" ".png" | cut -d"_" -f3 | cut -c11-)
+      install -Dm444 "$f" "$out/share/icons/hicolor/''${res}x''${res}/apps/ghidra.png"
     done;
+    # improved macOS icon support
+    install -Dm444 Ghidra/Framework/Gui/src/main/resources/images/GhidraIcon64.png $out/share/icons/hicolor/32x32@2/apps/ghidra.png
+
     runHook postInstall
   '';
 
@@ -200,23 +233,34 @@ in stdenv.mkDerivation (finalAttrs: {
 
   passthru = {
     inherit releaseName distroPrefix;
-    inherit (ghidra-extensions.override { ghidra = finalAttrs.finalPackage; }) buildGhidraExtension buildGhidraScripts;
+    inherit (ghidra-extensions.override { ghidra = finalAttrs.finalPackage; })
+      buildGhidraExtension
+      buildGhidraScripts
+      ;
 
     withExtensions = callPackage ./with-extensions.nix { ghidra = finalAttrs.finalPackage; };
   };
 
   meta = with lib; {
-    description = "A software reverse engineering (SRE) suite of tools developed by NSA's Research Directorate in support of the Cybersecurity mission";
+    changelog = "https://htmlpreview.github.io/?https://github.com/NationalSecurityAgency/ghidra/blob/Ghidra_${finalAttrs.version}_build/Ghidra/Configurations/Public_Release/src/global/docs/ChangeHistory.html";
+    description = "Software reverse engineering (SRE) suite of tools";
     mainProgram = "ghidra";
     homepage = "https://ghidra-sre.org/";
-    platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
+    platforms = [
+      "x86_64-linux"
+      "aarch64-linux"
+      "x86_64-darwin"
+      "aarch64-darwin"
+    ];
     sourceProvenance = with sourceTypes; [
       fromSource
-      binaryBytecode  # deps
+      binaryBytecode # deps
     ];
     license = licenses.asl20;
-    maintainers = with maintainers; [ roblabla vringar ];
+    maintainers = with maintainers; [
+      roblabla
+      vringar
+    ];
     broken = stdenv.isDarwin && stdenv.isx86_64;
   };
-
 })

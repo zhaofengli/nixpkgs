@@ -1,7 +1,6 @@
 {
   lib,
   buildPythonPackage,
-  fetchPypi,
   fetchFromGitHub,
   numpy,
   pybind11,
@@ -45,6 +44,6 @@ buildPythonPackage rec {
       library, which provides very fast and quite robust triangulation of 2D
       polygons.
     '';
-    maintainers = with maintainers; [ friedelino ];
+    maintainers = with maintainers; [ ];
   };
 }
