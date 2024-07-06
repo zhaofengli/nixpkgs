@@ -684,7 +684,7 @@ in
           waitForKeyFile = mkOption {
             default = true;
             type = types.bool;
-            description = lib.mdDoc ''
+            description = ''
               Whether to wait for the key file to appear. If set to false, the
               unlocking process will immediately fail or fall back to passphrase
               if the key file doesn't exist the first time we check.
