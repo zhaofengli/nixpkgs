@@ -13,14 +13,14 @@
 
 buildPythonPackage rec {
   pname = "pydantic-extra-types";
-  version = "2.6.0";
+  version = "2.8.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "pydantic";
     repo = "pydantic-extra-types";
     rev = "refs/tags/v${version}";
-    hash = "sha256-XLVhoZ3+TfVYEuk/5fORaGpCBaB5NcuskWhHgt+llS0=";
+    hash = "sha256-YNr3eKwlPmLpYp0Z4WAOmWNMjta22ZZMuSlONkONxZU=";
   };
 
   nativeBuildInputs = [ hatchling ];
@@ -45,6 +45,6 @@ buildPythonPackage rec {
     description = "Extra Pydantic types";
     homepage = "https://github.com/pydantic/pydantic-extra-types";
     license = licenses.mit;
-    maintainers = with maintainers; [ ];
+    maintainers = [ ];
   };
 }

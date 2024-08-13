@@ -608,7 +608,7 @@ let
     RCurl = [ pkgs.curl.dev ];
     R2SWF = [ pkgs.pkg-config ];
     rDEA = [ pkgs.glpk ];
-    rgl = with pkgs; [ libGLU libGLU.dev libGL xorg.libX11.dev freetype.dev libpng.dev ];
+    rgl = with pkgs; [ libGLU libGL xorg.libX11.dev freetype.dev libpng.dev ];
     RGtk2 = [ pkgs.pkg-config ];
     RProtoBuf = [ pkgs.pkg-config ];
     Rpoppler = [ pkgs.pkg-config ];
@@ -1256,7 +1256,7 @@ let
     pbdZMQ = old.pbdZMQ.overrideAttrs (attrs: {
       postPatch = lib.optionalString stdenv.isDarwin ''
         for file in R/*.{r,r.in}; do
-            sed -i 's#system("which \(\w\+\)"[^)]*)#"${pkgs.darwin.cctools}/bin/\1"#g' $file
+            sed -i 's#system("which \(\w\+\)"[^)]*)#"${pkgs.cctools}/bin/\1"#g' $file
         done
       '';
     });

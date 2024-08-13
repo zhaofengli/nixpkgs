@@ -21,7 +21,7 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-k2+ddJIgGE41KGZODovU9VdurbWerEtdqNrFDwyuFjo=";
   };
 
-  sourceRoot = "source/src";
+  sourceRoot = "${finalAttrs.src.name}/src";
 
   patches = [
     # https://github.com/ablab/spades/pull/1314
@@ -53,6 +53,8 @@ stdenv.mkDerivation (finalAttrs: {
     readline
   ];
 
+  env.NIX_CFLAGS_COMPILE = lib.optionalString stdenv.isDarwin "-faligned-allocation";
+
   doCheck = true;
 
   strictDeps = true;
@@ -63,11 +65,7 @@ stdenv.mkDerivation (finalAttrs: {
     downloadPage = "https://github.com/ablab/spades";
     homepage = "http://ablab.github.io/spades";
     license = lib.licenses.gpl2Only;
-    platforms = [
-      "aarch64-linux"
-      "x86_64-linux"
-      "x86_64-darwin"
-    ];
+    platforms = lib.platforms.unix;
     maintainers = with lib.maintainers; [ bzizou ];
     broken = stdenv.hostPlatform.isMusl;
   };

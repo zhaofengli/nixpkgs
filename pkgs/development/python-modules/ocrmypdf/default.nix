@@ -6,7 +6,6 @@
   ghostscript,
   hypothesis,
   img2pdf,
-  importlib-resources,
   jbig2enc,
   packaging,
   pdfminer-six,
@@ -23,14 +22,13 @@
   setuptools-scm,
   substituteAll,
   tesseract,
-  tqdm,
   unpaper,
   installShellFiles,
 }:
 
 buildPythonPackage rec {
   pname = "ocrmypdf";
-  version = "16.4.0";
+  version = "16.4.3";
 
   disabled = pythonOlder "3.10";
 
@@ -46,7 +44,7 @@ buildPythonPackage rec {
     postFetch = ''
       rm "$out/.git_archival.txt"
     '';
-    hash = "sha256-AqOHBioK4EaKux6ZtTWZgQgWLlbtG/SWdgXPb3MYm7o=";
+    hash = "sha256-SHinfAWUqrPnHdDDXa1meVfxsyct17b1ak5U91GEc1w=";
   };
 
   patches = [

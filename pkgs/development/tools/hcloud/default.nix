@@ -6,16 +6,16 @@
 
 buildGoModule rec {
   pname = "hcloud";
-  version = "1.44.1";
+  version = "1.46.0";
 
   src = fetchFromGitHub {
     owner = "hetznercloud";
     repo = "cli";
     rev = "refs/tags/v${version}";
-    hash = "sha256-Nzav7ESJAQHgQA8dR17Emvjsxk39Omi0UB5PMsrJmRA=";
+    hash = "sha256-xW0M4ppbW6yD5+JpJZnDVf2mPiBzNFotP1IPTbnJoC4=";
   };
 
-  vendorHash = "sha256-/Ca7oVLdWIribKBVHGiWfLte+YcKzPGu2DzZ/lTvTQM=";
+  vendorHash = "sha256-XocfpUmq/w/gqhCaT4Y33uQaggx3Bm16QuG/bGdxmg4=";
 
   ldflags = [
     "-s"

@@ -6,13 +6,13 @@
 
 buildGoModule rec {
   pname = "nhost-cli";
-  version = "1.18.3";
+  version = "1.21.0";
 
   src = fetchFromGitHub {
     owner = "nhost";
     repo = "cli";
     rev = "v${version}";
-    hash = "sha256-TYi0Cth4GWEIT9QRUC4z3Uwnh4EmywY+XCOM5oJP+4g=";
+    hash = "sha256-xnSIWDKWi4weMjs8WOVqJ77DGqtw/EhLAmVa8CNjXb0=";
   };
 
   vendorHash = null;

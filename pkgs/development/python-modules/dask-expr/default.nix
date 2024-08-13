@@ -3,19 +3,25 @@
   buildPythonPackage,
   pythonOlder,
   fetchFromGitHub,
+
+  # build-system
   setuptools,
   versioneer,
-  wheel,
+
+  # dependencies
   dask,
   pandas,
   pyarrow,
+
+  # checks
   distributed,
   pytestCheckHook,
+  xarray
 }:
 
 buildPythonPackage rec {
   pname = "dask-expr";
-  version = "1.1.6";
+  version = "1.1.10";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
@@ -24,7 +30,7 @@ buildPythonPackage rec {
     owner = "dask";
     repo = "dask-expr";
     rev = "refs/tags/v${version}";
-    hash = "sha256-O0s7jrxjTkIAb6zW+NuG1PPHhRHndcLt11uYNyknO4A=";
+    hash = "sha256-JLOTmpaKDyv4dgEM/dQFeQrD0OZcwNxBi7/pq/STJYY=";
   };
 
   postPatch = ''
@@ -35,7 +41,6 @@ buildPythonPackage rec {
   build-system = [
     setuptools
     versioneer
-    wheel
   ];
 
   dependencies = [
@@ -49,6 +54,7 @@ buildPythonPackage rec {
   nativeCheckInputs = [
     distributed
     pytestCheckHook
+    xarray
   ];
 
   __darwinAllowLocalNetworking = true;

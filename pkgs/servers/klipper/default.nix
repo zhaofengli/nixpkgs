@@ -8,13 +8,13 @@
 
 stdenv.mkDerivation rec {
   pname = "klipper";
-  version = "0.12.0-unstable-2024-06-27";
+  version = "0.12.0-unstable-2024-08-03";
 
   src = fetchFromGitHub {
     owner = "KevinOConnor";
     repo = "klipper";
-    rev = "4d21ffc1d67d4aa9886cc691441afccc057b975d";
-    sha256 = "sha256-LvYEE3/VYgLK2c/NB4wey87025eoyADPV6w1CV/Uejs=";
+    rev = "d7d9092a920b3bd2bede4b570c66ddaa52df3f19";
+    sha256 = "sha256-ZCrAy3Il8kCCBvEGF29Uoo/HpZRZE8CNUaveozYwA1c=";
   };
 
   sourceRoot = "${src.name}/klippy";
@@ -56,6 +56,10 @@ stdenv.mkDerivation rec {
     # under `klipper_path`
     cp -r $src/docs $out/lib/docs
     cp -r $src/config $out/lib/config
+
+    # Add version information. For the normal procedure see https://www.klipper3d.org/Packaging.html#versioning
+    # This is done like this because scripts/make_version.py is not available when sourceRoot is set to "${src.name}/klippy"
+    echo "${version}-NixOS" > $out/lib/klipper/.version
 
     mkdir -p $out/bin
     chmod 755 $out/lib/klipper/klippy.py

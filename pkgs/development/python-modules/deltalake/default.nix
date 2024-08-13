@@ -5,26 +5,30 @@
 , pyarrow
 , pyarrow-hotfix
 , openssl
+, stdenv
+, darwin
+, libiconv
 , pkg-config
 , pytestCheckHook
 , pytest-benchmark
 , pytest-cov
 , pandas
+, azure-storage-blob
 }:
 
 buildPythonPackage rec {
   pname = "deltalake";
-  version = "0.18.1";
+  version = "0.18.2";
   format = "pyproject";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-qkmCKk1VnROK7luuPlKbIx3S3C8fzGJy8yhTyZWXyGc=";
+    hash = "sha256-xvmtaHNkE6bXwVJtYJBc30qutZuMlcx4JmElCRdxmu8=";
   };
 
   cargoDeps = rustPlatform.fetchCargoTarball {
     inherit src;
-    hash = "sha256-Dj2vm0l4b/E6tbXgs5iPvbDAsxNW0iPUSRPzT5KaA3Y=";
+    hash = "sha256-/2K8/hsMIeidfviCKK+ffWPB51svWZa+9eZoK9erBaY=";
   };
 
   env.OPENSSL_NO_VENDOR = 1;
@@ -34,7 +38,13 @@ buildPythonPackage rec {
     pyarrow-hotfix
   ];
 
-  buildInputs = [ openssl ];
+  buildInputs = [
+    openssl
+  ] ++ lib.optionals stdenv.isDarwin [
+    darwin.apple_sdk.frameworks.Security
+    darwin.apple_sdk.frameworks.SystemConfiguration
+    libiconv
+  ];
 
   nativeBuildInputs = [
     pkg-config # openssl-sys needs this
@@ -50,6 +60,7 @@ buildPythonPackage rec {
     pandas
     pytest-benchmark
     pytest-cov
+    azure-storage-blob
   ];
 
   preCheck = ''

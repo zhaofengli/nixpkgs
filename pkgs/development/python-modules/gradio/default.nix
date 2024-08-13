@@ -4,7 +4,6 @@
   buildPythonPackage,
   fetchPypi,
   pythonOlder,
-  pythonRelaxDepsHook,
   writeShellScriptBin,
   gradio,
 
@@ -16,7 +15,7 @@
   # runtime
   setuptools,
   aiofiles,
-  altair,
+  anyio,
   diffusers,
   fastapi,
   ffmpy,
@@ -48,6 +47,7 @@
 
   # check
   pytestCheckHook,
+  altair,
   boto3,
   gradio-pdf,
   ffmpeg,
@@ -63,7 +63,7 @@
 
 buildPythonPackage rec {
   pname = "gradio";
-  version = "4.36.1";
+  version = "4.40.0";
   format = "pyproject";
 
   disabled = pythonOlder "3.7";
@@ -71,7 +71,7 @@ buildPythonPackage rec {
   # We use the Pypi release, since it provides prebuilt webui assets
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-crLSEVbTRnEjuubzD0Y/AC7wbicnZidDCPXtPKw3Vjs=";
+    hash = "sha256-ChV5E6RfFcOwW6uFqU4/phfHfn27yS8+MKjMVytnlgU=";
   };
 
   # fix packaging.ParserSyntaxError, which can't handle comments
@@ -91,7 +91,6 @@ buildPythonPackage rec {
   ];
 
   nativeBuildInputs = [
-    pythonRelaxDepsHook
     hatchling
     hatch-requirements-txt
     hatch-fancy-pypi-readme
@@ -100,7 +99,7 @@ buildPythonPackage rec {
   dependencies = [
     setuptools # needed for 'pkg_resources'
     aiofiles
-    altair
+    anyio
     diffusers
     fastapi
     ffmpy
@@ -125,7 +124,7 @@ buildPythonPackage rec {
     uvicorn
     typer
     tomlkit
-  ] ++ typer.passthru.optional-dependencies.all;
+  ];
 
   passthru.optional-dependencies.oauth = [
     authlib
@@ -134,6 +133,7 @@ buildPythonPackage rec {
 
   nativeCheckInputs = [
     pytestCheckHook
+    altair
     boto3
     gradio-pdf
     ffmpeg
@@ -184,6 +184,9 @@ buildPythonPackage rec {
 
     # fails without network
     "test_download_if_url_correct_parse"
+
+    # flaky: OSError: Cannot find empty port in range: 7860-7959
+    "test_docs_url"
 
     # tests if pip and other tools are installed
     "test_get_executable_path"

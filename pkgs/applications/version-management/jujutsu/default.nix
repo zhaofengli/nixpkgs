@@ -19,20 +19,21 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "jujutsu";
-  version = "0.18.0";
+  version = "0.20.0";
 
   src = fetchFromGitHub {
     owner = "martinvonz";
     repo = "jj";
     rev = "v${version}";
-    hash = "sha256-5KKF85RNCPPaXMxBb7m2XC3EaEo+UcEhBdfMEzNPsAg=";
+    hash = "sha256-1lONtpataRi0yE6LpN6oNnC3OAW918v8GFCUwinYJWI=";
   };
 
-  cargoHash = "sha256-MiJuen3Lo7nPaAK30cENw3ACAdoYbHDoiGS05dk5m6U=";
+  cargoHash = "sha256-dRbOTxlFXfmeHUKH2UeN84OwlQ1urCND/Nfk9vSeLwA=";
 
   cargoBuildFlags = [ "--bin" "jj" ]; # don't install the fake editors
   useNextest = false; # nextest is the upstream integration framework, but is problematic for test skipping
   ZSTD_SYS_USE_PKG_CONFIG = "1";    # disable vendored zlib
+  LIBGIT2_NO_VENDOR = "1"; # disable vendored libgit2
   LIBSSH2_SYS_USE_PKG_CONFIG = "1"; # disable vendored libssh2
 
   nativeBuildInputs = [
@@ -52,7 +53,7 @@ rustPlatform.buildRustPackage rec {
     libiconv
   ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     $out/bin/jj util mangen > ./jj.1
     installManPage ./jj.1
 

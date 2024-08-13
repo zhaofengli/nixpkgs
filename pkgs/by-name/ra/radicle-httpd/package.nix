@@ -13,17 +13,17 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "radicle-httpd";
-  version = "0.12.1";
+  version = "0.15.0";
   env.RADICLE_VERSION = version;
 
   src = fetchgit {
     url = "https://seed.radicle.xyz/z4V1sjrXqjvFdnCUbxPFqd5p4DtH5.git";
     rev = "refs/namespaces/z6MkkfM3tPXNPrPevKr3uSiQtHPuwnNhu2yUVjgd2jXVsVz5/refs/tags/v${version}";
-    hash = "sha256-7576IQRf6Q750LWPon4Iau+YZddSU77VV8lC9C1UozM=";
+    hash = "sha256-wd+ST8ax988CpGcdFb3LUcA686U7BLmbi1k8Y3GAEIc=";
     sparseCheckout = [ "radicle-httpd" ];
   };
   sourceRoot = "${src.name}/radicle-httpd";
-  cargoHash = "sha256-3LQhbQxvJ1onGSEzc93Ww79FQCXAB54XcekHg+gHY2Q=";
+  cargoHash = "sha256-YIux5/BFAZNI9ZwP4lVKj4UGQ4lKrhZ675bCdUaXN70=";
 
   nativeBuildInputs = [
     asciidoctor

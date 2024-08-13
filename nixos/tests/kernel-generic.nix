@@ -23,7 +23,7 @@ let
         assert "${linuxPackages.kernel.modDirVersion}" in machine.succeed("uname -a")
       '';
   }) args);
-  kernels = (removeAttrs pkgs.linuxKernel.vanillaPackages ["__attrsFailEvaluation"]) // {
+  kernels = pkgs.linuxKernel.vanillaPackages // {
     inherit (pkgs.linuxKernel.packages)
       linux_4_19_hardened
       linux_5_4_hardened
@@ -46,6 +46,9 @@ let
 in mapAttrs (_: lP: testsForLinuxPackages lP) kernels // {
   passthru = {
     inherit testsForLinuxPackages;
+
+    # Useful for development testing of all Kernel configs without building full Kernel
+    configfiles = mapAttrs (_: lP: lP.kernel.configfile) kernels;
 
     testsForKernel = kernel: testsForLinuxPackages (pkgs.linuxPackagesFor kernel);
   };

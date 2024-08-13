@@ -3,7 +3,6 @@
   stdenv,
   fetchFromGitHub,
   rustPlatform,
-  cmake,
   makeBinaryWrapper,
   cosmic-icons,
   just,
@@ -21,12 +20,12 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "cosmic-edit";
-  version = "unstable-2024-03-30";
+  version = "1.0.0-alpha.1";
 
   src = fetchFromGitHub {
     owner = "pop-os";
     repo = pname;
-    rev = "cd1b32218078979aa9a944b3a32f9b96996764a1";
+    rev = "epoch-${version}";
     hash = "sha256-54DwcI/pwN6nRnHC6GeDYVJXNgS+xBQTnRrKV2YMGUA=";
   };
 
@@ -51,7 +50,7 @@ rustPlatform.buildRustPackage rec {
 
   # COSMIC applications now uses vergen for the About page
   # Update the COMMIT_DATE to match when the commit was made
-  env.VERGEN_GIT_COMMIT_DATE = "2024-03-30";
+  env.VERGEN_GIT_COMMIT_DATE = "2024-08-02";
   env.VERGEN_GIT_SHA = src.rev;
 
   postPatch = ''
@@ -97,7 +96,7 @@ rustPlatform.buildRustPackage rec {
     wrapProgram "$out/bin/${pname}" \
       --suffix XDG_DATA_DIRS : "${cosmic-icons}/share" \
       --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [
-        xorg.libX11 xorg.libXcursor xorg.libXi xorg.libXrandr vulkan-loader libxkbcommon mesa.drivers wayland
+        xorg.libX11 xorg.libXcursor xorg.libXi xorg.libXrandr vulkan-loader libxkbcommon wayland
       ]}
   '';
 

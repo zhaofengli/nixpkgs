@@ -27,8 +27,10 @@ let
     "bird"
     "bitcoin"
     "blackbox"
+    "borgmatic"
     "buildkite-agent"
     "collectd"
+    "deluge"
     "dmarc"
     "dnsmasq"
     "dnssec"
@@ -408,6 +410,14 @@ in
         Please ensure you have either `services.prometheus.exporters.idrac.configuration'
           or `services.prometheus.exporters.idrac.configurationPath' set!
       '';
+    } {
+      assertion = cfg.deluge.enable -> (
+        (cfg.deluge.delugePassword == null) != (cfg.deluge.delugePasswordFile == null)
+      );
+      message = ''
+        Please ensure you have either `services.prometheus.exporters.deluge.delugePassword'
+          or `services.prometheus.exporters.deluge.delugePasswordFile' set!
+      '';
     } ] ++ (flip map (attrNames exporterOpts) (exporter: {
       assertion = cfg.${exporter}.firewallFilter != null -> cfg.${exporter}.openFirewall;
       message = ''
@@ -437,6 +447,13 @@ in
     hardware.rtl-sdr.enable = mkDefault true;
   })] ++ [(mkIf config.services.postfix.enable {
     services.prometheus.exporters.postfix.group = mkDefault config.services.postfix.setgidGroup;
+  })] ++ [(mkIf config.services.prometheus.exporters.deluge.enable {
+    system.activationScripts = {
+      deluge-exported.text = ''
+      mkdir -p /etc/deluge-exporter
+      echo "DELUGE_PASSWORD=$(cat ${config.services.prometheus.exporters.deluge.delugePasswordFile})" > /etc/deluge-exporter/password
+      '';
+    };
   })] ++ (mapAttrsToList (name: conf:
     mkExporterConf {
       inherit name;

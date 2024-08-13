@@ -1,35 +1,38 @@
-{ lib
-, SDL2
-, cmake
-, extra-cmake-modules
-, fetchFromGitHub
-, libGL
-, libarchive
-, libpcap
-, libsForQt5
-, libslirp
-, pkg-config
-, stdenv
-, unstableGitUpdater
-, wayland
-, zstd
+{
+  lib,
+  SDL2,
+  cmake,
+  extra-cmake-modules,
+  fetchFromGitHub,
+  libGL,
+  libarchive,
+  libpcap,
+  libslirp,
+  pkg-config,
+  qt6,
+  stdenv,
+  unstableGitUpdater,
+  wayland,
+  zstd,
 }:
 
 let
-  inherit (libsForQt5)
+  inherit (qt6)
     qtbase
     qtmultimedia
-    wrapQtAppsHook;
+    qtwayland
+    wrapQtAppsHook
+    ;
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "melonDS";
-  version = "0.9.5-unstable-2024-06-24";
+  version = "0.9.5-unstable-2024-08-05";
 
   src = fetchFromGitHub {
     owner = "melonDS-emu";
     repo = "melonDS";
-    rev = "db20771ef36bfa5bc0dc624cf245844507724107";
-    hash = "sha256-XGDMA+0IOvl1UN2HgfLikpxHXl/p0z+Yv6fJs5xv08Y=";
+    rev = "dd386d12a94252364b5e0706ec719c390faf90b8";
+    hash = "sha256-pgTtRNifyziioY+GN4BQFVFHlKKK1Da5XioLUnGRGpQ=";
   };
 
   nativeBuildInputs = [
@@ -38,23 +41,45 @@ stdenv.mkDerivation (finalAttrs: {
     wrapQtAppsHook
   ];
 
-  buildInputs = [
-    SDL2
-    extra-cmake-modules
-    libarchive
-    libslirp
-    libGL
-    qtbase
-    qtmultimedia
-    wayland
-    zstd
-  ];
+  buildInputs =
+    [
+      SDL2
+      extra-cmake-modules
+      libarchive
+      libslirp
+      libGL
+      qtbase
+      qtmultimedia
+      zstd
+    ]
+    ++ lib.optionals stdenv.isLinux [
+      wayland
+      qtwayland
+    ];
+
+  cmakeFlags = [ (lib.cmakeBool "USE_QT6" true) ];
 
   strictDeps = true;
 
-  qtWrapperArgs = [
-    "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ libpcap ]}"
-  ];
+  qtWrapperArgs =
+    lib.optionals stdenv.isLinux [
+      "--prefix LD_LIBRARY_PATH : ${
+        lib.makeLibraryPath [
+          libpcap
+          wayland
+        ]
+      }"
+    ]
+    ++ lib.optionals stdenv.isDarwin [
+      "--prefix DYLD_LIBRARY_PATH : ${lib.makeLibraryPath [ libpcap ]}"
+    ];
+
+  installPhase = lib.optionalString stdenv.isDarwin ''
+    runHook preInstall
+    mkdir -p $out/Applications
+    cp -r melonDS.app $out/Applications/
+    runHook postInstall
+  '';
 
   passthru = {
     updateScript = unstableGitUpdater { };
@@ -88,6 +113,6 @@ stdenv.mkDerivation (finalAttrs: {
       benley
       shamilton
     ];
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
 })

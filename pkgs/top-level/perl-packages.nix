@@ -19591,7 +19591,7 @@ with self; {
     };
 
     # FIXME: try with libGL + libGLU instead of libGLU libGL
-    buildInputs = [ pkgs.libGLU pkgs.libGL pkgs.libGLU pkgs.freeglut pkgs.xorg.libX11 pkgs.xorg.libXi pkgs.xorg.libXmu pkgs.xorg.libXext pkgs.xdummy ];
+    buildInputs = [ pkgs.libGLU pkgs.libGL pkgs.libGLU pkgs.libglut pkgs.xorg.libX11 pkgs.xorg.libXi pkgs.xorg.libXmu pkgs.xorg.libXext pkgs.xdummy ];
 
     patches = [ ../development/perl-modules/perl-opengl.patch ];
 
@@ -20295,10 +20295,11 @@ with self; {
         --replace 'WITH_PROJ => undef' 'WITH_PROJ => 0'
     '';
 
-    nativeBuildInputs = with pkgs; [ autoPatchelfHook libGL.dev glibc.dev mesa_glu.dev ];
+    # FIXME: Why are these libraries in `nativeBuildInputs`?
+    nativeBuildInputs = with pkgs; [ autoPatchelfHook (lib.getDev libGL) (lib.getDev glibc) (lib.getDev mesa_glu) ];
 
     buildInputs = [ DevelChecklib TestDeep TestException TestWarn ] ++
-                  (with pkgs; [ gsl freeglut xorg.libXmu xorg.libXi ]);
+                  (with pkgs; [ gsl libglut xorg.libXmu xorg.libXi ]);
 
     propagatedBuildInputs = [
       AstroFITSHeader
@@ -20319,7 +20320,7 @@ with self; {
       homepage = "https://pdl.perl.org";
       license = with lib.licenses; [ artistic1 gpl1Plus ];
       mainProgram = "pdl2";
-      platforms = lib.platforms.linux;
+      platforms = lib.platforms.unix;
     };
   };
 
@@ -28571,21 +28572,18 @@ with self; {
 
   XMLLibXML = buildPerlPackage {
     pname = "XML-LibXML";
-    version = "2.0209";
+    version = "2.0210";
     src = fetchurl {
-      url = "mirror://cpan/authors/id/S/SH/SHLOMIF/XML-LibXML-2.0209.tar.gz";
-      hash = "sha256-tKWrvNaJqi+7yLe0UznpYcSYTkgQhJTrbCgrR0giJCU=";
+      url = "mirror://cpan/authors/id/S/SH/SHLOMIF/XML-LibXML-2.0210.tar.gz";
+      hash = "sha256-opvz8Aq5ye4EIYFU4K/I95m/I2dOuZwantTeH0BZpI0=";
     };
     SKIP_SAX_INSTALL = 1;
     buildInputs = [ AlienBuild AlienLibxml2 ]
       ++ lib.optionals stdenv.isDarwin (with pkgs; [ libiconv zlib ]);
     patches = [
-      ../development/perl-modules/XML-LibXML-clang16.patch
+      # https://github.com/shlomif/perl-XML-LibXML/pull/87
+      ../development/perl-modules/XML-LibXML-fix-tests-libxml-2.13.0.patch
     ];
-    # Remove test that fails after LibXML 2.11 upgrade
-    postPatch = ''
-      rm t/35huge_mode.t
-    '';
     propagatedBuildInputs = [ XMLSAX ];
     meta = {
       description = "Perl Binding for libxml2";

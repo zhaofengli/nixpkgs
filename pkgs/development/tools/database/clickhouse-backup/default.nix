@@ -7,16 +7,16 @@
 
 buildGoModule rec {
   pname = "clickhouse-backup";
-  version = "2.5.16";
+  version = "2.5.21";
 
   src = fetchFromGitHub {
     owner = "Altinity";
     repo = "clickhouse-backup";
     rev = "v${version}";
-    hash = "sha256-FvL7LGgSMxflr7X9Z1qe9qPmDcqEr7ZGM36mtOhlTWY=";
+    hash = "sha256-DjmhDUHC7278J9ByUlzXUF2s1GxRVNbRaYdlyy+5D/w=";
   };
 
-  vendorHash = "sha256-vwcItklYe6ljFdGTxef19plaI5OMoOtQohY0xZLBUos=";
+  vendorHash = "sha256-w3bfCn8A2ETJ6i1hm1FTNpTDXPFXF4vvkFAZCO/y7HE=";
 
   ldflags = [
     "-X main.version=${version}"
