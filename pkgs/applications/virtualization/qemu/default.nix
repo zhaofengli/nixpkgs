@@ -78,7 +78,6 @@ stdenv.mkDerivation (finalAttrs: {
     # Don't change this to python3 and python3.pkgs.*, breaks cross-compilation
     python3Packages.python
   ]
-    ++ lib.optionals enableDocs [ python3Packages.sphinx python3Packages.sphinx-rtd-theme ]
     ++ lib.optionals gtkSupport [ wrapGAppsHook3 ]
     ++ lib.optionals enableDocs [ python3Packages.sphinx python3Packages.sphinx-rtd-theme ]
     ++ lib.optionals hexagonSupport [ glib ]
