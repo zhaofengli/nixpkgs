@@ -155,10 +155,7 @@ stdenv.mkDerivation (finalAttrs: {
       sha256 = "sha256-Cpt01d1ARoCTuJuC66no4doPgL+4/ZqnJTWwjU2MxnY=";
     })
   ]
-  ++ lib.optional nixosTestRunner ./force-uid0-on-9p.patch
-
-  # Remove for QEMU 8.1
-  ++ lib.optional stdenv.hostPlatform.isStatic ./aio-find-static-library.patch;
+  ++ lib.optional nixosTestRunner ./force-uid0-on-9p.patch;
 
   postPatch = ''
     # Otherwise tries to ensure /var/run exists.
