@@ -28,8 +28,6 @@ let
          ''
     else interpreter;
 
-  getEmulator = system: (lib.systems.elaborate { inherit system; }).emulator pkgs;
-  getQemuArch = system: (lib.systems.elaborate { inherit system; }).qemuArch;
 
   getStaticEmulator = system: (lib.systems.elaborate { inherit system; }).staticEmulator pkgs;
   getStaticEmulatorAvailable = system: (lib.systems.elaborate { inherit system; }).staticEmulatorAvailable pkgs;
@@ -308,15 +306,11 @@ in {
     boot.binfmt.registrations = builtins.listToAttrs (map (system: assert system != pkgs.stdenv.hostPlatform.system; {
       name = system;
       value = { config, ... }: let
-        staticEmulator = getStaticEmulator system;
-        staticEmulatorAvailable = getStaticEmulatorAvailable system;
-        useStaticEmulator = cfg.preferStaticEmulators && staticEmulatorAvailable;
+        elaborated = lib.systems.elaborate { inherit system; };
+        useStaticEmulator = cfg.preferStaticEmulators && elaborated.staticEmulatorAvailable pkgs;
+        interpreter = elaborated.emulator (if useStaticEmulator then pkgs.pkgsStatic else pkgs);
 
-        interpreter =
-          if useStaticEmulator then staticEmulator
-          else getEmulator system;
-
-        qemuArch = getQemuArch system;
+        inherit (elaborated) qemuArch;
         isQemu = "qemu-${qemuArch}" == baseNameOf interpreter;
 
         interpreterReg = let
@@ -331,8 +325,7 @@ in {
         interpreter = mkDefault interpreterReg;
         fixBinary = mkDefault useStaticEmulator;
         wrapInterpreterInShell = mkDefault (!config.preserveArgvZero && !config.fixBinary);
-        interpreterSandboxPath = mkDefault
-          (if config.fixBinary then null else dirOf (dirOf config.interpreter));
+        interpreterSandboxPath = mkDefault (dirOf (dirOf config.interpreter));
       } // (magics.${system} or (throw "Cannot create binfmt registration for system ${system}")));
     }) cfg.emulatedSystems);
     nix.settings = lib.mkIf (cfg.emulatedSystems != []) {

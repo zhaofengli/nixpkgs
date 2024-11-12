@@ -1,5 +1,5 @@
 { lib, stdenv
-, buildGoModule
+, buildGo122Module
 , fetchFromGitHub
 , pkg-config
 , libpcap
@@ -8,7 +8,7 @@
 , libusb1
 }:
 
-buildGoModule rec {
+buildGo122Module rec {
   pname = "bettercap";
   version = "2.32.0";
 
@@ -25,7 +25,7 @@ buildGoModule rec {
 
   nativeBuildInputs = [ pkg-config ];
   buildInputs = [ libpcap libusb1 ]
-    ++ lib.optionals stdenv.isLinux [ libnfnetlink libnetfilter_queue ];
+    ++ lib.optionals stdenv.hostPlatform.isLinux [ libnfnetlink libnetfilter_queue ];
 
   meta = with lib; {
     description = "Man in the middle tool";

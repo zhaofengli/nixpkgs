@@ -12,13 +12,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "lua-language-server";
-  version = "3.10.4";
+  version = "3.12.0";
 
   src = fetchFromGitHub {
     owner = "luals";
     repo = "lua-language-server";
     rev = finalAttrs.version;
-    hash = "sha256-Fohc8tuLzNCOhcU/FK6NunPXJoshLZOUUA6ARlQy9jI=";
+    hash = "sha256-wyQ4oXGemoT5QVZughFKd386RjzlW4ArtQL0ofMnhpU=";
     fetchSubmodules = true;
   };
 
@@ -27,7 +27,7 @@ stdenv.mkDerivation (finalAttrs: {
     makeWrapper
   ];
 
-  buildInputs = lib.optionals stdenv.isDarwin [
+  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
     CoreFoundation
     Foundation
     ditto
@@ -39,9 +39,13 @@ stdenv.mkDerivation (finalAttrs: {
       # this feature is not used in lua-language-server
       sed -i /filewatch/d 3rd/bee.lua/test/test.lua
 
+      # flaky tests on linux
+      # https://github.com/LuaLS/lua-language-server/issues/2926
+      sed -i /load-relative-library/d test/tclient/init.lua
+
       pushd 3rd/luamake
     ''
-    + lib.optionalString stdenv.isDarwin ''
+    + lib.optionalString stdenv.hostPlatform.isDarwin ''
       # This package uses the program clang for C and C++ files. The language
       # is selected via the command line argument -std, but this do not work
       # in combination with the nixpkgs clang wrapper. Therefor we have to
@@ -55,7 +59,9 @@ stdenv.mkDerivation (finalAttrs: {
         -e '/cxx_/s,$cc,clang++,'
     '';
 
-  ninjaFlags = [ "-fcompile/ninja/${if stdenv.isDarwin then "macos" else "linux"}.ninja" ];
+  ninjaFlags = [
+    "-fcompile/ninja/${if stdenv.hostPlatform.isDarwin then "macos" else "linux"}.ninja"
+  ];
 
   postBuild = ''
     popd

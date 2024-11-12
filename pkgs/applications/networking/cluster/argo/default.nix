@@ -34,16 +34,16 @@ let
 in
 buildGoModule rec {
   pname = "argo";
-  version = "3.5.10";
+  version = "3.5.12";
 
   src = fetchFromGitHub {
     owner = "argoproj";
     repo = "argo";
     rev = "refs/tags/v${version}";
-    hash = "sha256-35Hp5lISQuFNsbSOKsLRcD695ZRCgQue+H8rKEPma5M=";
+    hash = "sha256-WJh6YP5WICgqJMPug3AIqxgrzH5Pp+rVtt5RfMjS9IU=";
   };
 
-  vendorHash = "sha256-dGDXDpjf1kWcqBhCMKLXGXax6ApOL9eIiiem86CxdGs=";
+  vendorHash = "sha256-QwQasJMSEnHvBxyxCjLuinPt47XAhERch3j60KXGxa4=";
 
   doCheck = false;
 

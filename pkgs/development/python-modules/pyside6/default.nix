@@ -1,6 +1,7 @@
 {
   lib,
   stdenv,
+  fetchpatch,
   cmake,
   cups,
   ninja,
@@ -57,7 +58,14 @@ stdenv.mkDerivation (finalAttrs: {
 
   inherit (shiboken6) version src;
 
-  sourceRoot = "pyside-setup-everywhere-src-${finalAttrs.version}/sources/pyside6";
+  sourceRoot = "pyside-setup-everywhere-src-6.8.0/sources/pyside6";
+
+  patches = [
+    # Manual backport of https://code.qt.io/cgit/pyside/pyside-setup.git/patch/?id=cacc9c5803a6dec820dd46211a836453183c8dab
+    # to fit our structure.
+    # FIXME: remove for 6.8.1
+    ./fix-installing-docs.patch
+  ];
 
   # cmake/Macros/PySideModules.cmake supposes that all Qt frameworks on macOS
   # reside in the same directory as QtCore.framework, which is not true for Nix.
@@ -71,24 +79,26 @@ stdenv.mkDerivation (finalAttrs: {
           'string(FIND "''${_module_dir}" "''${_core_abs_dir}" found_basepath)' \
           'set (found_basepath 0)'
     ''
-    + lib.optionalString stdenv.isDarwin ''
+    + lib.optionalString stdenv.hostPlatform.isDarwin ''
       substituteInPlace cmake/PySideHelpers.cmake \
         --replace-fail \
           "Designer" ""
     '';
 
   # "Couldn't find libclang.dylib You will likely need to add it manually to PATH to ensure the build succeeds."
-  env = lib.optionalAttrs stdenv.isDarwin { LLVM_INSTALL_DIR = "${llvmPackages.libclang.lib}/lib"; };
+  env = lib.optionalAttrs stdenv.hostPlatform.isDarwin {
+    LLVM_INSTALL_DIR = "${lib.getLib llvmPackages.libclang}/lib";
+  };
 
   nativeBuildInputs = [
     cmake
     ninja
     python
     pythonImportsCheckHook
-  ] ++ lib.optionals stdenv.isDarwin [ moveBuildTree ];
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ moveBuildTree ];
 
   buildInputs =
-    if stdenv.isLinux then
+    if stdenv.hostPlatform.isLinux then
       # qtwebengine fails under darwin
       # see https://github.com/NixOS/nixpkgs/pull/312987
       packages ++ [ python.pkgs.qt6.qtwebengine ]

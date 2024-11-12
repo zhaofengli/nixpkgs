@@ -25,12 +25,9 @@
 , zenity
 , makeWrapper
 , darwin
+, apple-sdk_11
 , libicns
 }:
-let
-  inherit (darwin.apple_sdk_11_0.frameworks)
-    IOSurface Metal QuartzCore Cocoa AVFoundation;
-in
 stdenv.mkDerivation (finalAttrs: {
   pname = "shipwright";
   version = "8.0.6";
@@ -62,10 +59,10 @@ stdenv.mkDerivation (finalAttrs: {
     python3
     imagemagick
     makeWrapper
-  ] ++ lib.optionals stdenv.isLinux [
+  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
     lsb-release
     copyDesktopItems
-  ] ++ lib.optionals stdenv.isDarwin [
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
     libicns
     darwin.sigtool
   ];
@@ -76,7 +73,7 @@ stdenv.mkDerivation (finalAttrs: {
     SDL2
     SDL2_net
     libpng
-  ] ++ lib.optionals stdenv.isLinux [
+  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
     libX11
     libXrandr
     libXinerama
@@ -85,14 +82,7 @@ stdenv.mkDerivation (finalAttrs: {
     libXext
     libpulseaudio
     zenity
-  ] ++ lib.optionals stdenv.isDarwin [
-    IOSurface
-    Metal
-    QuartzCore
-    Cocoa
-    AVFoundation
-    darwin.apple_sdk_11_0.libs.simd
-  ];
+  ] ++ lib.optional stdenv.hostPlatform.isDarwin apple-sdk_11;
 
   cmakeFlags = [
     (lib.cmakeBool "NON_PORTABLE" true)
@@ -100,7 +90,7 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   env.NIX_CFLAGS_COMPILE =
-    lib.optionalString stdenv.isDarwin "-Wno-int-conversion -Wno-implicit-int";
+    lib.optionalString stdenv.hostPlatform.isDarwin "-Wno-int-conversion -Wno-implicit-int";
 
   dontAddPrefix = true;
 
@@ -114,18 +104,18 @@ stdenv.mkDerivation (finalAttrs: {
     popd
   '';
 
-  preInstall = lib.optionalString stdenv.isLinux ''
+  preInstall = lib.optionalString stdenv.hostPlatform.isLinux ''
     # Cmake likes it here for its install paths
     cp ../OTRExporter/soh.otr ..
-  '' + lib.optionalString stdenv.isDarwin ''
+  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
     cp ../OTRExporter/soh.otr soh/soh.otr
   '';
 
-  postInstall = lib.optionalString stdenv.isLinux ''
+  postInstall = lib.optionalString stdenv.hostPlatform.isLinux ''
     mkdir -p $out/bin
     ln -s $out/lib/soh.elf $out/bin/soh
     install -Dm644 ../soh/macosx/sohIcon.png $out/share/pixmaps/soh.png
-  '' + lib.optionalString stdenv.isDarwin ''
+  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
     # Recreate the macOS bundle (without using cpack)
     # We mirror the structure of the bundle distributed by the project
 
@@ -167,7 +157,7 @@ stdenv.mkDerivation (finalAttrs: {
     codesign -f -s - $out/Applications/soh.app/Contents/Resources/soh-macos
   '';
 
-  fixupPhase = lib.optionalString stdenv.isLinux ''
+  fixupPhase = lib.optionalString stdenv.hostPlatform.isLinux ''
     wrapProgram $out/lib/soh.elf --prefix PATH ":" ${lib.makeBinPath [ zenity ]}
   '';
 

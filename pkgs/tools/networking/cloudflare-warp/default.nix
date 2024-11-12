@@ -10,11 +10,13 @@
 , makeDesktopItem
 , makeWrapper
 , nftables
+, nss
+, openssl
 }:
 
 stdenv.mkDerivation rec {
   pname = "cloudflare-warp";
-  version = "2024.4.133";
+  version = "2024.9.346";
 
   suffix = {
     aarch64-linux = "arm64";
@@ -22,10 +24,10 @@ stdenv.mkDerivation rec {
   }.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
 
   src = fetchurl {
-    url = "https://pkg.cloudflareclient.com/pool/jammy/main/c/cloudflare-warp/cloudflare-warp_${version}-1_${suffix}.deb";
+    url = "https://pkg.cloudflareclient.com/pool/noble/main/c/cloudflare-warp/cloudflare-warp_${version}.0_${suffix}.deb";
     hash = {
-      aarch64-linux = "sha256-qua+aL4+yvpTBGCVUS1rzJX1KZ3DeaW9Bce9lYWvWOM=";
-      x86_64-linux = "sha256-xZhyYDMjcv8SLfYwclvWBqPDETbeaxiA6jFCg3Nv5gc=";
+      aarch64-linux = "sha256-dgu/OiQPT7bkPnhrDArQg2lDAcOyhzZ5nJrjS2dqpFo=";
+      x86_64-linux = "sha256-KwxLF7LWB49M+kZPJ9M4OcDSF1f3MX4S0dTtTkzQVRQ=";
     }.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
   };
 
@@ -40,7 +42,9 @@ stdenv.mkDerivation rec {
     dbus
     gtk3
     libpcap
-    stdenv.cc.cc.lib
+    openssl
+    nss
+    (lib.getLib stdenv.cc.cc)
   ];
 
   desktopItems = [
@@ -50,7 +54,7 @@ stdenv.mkDerivation rec {
       categories = [ "Utility" "Security" "ConsoleOnly" ];
       noDisplay = true;
       mimeTypes = [ "x-scheme-handler/com.cloudflare.warp" ];
-      exec = "warp-cli teams-enroll-token %u";
+      exec = "warp-cli --accept-tos registration token %u";
       startupNotify = false;
       terminal = true;
     })

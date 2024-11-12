@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.services.tailscale.derper;
@@ -24,22 +29,31 @@ in
         '';
       };
 
-      package = lib.mkPackageOption pkgs [ "tailscale" "derper" ] { };
+      package = lib.mkPackageOption pkgs [
+        "tailscale"
+        "derper"
+      ] { };
 
-      port = lib.mkOption {
+      stunPort = lib.mkOption {
         type = lib.types.port;
         default = 3478;
         description = ''
           STUN port to listen on.
-          See online docs <https://tailscale.com/kb/1118/custom-derp-servers#prerequisites> how to configure a different port.
+          See online docs <https://tailscale.com/kb/1118/custom-derp-servers#prerequisites> on how to configure a different external port.
         '';
+      };
+
+      port = lib.mkOption {
+        type = lib.types.port;
+        default = 8010;
+        description = "The port the derper process will listen on. This is not the port tailscale will connect to.";
       };
 
       verifyClients = lib.mkOption {
         type = lib.types.bool;
         default = false;
         description = ''
-          Wether to verify clients against a locally running tailscale daemon if they are allowed to connect to this node or not.
+          Whether to verify clients against a locally running tailscale daemon if they are allowed to connect to this node or not.
         '';
       };
     };
@@ -47,8 +61,8 @@ in
 
   config = lib.mkIf cfg.enable {
     networking.firewall = lib.mkIf cfg.openFirewall {
-      allowedTCPPorts = [ 80 ];
-      allowedUDPPorts = [ 443 cfg.port ];
+      # port 80 and 443 are opened by nginx already
+      allowedUDPPorts = [ cfg.stunPort ];
     };
 
     services = {
@@ -61,8 +75,7 @@ in
           '';
         };
         virtualHosts."${cfg.domain}" = {
-          addSSL = true;
-          enableACME = true;
+          addSSL = true; # this cannot be forceSSL as derper sends some information over port 80, too.
           locations."/" = {
             proxyPass = "http://tailscale-derper";
             proxyWebsockets = true;
@@ -79,8 +92,9 @@ in
 
     systemd.services.tailscale-derper = {
       serviceConfig = {
-        ExecStart = "${lib.getExe' cfg.package "derper"} -a :${toString cfg.port} -c /var/lib/derper/derper.key --hostname=${cfg.domain} "
-          + lib.optionalString cfg.verifyClients "--verify-clients";
+        ExecStart =
+          "${lib.getExe' cfg.package "derper"} -a :${toString cfg.port} -c /var/lib/derper/derper.key -hostname=${cfg.domain} -stun-port ${toString cfg.stunPort}"
+          + lib.optionalString cfg.verifyClients " -verify-clients";
         DynamicUser = true;
         Restart = "always";
         RestartSec = "5sec"; # don't crash loop immediately
@@ -102,7 +116,11 @@ in
         ProtectKernelModules = true;
         ProtectKernelTunables = true;
         ProtectProc = "invisible";
-        RestrictAddressFamilies = [ "AF_INET" "AF_INET6" "AF_UNIX" ];
+        RestrictAddressFamilies = [
+          "AF_INET"
+          "AF_INET6"
+          "AF_UNIX"
+        ];
         RestrictNamespaces = true;
         RestrictRealtime = true;
         SystemCallArchitectures = "native";
