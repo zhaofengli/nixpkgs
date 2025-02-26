@@ -1841,8 +1841,6 @@ with pkgs;
     beamPackages = beamPackages.extend (self: super: { elixir = elixir_1_17; });
   };
 
-  parsec-gaming = callPackage ../applications/misc/parsec-gaming { };
-
   pass = callPackage ../tools/security/pass { };
 
   pass-nodmenu = callPackage ../tools/security/pass {
