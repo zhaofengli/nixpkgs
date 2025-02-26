@@ -13595,8 +13595,6 @@ with pkgs;
 
   firefox_decrypt = python3Packages.callPackage ../tools/security/firefox_decrypt { };
 
-  firefox-pmos-mobile = callPackage ../applications/networking/browsers/firefox-pmos-mobile { };
-
   floorp-unwrapped = import ../applications/networking/browsers/floorp {
     inherit stdenv lib fetchFromGitHub buildMozillaMach nixosTests;
   };
