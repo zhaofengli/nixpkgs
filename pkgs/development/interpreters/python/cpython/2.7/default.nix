@@ -140,10 +140,6 @@ let
     ] ++ lib.optionals (x11Support && stdenv.hostPlatform.isDarwin) [
       ./use-correct-tcl-tk-on-darwin.patch
 
-    ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      # Fix darwin build https://bugs.python.org/issue34027
-      ../3.7/darwin-libutil.patch
-
     ] ++ lib.optionals stdenv.hostPlatform.isLinux [
 
       # Disable the use of ldconfig in ctypes.util.find_library (since
@@ -208,7 +204,7 @@ let
   ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
     "--disable-toolbox-glue"
   ] ++ lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [
-    "PYTHON_FOR_BUILD=${lib.getBin buildPackages.python}/bin/python"
+    "PYTHON_FOR_BUILD=${lib.getBin buildPackages.python27}/bin/python"
     "ac_cv_buggy_getaddrinfo=no"
     # Assume little-endian IEEE 754 floating point when cross compiling
     "ac_cv_little_endian_double=yes"
@@ -243,7 +239,7 @@ let
   nativeBuildInputs =
     [ autoreconfHook ]
     ++ lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform)
-      [ buildPackages.stdenv.cc buildPackages.python ];
+      [ buildPackages.stdenv.cc buildPackages.python27 ];
 
   mkPaths = paths: {
     C_INCLUDE_PATH = lib.makeSearchPathOutput "dev" "include" paths;

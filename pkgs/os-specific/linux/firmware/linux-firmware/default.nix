@@ -20,11 +20,11 @@ let
   '';
 in stdenvNoCC.mkDerivation rec {
   pname = "linux-firmware";
-  version = "20241017";
+  version = "20250109";
 
   src = fetchzip {
     url = "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-${version}.tar.gz";
-    hash = "sha256-q4StJdoLCHQThFTzhxETDYlQP/ywmb3vwCr13xtrQzc=";
+    hash = "sha256-eVcHnqYXJwuz6flBB4YTllcmFKiCJXKFgZs1FumUJoA=";
   };
 
   postUnpack = ''

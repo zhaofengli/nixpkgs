@@ -11,7 +11,7 @@
   torch,
   # check dependencies
   pytestCheckHook,
-  pytest-cov,
+  pytest-cov-stub,
   # , pytest-mpi
   pytest-timeout,
   # , pytorch-image-models
@@ -42,7 +42,7 @@ buildPythonPackage {
   src = fetchFromGitHub {
     owner = "facebookresearch";
     repo = "xformers";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-23tnhCHK+Z0No8fqZxkgDFp2VIgXZR4jpM+pkb/vvmw=";
     fetchSubmodules = true;
   };
@@ -102,7 +102,7 @@ buildPythonPackage {
 
   nativeCheckInputs = [
     pytestCheckHook
-    pytest-cov
+    pytest-cov-stub
     pytest-timeout
     hydra-core
     fairscale

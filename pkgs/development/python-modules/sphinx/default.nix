@@ -48,7 +48,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "sphinx-doc";
     repo = "sphinx";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     postFetch = ''
       # Change ä to æ in file names, since ä can be encoded multiple ways on different
       # filesystems, leading to different hashes on different platforms.
@@ -115,6 +115,9 @@ buildPythonPackage rec {
       "test_class_alias_having_doccomment"
       "test_class_alias_for_imported_object_having_doccomment"
       "test_decorators"
+      # racy with too many threads
+      # https://github.com/NixOS/nixpkgs/issues/353176
+      "test_document_toc_only"
       # Assertion error
       "test_gettext_literalblock_additional"
       # requires cython_0, but fails miserably on 3.11

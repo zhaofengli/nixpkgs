@@ -22,24 +22,25 @@
   # tests
   opencv4,
   numpy,
-  pympler,
   pytestCheckHook,
 }:
 
 buildPythonPackage rec {
   pname = "pillow-heif";
-  version = "0.18.0";
+  version = "0.20.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "bigcat88";
     repo = "pillow_heif";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-+HQvDf5aovUtZ++BoD22B012N32A+7++O/jbpkIVQws=";
+    tag = "v${version}";
+    hash = "sha256-a1qCxI+mMuEYsCk2CUYGNKCe+SONuvVizqUvmQKy3sE=";
   };
 
   postPatch = ''
     sed -i '/addopts/d' pyproject.toml
+    substituteInPlace setup.py \
+      --replace-warn ', "-Werror"' ""
   '';
 
   nativeBuildInputs = [
@@ -60,9 +61,6 @@ buildPythonPackage rec {
   ];
 
   env = {
-    # clang-16: error: argument unused during compilation: '-fno-strict-overflow'
-    NIX_CFLAGS_COMPILE = lib.optionalString stdenv.cc.isClang "-Wno-unused-command-line-argument";
-
     RELEASE_FULL_FLAG = 1;
   };
 
@@ -73,7 +71,6 @@ buildPythonPackage rec {
   nativeCheckInputs = [
     opencv4
     numpy
-    pympler
     pytestCheckHook
   ];
 

@@ -5,7 +5,7 @@
   pytestCheckHook,
   pycparser,
   psutil,
-  dotnet-sdk,
+  dotnet-sdk_6,
   buildDotnetModule,
   clr-loader,
   setuptools,
@@ -27,7 +27,8 @@ let
     inherit pname version src;
     projectFile = "src/runtime/Python.Runtime.csproj";
     testProjectFile = "src/testing/Python.Test.csproj";
-    nugetDeps = ./deps.nix;
+    nugetDeps = ./deps.json;
+    dotnet-sdk = dotnet-sdk_6;
   };
 in
 buildPythonPackage {
@@ -44,7 +45,7 @@ buildPythonPackage {
 
   nativeBuildInputs = [
     setuptools
-    dotnet-sdk
+    dotnet-sdk_6
   ];
 
   propagatedBuildInputs = [

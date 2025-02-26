@@ -36,9 +36,6 @@ buildPythonPackage rec {
   };
 
   postPatch = ''
-    substituteInPlace pyproject.toml \
-      --replace-fail "numpy>=2" "numpy"
-
     substituteInPlace meson.build --replace-fail \
       "run_command('sklearn/_build_utils/version.py', check: true).stdout().strip()," \
       "'${version}',"
@@ -75,21 +72,19 @@ buildPythonPackage rec {
 
   env.LC_ALL = "en_US.UTF-8";
 
-  preBuild = ''
-    export SKLEARN_BUILD_PARALLEL=$NIX_BUILD_CORES
-  '';
-
   # PermissionError: [Errno 1] Operation not permitted: '/nix/nix-installer'
   doCheck = !stdenv.hostPlatform.isDarwin;
 
-  disabledTests = [
-    # Skip test_feature_importance_regression - does web fetch
-    "test_feature_importance_regression"
-  ] ++ lib.optionals stdenv.hostPlatform.isAarch64 [
-    # doesn't seem to produce correct results?
-    # possibly relevant: https://github.com/scikit-learn/scikit-learn/issues/25838#issuecomment-2308650816
-    "test_sparse_input"
-  ];
+  disabledTests =
+    [
+      # Skip test_feature_importance_regression - does web fetch
+      "test_feature_importance_regression"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isAarch64 [
+      # doesn't seem to produce correct results?
+      # possibly relevant: https://github.com/scikit-learn/scikit-learn/issues/25838#issuecomment-2308650816
+      "test_sparse_input"
+    ];
 
   pytestFlagsArray = [
     # verbose build outputs needed to debug hard-to-reproduce hydra failures

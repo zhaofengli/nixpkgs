@@ -17,14 +17,8 @@ python.pkgs.buildPythonApplication rec {
   src = "${immich.src}/machine-learning";
   pyproject = true;
 
-  postPatch = ''
-    substituteInPlace pyproject.toml --replace-fail 'fastapi-slim' 'fastapi'
-
-    # AttributeError: module 'cv2' has no attribute 'Mat'
-    substituteInPlace app/test_main.py --replace-fail ": cv2.Mat" ""
-  '';
-
   pythonRelaxDeps = [
+    "pillow"
     "pydantic-settings"
   ];
 

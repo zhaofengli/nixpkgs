@@ -27,13 +27,13 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "simple64";
-  version = "2024.09.1";
+  version = "2024.12.1";
 
   src = fetchFromGitHub {
     owner = "simple64";
     repo = "simple64";
-    rev = "refs/tags/v${finalAttrs.version}";
-    hash = "sha256-t3V7mvHlCP8cOvizR3N9DiCofnSvSHI6U0iXXkaMb34=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-rvoUyvhpbibXbAreu6twTeeVRTCbhJiJuyKaJz0uT5k=";
   };
 
   patches = [

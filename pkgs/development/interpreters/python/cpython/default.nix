@@ -25,7 +25,6 @@
 
 # platform-specific dependencies
 , bash
-, apple-sdk_11
 , darwin
 , windows
 
@@ -178,9 +177,6 @@ let
     bluez
   ] ++ optionals enableFramework [
     darwin.apple_sdk.frameworks.Cocoa
-  ] ++ optionals stdenv.hostPlatform.isDarwin [
-    # Work around for ld64 crashes on x86_64-darwin. Remove once 11.0 becomes the default.
-    apple-sdk_11
   ] ++ optionals stdenv.hostPlatform.isMinGW [
     windows.dlfcn
     windows.mingw_w64_pthreads
@@ -271,11 +267,6 @@ in with passthru; stdenv.mkDerivation (finalAttrs: {
   ] ++ optionals mimetypesSupport [
     # Make the mimetypes module refer to the right file
     ./mimetypes.patch
-  ] ++ optionals (pythonAtLeast "3.7" && pythonOlder "3.11") [
-    # Fix darwin build https://bugs.python.org/issue34027
-    ./3.7/darwin-libutil.patch
-  ] ++ optionals (pythonAtLeast "3.11") [
-    ./3.11/darwin-libutil.patch
   ] ++ optionals (pythonAtLeast "3.9" && pythonOlder "3.11" && stdenv.hostPlatform.isDarwin) [
     # Stop checking for TCL/TK in global macOS locations
     ./3.9/darwin-tcl-tk.patch
@@ -303,6 +294,8 @@ in with passthru; stdenv.mkDerivation (finalAttrs: {
   ] ++ optionals (pythonOlder "3.12") [
     # https://github.com/python/cpython/issues/90656
     ./loongarch-support.patch
+  ] ++ optionals (pythonAtLeast "3.12") [
+    ./3.12/CVE-2024-12254.patch
   ] ++ optionals (pythonAtLeast "3.11" && pythonOlder "3.13") [
     # backport fix for https://github.com/python/cpython/issues/95855
     ./platform-triplet-detection.patch
@@ -311,12 +304,28 @@ in with passthru; stdenv.mkDerivation (finalAttrs: {
     mingw-patch = fetchgit {
       name = "mingw-python-patches";
       url = "https://src.fedoraproject.org/rpms/mingw-python3.git";
-      rev = "45c45833ab9e5480ad0ae00778a05ebf35812ed4"; # for python 3.11.5 at the time of writing.
-      sha256 = "sha256-KIyNvO6MlYTrmSy9V/DbzXm5OsIuyT/BEpuo7Umm9DI=";
+      rev = "3edecdbfb4bbf1276d09cd5e80e9fb3dd88c9511"; # for python 3.11.9 at the time of writing.
+      hash = "sha256-kpXoIHlz53+0FAm/fK99ZBdNUg0u13erOr1XP2FSkQY=";
     };
-  in [
-    "${mingw-patch}/*.patch"
-  ]);
+  in (
+    builtins.map (f: "${mingw-patch}/${f}")
+    [
+      # The other patches in that repo are already applied to 3.11.10
+      "mingw-python3_distutils.patch"
+      "mingw-python3_frozenmain.patch"
+      "mingw-python3_make-sysconfigdata.py-relocatable.patch"
+      "mingw-python3_mods-failed.patch"
+      "mingw-python3_module-select.patch"
+      "mingw-python3_module-socket.patch"
+      "mingw-python3_modules.patch"
+      "mingw-python3_platform-mingw.patch"
+      "mingw-python3_posix-layout.patch"
+      "mingw-python3_pthread_threadid.patch"
+      "mingw-python3_pythonw.patch"
+      "mingw-python3_setenv.patch"
+      "mingw-python3_win-modules.patch"
+    ])
+  );
 
   postPatch = optionalString (!stdenv.hostPlatform.isWindows) ''
     substituteInPlace Lib/subprocess.py \
@@ -425,6 +434,8 @@ in with passthru; stdenv.mkDerivation (finalAttrs: {
   '' + optionalString (stdenv.hostPlatform.isDarwin && x11Support && pythonAtLeast "3.11") ''
     export TCLTK_LIBS="-L${tcl}/lib -L${tk}/lib -l${tcl.libPrefix} -l${tk.libPrefix}"
     export TCLTK_CFLAGS="-I${tcl}/include -I${tk}/include"
+  '' + optionalString stdenv.hostPlatform.isWindows ''
+    export NIX_CFLAGS_COMPILE+=" -Wno-error=incompatible-pointer-types"
   '' + optionalString stdenv.hostPlatform.isMusl ''
     export NIX_CFLAGS_COMPILE+=" -DTHREAD_STACK_SIZE=0x100000"
   '' +
@@ -656,5 +667,7 @@ in with passthru; stdenv.mkDerivation (finalAttrs: {
     platforms = platforms.linux ++ platforms.darwin ++ platforms.windows ++ platforms.freebsd;
     mainProgram = executable;
     maintainers = lib.teams.python.members;
+    # mingw patches only apply to Python 3.11 currently
+    broken = (lib.versions.minor version) != "11" && stdenv.hostPlatform.isWindows;
   };
 })

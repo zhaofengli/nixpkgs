@@ -58,7 +58,7 @@
   gnome-autoar,
   gnome-tecla,
   bash-completion,
-  mesa,
+  libgbm,
   libGL,
   libXi,
   libX11,
@@ -70,7 +70,7 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "gnome-shell";
-  version = "47.0";
+  version = "47.2";
 
   outputs = [
     "out"
@@ -79,7 +79,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   src = fetchurl {
     url = "mirror://gnome/sources/gnome-shell/${lib.versions.major finalAttrs.version}/gnome-shell-${finalAttrs.version}.tar.xz";
-    hash = "sha256-eiB3DGKQrWmpqCyEl8sn4b+GPzh9sl6Y5ULk9sXwbe0=";
+    hash = "sha256-QYTQGhq4LLQh0couK8zgKSzrRsTHSeYbC95LdQBNLgA=";
   };
 
   patches = [
@@ -155,7 +155,7 @@ stdenv.mkDerivation (finalAttrs: {
     ibus
     gnome-desktop
     gnome-settings-daemon
-    mesa
+    libgbm
     libGL # for egl, required by mutter-clutter
     libXi # required by libmutter
     libX11

@@ -8,6 +8,8 @@
   packaging,
   psutil,
   setuptools,
+  pydantic,
+  nixosTests,
   # Optional dependencies:
   fastapi,
   jinja2,
@@ -21,7 +23,7 @@
 
 buildPythonApplication rec {
   pname = "glances";
-  version = "4.2.0";
+  version = "4.2.1";
   pyproject = true;
 
   disabled = isPyPy;
@@ -29,8 +31,8 @@ buildPythonApplication rec {
   src = fetchFromGitHub {
     owner = "nicolargo";
     repo = "glances";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-liyrMaqBgK7UZjWIKIgIFbskTGaWfyrK8L74DKmaDmY=";
+    tag = "v${version}";
+    hash = "sha256-8Jm6DE3B7OQkaNwX/KwXMNZHUyvPtln8mJYaD6yzJRM=";
   };
 
   build-system = [ setuptools ];
@@ -68,6 +70,10 @@ buildPythonApplication rec {
     jinja2
     prometheus-client
   ] ++ lib.optional stdenv.hostPlatform.isLinux hddtemp;
+
+  passthru.tests = {
+    service = nixosTests.glances;
+  };
 
   meta = {
     homepage = "https://nicolargo.github.io/glances/";

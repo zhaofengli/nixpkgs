@@ -10,8 +10,6 @@
 
   # fetchers
   fetchFromGitHub,
-  fetchpatch,
-  fetchurl,
 
   # build inputs
   bison,
@@ -73,7 +71,7 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "cyrusimap";
     repo = "cyrus-imapd";
-    rev = "refs/tags/cyrus-imapd-${finalAttrs.version}";
+    tag = "cyrus-imapd-${finalAttrs.version}";
     hash = "sha256-dyybRqmrVX+ERGpToS5JjGC6S/B0t967dLCWfeUrLKA=";
   };
 
@@ -100,7 +98,7 @@ stdenv.mkDerivation (finalAttrs: {
       bison
       libsrs2
     ]
-    ++ lib.optionals stdenv.isLinux [ libcap ]
+    ++ lib.optionals stdenv.hostPlatform.isLinux [ libcap ]
     ++ lib.optionals (enableHttp || enableCalalarmd || enableJMAP) [
       brotli.dev
       libical.dev
@@ -128,9 +126,10 @@ stdenv.mkDerivation (finalAttrs: {
         [
           zlib
           cyrus_sasl
+          sqlite
         ]
         # Darwin doesn't have libuuid, try to build without it
-        ++ lib.optional (!stdenv.isDarwin) libuuid;
+        ++ lib.optional (!stdenv.hostPlatform.isDarwin) libuuid;
       imapLibs = managesieveLibs ++ [ pcre2 ];
       mkLibsString = lib.strings.concatMapStringsSep " " (l: "-L${lib.getLib l}/lib");
     in
@@ -193,8 +192,9 @@ stdenv.mkDerivation (finalAttrs: {
   meta = {
     homepage = "https://www.cyrusimap.org";
     description = "Email, contacts and calendar server";
+    changelog = "https://www.cyrusimap.org/imap/download/release-notes/${lib.versions.majorMinor finalAttrs.version}/x/${finalAttrs.version}.html";
     license = with lib.licenses; [ bsdOriginal ];
-    mainProgram = "cyrus";
+    mainProgram = "cyradm";
     maintainers = with lib.maintainers; [
       moraxyc
       pingiun

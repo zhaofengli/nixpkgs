@@ -3,6 +3,7 @@
   fetchFromGitHub,
   python3Packages,
   testers,
+  pyamlboot,
 }:
 
 python3Packages.buildPythonApplication rec {
@@ -12,7 +13,7 @@ python3Packages.buildPythonApplication rec {
   src = fetchFromGitHub {
     owner = "superna9999";
     repo = "pyamlboot";
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-vpWq8+0ZoTkfVyx+2BbXdULFwo/Ug4U1gWArXDfnzyk=";
   };
 
@@ -27,9 +28,9 @@ python3Packages.buildPythonApplication rec {
   ];
 
   passthru.tests.version = testers.testVersion {
-    package = "pyamlboot";
+    package = pyamlboot;
     command = "boot.py -v";
-    version = "boot.py ${version}";
+    version = "boot.py ${lib.versions.majorMinor version}";
   };
 
   meta = {

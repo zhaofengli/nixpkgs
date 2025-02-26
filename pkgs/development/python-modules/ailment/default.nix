@@ -5,11 +5,12 @@
   pythonOlder,
   pyvex,
   setuptools,
+  typing-extensions,
 }:
 
 buildPythonPackage rec {
   pname = "ailment";
-  version = "9.2.126";
+  version = "9.2.137";
   pyproject = true;
 
   disabled = pythonOlder "3.11";
@@ -17,13 +18,16 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "angr";
     repo = "ailment";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-C5hOeMdZ0D8T61TyJ8uEhuy+VnVc/6GQ3PteuicUpzA=";
+    tag = "v${version}";
+    hash = "sha256-5/dJFjqLIDafjzapsuSNz5YnaA9faDAgkW01tpHUHrA=";
   };
 
   build-system = [ setuptools ];
 
-  dependencies = [ pyvex ];
+  dependencies = [
+    pyvex
+    typing-extensions
+  ];
 
   # Tests depend on angr (possibly a circular dependency)
   doCheck = false;

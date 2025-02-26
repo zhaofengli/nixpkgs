@@ -68,7 +68,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "mutter";
-  version = "47.0";
+  version = "47.3";
 
   outputs = [
     "out"
@@ -79,13 +79,15 @@ stdenv.mkDerivation (finalAttrs: {
 
   src = fetchurl {
     url = "mirror://gnome/sources/mutter/${lib.versions.major finalAttrs.version}/mutter-${finalAttrs.version}.tar.xz";
-    hash = "sha256-LQ6pAVCsbNAhnQB42wXW4VFNauIb+fP3QNT7A5EpAWs=";
+    hash = "sha256-dkIa9vkFCc/fGrhR1e5YJx4n6Uqo99tSHVqgba6mxWA=";
   };
 
   mesonFlags = [
     "-Degl_device=true"
     "-Dinstalled_tests=false" # TODO: enable these
     "-Dtests=disabled"
+    # For NVIDIA proprietary driver up to 470.
+    # https://src.fedoraproject.org/rpms/mutter/pull-request/49
     "-Dwayland_eglstream=true"
     "-Dprofiler=true"
     "-Dxwayland_path=${lib.getExe xwayland}"
@@ -98,13 +100,13 @@ stdenv.mkDerivation (finalAttrs: {
   propagatedBuildInputs = [
     # required for pkg-config to detect mutter-mtk
     graphene
+    mesa  # actually uses eglmesaext
   ];
 
   nativeBuildInputs = [
     desktop-file-utils
     gettext
     libxcvt
-    mesa # needed for gbm
     meson
     ninja
     xvfb-run

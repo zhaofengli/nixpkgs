@@ -15,7 +15,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "hylang";
     repo = "hyrule";
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-w1Q2w/P1bDt/F1+zTkUFi5PxycXXE3p0qadfBcyWElg=";
   };
 
@@ -35,6 +35,6 @@ buildPythonPackage rec {
     homepage = "https://github.com/hylang/hyrule";
     changelog = "https://github.com/hylang/hylure/releases/tag/${version}";
     license = licenses.mit;
-    maintainers = with maintainers; [ thiagokokada ];
+    maintainers = with maintainers; [ ];
   };
 }

@@ -9,16 +9,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "hickory-dns";
-  version = "0.25.0-alpha.2";
+  version = "0.25.0-alpha.4";
 
   src = fetchFromGitHub {
     owner = "hickory-dns";
     repo = "hickory-dns";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-bEVApMM6/I3nF1lyRhd+7YtZuSAwiozRkMorRLhLOBY=";
+    tag = "v${version}";
+    hash = "sha256-yLhTQIu9C1ikm0TtoEPLSt7ZWqJXn4YE2Lrx38sSJtE=";
   };
 
-  cargoHash = "sha256-Rq4l1iV70nlhBaJ02hc+dmNZ/Q7qrHoF0Kp0MTmu22A=";
+  cargoHash = "sha256-j6J47b0CWbw4glOYam7VXt3IjPCdYY1y/U1d4Ho82uE=";
 
   buildInputs = [ openssl ];
   nativeBuildInputs = [ pkg-config ];
@@ -26,7 +26,13 @@ rustPlatform.buildRustPackage rec {
   # tests expect internet connectivity to query real nameservers like 8.8.8.8
   doCheck = false;
 
-  passthru.updateScript = nix-update-script { };
+  passthru.updateScript = nix-update-script {
+    # remove when 0.25.0 is released
+    extraArgs = [
+      "--version"
+      "unstable"
+    ];
+  };
 
   meta = {
     description = "Rust based DNS client, server, and resolver";

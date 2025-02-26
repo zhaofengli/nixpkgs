@@ -185,6 +185,10 @@ let
                     echo "reused"
                     passphrase=$(cat /crypt-ramfs/passphrase)
                     break
+                elif [ -e /dev/mapper/${dev.name} ]; then
+                    echo "opened externally"
+                    rm -f /crypt-ramfs/device
+                    return
                 else
                     # ask cryptsetup-askpass
                     echo -n "${dev.device}" > /crypt-ramfs/device
@@ -505,7 +509,11 @@ let
 
         echo -n "Passphrase for $device: "
         IFS= read -rs passphrase
+        ret=$?
         echo
+        if [ $ret -ne 0 ]; then
+          die "End of file reached. Exiting shell."
+        fi
 
         rm /crypt-ramfs/device
         echo -n "$passphrase" > /crypt-ramfs/passphrase
@@ -1107,6 +1115,7 @@ in
 
     };
     # We do this because we need the udev rules from the package
+    services.lvm.enable = true;
     boot.initrd.services.lvm.enable = true;
 
     boot.initrd.preFailCommands = mkIf (!config.boot.initrd.systemd.enable) postCommands;
@@ -1123,8 +1132,8 @@ in
               "initrd-switch-root.target"
               "shutdown.target"
             ];
-            wants = [ "systemd-udev-settle.service" ] ++ optional clevis.useTang "network-online.target";
-            after = [ "systemd-modules-load.service" "systemd-udev-settle.service" ] ++ optional clevis.useTang "network-online.target";
+            wants = optional clevis.useTang "network-online.target";
+            after = [ "systemd-modules-load.service" "tpm2.target" ] ++ optional clevis.useTang "network-online.target";
             script = ''
               mkdir -p /clevis-${name}
               mount -t ramfs none /clevis-${name}

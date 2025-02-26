@@ -50,13 +50,13 @@ in
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "imagemagick";
-  version = "7.1.1-39";
+  version = "7.1.1-43";
 
   src = fetchFromGitHub {
     owner = "ImageMagick";
     repo = "ImageMagick";
     rev = finalAttrs.version;
-    hash = "sha256-3NUl0q/j3dBdNBtLH+69vh0elobBnTOvqQpC/2KwGBU=";
+    hash = "sha256-4JzCBKtXiKGLsZ29+7z5U+3aN3ppusQ7mz+sOZYpXGY=";
   };
 
   outputs = [ "out" "dev" "doc" ]; # bin/ isn't really big
@@ -120,8 +120,13 @@ stdenv.mkDerivation (finalAttrs: {
 
   postInstall = ''
     (cd "$dev/include" && ln -s ImageMagick* ImageMagick)
+    # Q16HDRI = 16 bit quantum depth with HDRI support, and is the default ImageMagick configuration
+    # If the default is changed, or the derivation is modified to use a different configuration
+    # this will need to be changed below.
     moveToOutput "bin/*-config" "$dev"
     moveToOutput "lib/ImageMagick-*/config-Q16HDRI" "$dev" # includes configure params
+    configDestination=($out/share/ImageMagick-*)
+    grep -v '/nix/store' $dev/lib/ImageMagick-*/config-Q16HDRI/configure.xml > $configDestination/configure.xml
     for file in "$dev"/bin/*-config; do
       substituteInPlace "$file" --replace pkg-config \
         "PKG_CONFIG_PATH='$dev/lib/pkgconfig' '$(command -v $PKG_CONFIG)'"

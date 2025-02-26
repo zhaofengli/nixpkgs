@@ -176,13 +176,33 @@
   - any:
     - changed-files:
       - any-glob-to-any-file:
-        - nixos/modules/programs/java.nix
+        # Distributions
+        - pkgs/development/compilers/adoptopenjdk-icedtea-web/**/*
+        - pkgs/development/compilers/corretto/**/*
         - pkgs/development/compilers/graalvm/**/*
         - pkgs/development/compilers/openjdk/**/*
+        - pkgs/by-name/op/openjfx/**/*
+        - pkgs/development/compilers/semeru-bin/**/*
         - pkgs/development/compilers/temurin-bin/**/*
         - pkgs/development/compilers/zulu/**/*
+        # Documentation
+        - doc/languages-frameworks/java.section.md
+        # Gradle
+        - doc/languages-frameworks/gradle.section.md
+        - pkgs/development/tools/build-managers/gradle/**/*
+        - pkgs/by-name/gr/gradle-completion/**/*
+        # Maven
+        - pkgs/by-name/ma/maven/**/*
+        - doc/languages-frameworks/maven.section.md
+        # Ant
+        - pkgs/by-name/an/ant/**/*
+        # javaPackages attrset
         - pkgs/development/java-modules/**/*
         - pkgs/top-level/java-packages.nix
+        # Maintainer tooling
+        - pkgs/by-name/ni/nixpkgs-openjdk-updater/**/*
+        # Misc
+        - nixos/modules/programs/java.nix
 
 "6.topic: jitsi":
   - any:
@@ -293,6 +313,7 @@
       - any-glob-to-any-file:
         - nixos/**/*
         - pkgs/by-name/sw/switch-to-configuration-ng/**/*
+        - pkgs/by-name/ni/nixos-rebuild-ng/**/*
         - pkgs/os-specific/linux/nixos-rebuild/**/*
 
 "6.topic: nixos-container":
@@ -308,6 +329,7 @@
       - any-glob-to-any-file:
         - doc/languages-frameworks/nim.section.md
         - pkgs/build-support/build-nim-package.nix
+        - pkgs/build-support/build-nim-sbom.nix
         - pkgs/by-name/ni/nim*
         - pkgs/top-level/nim-overrides.nix
 
@@ -358,8 +380,9 @@
     - changed-files:
       - any-glob-to-any-file:
         - doc/languages-frameworks/php.section.md
+        - nixos/tests/php/**/*
         - pkgs/build-support/php/**/*
-        - pkgs/development/interpreters/php/*
+        - pkgs/development/interpreters/php/**/*
         - pkgs/development/php-packages/**/*
         - pkgs/test/php/default.nix
         - pkgs/top-level/php-packages.nix
@@ -424,6 +447,7 @@
         - doc/languages-frameworks/ruby.section.md
         - pkgs/development/interpreters/ruby/**/*
         - pkgs/development/ruby-modules/**/*
+        - pkgs/top-level/ruby-packages.nix
 
 "6.topic: rust":
   - any:

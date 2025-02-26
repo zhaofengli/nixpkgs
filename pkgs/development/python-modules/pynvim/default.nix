@@ -12,21 +12,22 @@
 
 buildPythonPackage rec {
   pname = "pynvim";
-  version = "0.5.1";
+  version = "0.5.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "neovim";
     repo = "pynvim";
-    rev = "refs/tags/${version}";
-    hash = "sha256-YVAWu+i2pElq8OhibSqh9ogk+xWDRCZT4niDF/oMnzY=";
+    tag = version;
+    hash = "sha256-/frugwYPS4rS4L6BRsmNb5pJI8xfLJvbr+PyOLx25a4=";
   };
 
   build-system = [ setuptools ];
 
   dependencies =
     [ msgpack ]
-    ++ lib.optionals (!isPyPy) [ greenlet ] ++ lib.optionals (pythonOlder "3.12") [ typing-extensions ];
+    ++ lib.optionals (!isPyPy) [ greenlet ]
+    ++ lib.optionals (pythonOlder "3.12") [ typing-extensions ];
 
   # Tests require pkgs.neovim which we cannot add because of circular dependency
   doCheck = false;

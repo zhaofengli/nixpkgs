@@ -1,30 +1,27 @@
-{ lib, stdenv, fetchFromGitHub, postgresql, postgresqlTestExtension }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  postgresql,
+  postgresqlTestExtension,
+  buildPostgresqlExtension,
+  nix-update-script,
+}:
 
-stdenv.mkDerivation (finalAttrs: {
+buildPostgresqlExtension (finalAttrs: {
   pname = "pg_squeeze";
-  version = "1.7.0";
+  version = "${builtins.replaceStrings [ "_" ] [ "." ] (
+    lib.strings.removePrefix "REL" finalAttrs.src.rev
+  )}";
 
   src = fetchFromGitHub {
     owner = "cybertec-postgresql";
     repo = "pg_squeeze";
-    rev = "REL${builtins.replaceStrings ["."] ["_"] finalAttrs.version}";
+    rev = "REL1_7_0";
     hash = "sha256-Kh1wSOvV5Rd1CG/na3yzbWzvaR8SJ6wmTZOnM+lbgik=";
   };
 
-  buildInputs = [
-    postgresql
-  ];
-
-  installPhase = ''
-    runHook preInstall
-
-    install -D -t $out/lib pg_squeeze${postgresql.dlSuffix}
-    install -D -t $out/share/postgresql/extension pg_squeeze-*.sql
-    install -D -t $out/share/postgresql/extension pg_squeeze.control
-
-    runHook postInstall
-  '';
-
+  passthru.updateScript = nix-update-script { extraArgs = [ "--version-regex=REL(.*)" ]; };
   passthru.tests.extension = postgresqlTestExtension {
     inherit (finalAttrs) finalPackage;
     postgresqlExtraSettings = ''

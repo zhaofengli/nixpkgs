@@ -79,7 +79,7 @@ let
   src = fetchFromGitHub {
     owner = "wandb";
     repo = "wandb";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-nx50baneYSSIWPAIOkUk4cGCNpWAhv7IwFDQJ4vUMiw=";
   };
 
@@ -282,6 +282,9 @@ buildPythonPackage rec {
       "test_parse_project_path"
       "test_translates_azure_err_to_normal_err"
 
+      # tests assertion if filesystem is compressed
+      "test_artifact_file_cache_cleanup"
+
       # Tries to access a storage disk but there are none in the sandbox
       # psutil.test_disk_out() returns None
       "test_disk_in"
@@ -293,6 +296,11 @@ buildPythonPackage rec {
       # Error in the moviepy package:
       # TypeError: must be real number, not NoneType
       "test_video_numpy_mp4"
+
+      # AssertionError: assert not _IS_INTERNAL_PROCESS
+      "test_disabled_can_pickle"
+      "test_disabled_context_manager"
+      "test_mode_disabled"
     ]
     ++ lib.optionals (stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isx86_64) [
       # AssertionError: assert not copy2_mock.called

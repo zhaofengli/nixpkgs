@@ -16,19 +16,19 @@
 
 buildPythonPackage rec {
   pname = "python-box";
-  version = "7.2.0";
-  format = "setuptools";
+  version = "7.3.1";
+  pyproject = true;
 
-  disabled = pythonOlder "3.8";
+  disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "cdgriffith";
     repo = "Box";
-    rev = "refs/tags/${version}";
-    hash = "sha256-5aORpuh0ezA3mUEpAPANDkdeN8ujNRfCUCV5qamMk68=";
+    tag = version;
+    hash = "sha256-id1gLT26jETRQ0fyVNTIhSZqM+fDmpaVbB56GxPhYr8=";
   };
 
-  nativeBuildInputs = [
+  build-system = [
     cython
     setuptools
   ];

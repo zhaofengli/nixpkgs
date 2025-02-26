@@ -1,21 +1,23 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, substituteAll
-, nix-update-script
-, gnome-power-manager
-, pkg-config
-, meson
-, ninja
-, vala
-, elementary-settings-daemon
-, gtk3
-, granite
-, libgtop
-, libnotify
-, udev
-, wingpanel
-, libgee
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  substituteAll,
+  nix-update-script,
+  gnome-power-manager,
+  pkg-config,
+  meson,
+  ninja,
+  vala,
+  elementary-settings-daemon,
+  gettext,
+  gtk3,
+  granite,
+  libgtop,
+  libnotify,
+  udev,
+  wingpanel,
+  libgee,
 }:
 
 stdenv.mkDerivation rec {
@@ -37,6 +39,7 @@ stdenv.mkDerivation rec {
   ];
 
   nativeBuildInputs = [
+    gettext # msgfmt
     meson
     ninja
     pkg-config

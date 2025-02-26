@@ -23,17 +23,17 @@
 
 buildPythonPackage rec {
   pname = "mss";
-  version = "9.0.2";
+  version = "10.0.0";
   pyproject = true;
 
   disabled = pythonOlder "3.6";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-yWpOxzIk2n2yK8B+88+qGPi4aQDRhy4pETu87wCToh4=";
+    hash = "sha256-2QPg1RJivw+HgoQc8W6qbX4+HxLq41q0HC4xiDfGY38=";
   };
 
-  patches = lib.optionals stdenv.isLinux [
+  patches = lib.optionals stdenv.hostPlatform.isLinux [
     (substituteAll {
       src = ./linux-paths.patch;
       x11 = "${xorg.libX11}/lib/libX11.so";
@@ -44,7 +44,7 @@ buildPythonPackage rec {
 
   build-system = [ hatchling ];
 
-  doCheck = stdenv.isLinux;
+  doCheck = stdenv.hostPlatform.isLinux;
 
   nativeCheckInputs = [
     lsof

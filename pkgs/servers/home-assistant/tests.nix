@@ -1,5 +1,6 @@
-{ lib
-, home-assistant
+{
+  lib,
+  home-assistant,
 }:
 
 let
@@ -68,6 +69,11 @@ let
   };
 
   extraPytestFlagsArray = {
+    conversation = [
+      # Expected:  Sorry, I am not aware of any device called missing entity on ground floor
+      # Actually:  Sorry, I am not aware of any area called ground floor
+      "--deselect tests/components/conversation/test_default_agent.py::test_error_no_device_on_floor"
+    ];
     dnsip = [
       # Tries to resolve DNS entries
       "--deselect tests/components/dnsip/test_config_flow.py::test_options_flow"
@@ -104,37 +110,54 @@ let
       "--deselect=tests/components/vicare/test_sensor.py::test_all_entities"
     ];
   };
-in lib.listToAttrs (map (component: lib.nameValuePair component (
-  home-assistant.overridePythonAttrs (old: {
-    pname = "homeassistant-test-${component}";
-    pyproject = null;
-    format = "other";
+in
+lib.listToAttrs (
+  map (
+    component:
+    lib.nameValuePair component (
+      home-assistant.overridePythonAttrs (old: {
+        pname = "homeassistant-test-${component}";
+        pyproject = null;
+        format = "other";
 
-    dontBuild = true;
-    dontInstall = true;
+        dontBuild = true;
+        dontInstall = true;
 
-    nativeCheckInputs = old.nativeCheckInputs
-      ++ home-assistant.getPackages component home-assistant.python.pkgs
-      ++ extraCheckInputs.${component} or [ ];
+        nativeCheckInputs =
+          old.nativeCheckInputs
+          ++ home-assistant.getPackages component home-assistant.python.pkgs
+          ++ extraCheckInputs.${component} or [ ];
 
-    disabledTests = old.disabledTests or [] ++ extraDisabledTests.${component} or [];
-    disabledTestPaths = old.disabledTestPaths or [] ++ extraDisabledTestPaths.${component} or [ ];
+        disabledTests = old.disabledTests or [ ] ++ extraDisabledTests.${component} or [ ];
+        disabledTestPaths = old.disabledTestPaths or [ ] ++ extraDisabledTestPaths.${component} or [ ];
 
-    # components are more often racy than the core
-    dontUsePytestXdist = true;
+        # components are more often racy than the core
+        dontUsePytestXdist = true;
 
-    pytestFlagsArray = lib.remove "tests" old.pytestFlagsArray
-      ++ extraPytestFlagsArray.${component} or [ ]
-      ++ [ "tests/components/${component}" ];
+        pytestFlagsArray =
+          lib.remove "tests" old.pytestFlagsArray
+          ++ extraPytestFlagsArray.${component} or [ ]
+          ++ [ "tests/components/${component}" ];
 
-    preCheck = old.preCheck + lib.optionalString (builtins.elem component [ "emulated_hue" "songpal" "system_log" ]) ''
-      patch -p1 < ${./patches/tests-mock-source-ip.patch}
-    '';
+        preCheck =
+          old.preCheck
+          +
+            lib.optionalString
+              (builtins.elem component [
+                "emulated_hue"
+                "songpal"
+                "system_log"
+              ])
+              ''
+                patch -p1 < ${./patches/tests-mock-source-ip.patch}
+              '';
 
-    meta = old.meta // {
-      broken = lib.elem component [ ];
-      # upstream only tests on Linux, so do we.
-      platforms = lib.platforms.linux;
-    };
-  })
-)) home-assistant.supportedComponentsWithTests)
+        meta = old.meta // {
+          broken = lib.elem component [ ];
+          # upstream only tests on Linux, so do we.
+          platforms = lib.platforms.linux;
+        };
+      })
+    )
+  ) home-assistant.supportedComponentsWithTests
+)

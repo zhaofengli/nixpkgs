@@ -1,54 +1,50 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchpatch
-, cargo
-, cmake
-, ninja
-, pkg-config
-, rustPlatform
-, rustc
-, curl
-, freetype
-, libGLU
-, libnotify
-, libogg
-, libX11
-, opusfile
-, pcre
-, python3
-, SDL2
-, sqlite
-, wavpack
-, ffmpeg
-, x264
-, vulkan-headers
-, vulkan-loader
-, glslang
-, spirv-tools
-, gtest
-, Carbon
-, Cocoa
-, OpenGL
-, Security
-, buildClient ? true
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cargo,
+  cmake,
+  ninja,
+  pkg-config,
+  rustPlatform,
+  rustc,
+  curl,
+  freetype,
+  libGLU,
+  libnotify,
+  libogg,
+  libX11,
+  opusfile,
+  pcre,
+  python3,
+  SDL2,
+  sqlite,
+  wavpack,
+  ffmpeg,
+  x264,
+  vulkan-headers,
+  vulkan-loader,
+  glslang,
+  spirv-tools,
+  gtest,
+  buildClient ? true,
 }:
 
 stdenv.mkDerivation rec {
   pname = "ddnet";
-  version = "18.6";
+  version = "18.9";
 
   src = fetchFromGitHub {
     owner = "ddnet";
     repo = pname;
     rev = version;
-    hash = "sha256-thAB7QtR23j39ORK1YT2Idp4J7GffbNV7snbLAnYzMI=";
+    hash = "sha256-aJzNfo7K5OOo14XJRmDOYzXFF5fZK0aXgIfVvjvzjrU=";
   };
 
   cargoDeps = rustPlatform.fetchCargoTarball {
     name = "${pname}-${version}";
     inherit src;
-    hash = "sha256-/kCsAZP9cwUQFcNnk5/eYMzw80Bh4JnwPXd299p1JEU=";
+    hash = "sha256-WN8hYl3L1z+yAfxQnDKnr/zC+0GOYvjzM8YL5XQgVJg=";
   };
 
   nativeBuildInputs = [
@@ -64,33 +60,33 @@ stdenv.mkDerivation rec {
     gtest
   ];
 
-  buildInputs = [
-    curl
-    libnotify
-    pcre
-    python3
-    sqlite
-  ] ++ lib.optionals buildClient ([
-    freetype
-    libGLU
-    libogg
-    opusfile
-    SDL2
-    wavpack
-    ffmpeg
-    x264
-    vulkan-loader
-    vulkan-headers
-    glslang
-    spirv-tools
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
-    libX11
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    Carbon
-    Cocoa
-    OpenGL
-    Security
-  ]);
+  buildInputs =
+    [
+      curl
+      libnotify
+      pcre
+      python3
+      sqlite
+    ]
+    ++ lib.optionals buildClient (
+      [
+        freetype
+        libGLU
+        libogg
+        opusfile
+        SDL2
+        wavpack
+        ffmpeg
+        x264
+        vulkan-loader
+        vulkan-headers
+        glslang
+        spirv-tools
+      ]
+      ++ lib.optionals stdenv.hostPlatform.isLinux [
+        libX11
+      ]
+    );
 
   postPatch = ''
     substituteInPlace src/engine/shared/storage.cpp \
@@ -131,7 +127,11 @@ stdenv.mkDerivation rec {
     '';
     homepage = "https://ddnet.org";
     license = licenses.asl20;
-    maintainers = with maintainers; [ sirseruju lom ncfavier ];
+    maintainers = with maintainers; [
+      sirseruju
+      lom
+      ncfavier
+    ];
     mainProgram = "DDNet";
   };
 }

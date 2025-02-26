@@ -53,7 +53,7 @@
   onnx,
   onnxruntime,
   pytest,
-  pytest-cov,
+  pytest-cov-stub,
 
   # tests
   pytestCheckHook,
@@ -67,7 +67,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "pyg-team";
     repo = "pytorch_geometric";
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-Zw9YqPQw2N0ZKn5i5Kl4Cjk9JDTmvZmyO/VvIVr6fTU=";
   };
 
@@ -138,7 +138,7 @@ buildPythonPackage rec {
       onnx
       onnxruntime
       pytest
-      pytest-cov
+      pytest-cov-stub
     ];
   };
 

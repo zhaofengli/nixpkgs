@@ -1,5 +1,4 @@
 {
-  bash,
   buildGoModule,
   fetchFromGitHub,
   nix-update-script,
@@ -15,16 +14,16 @@
 
 buildGoModule rec {
   pname = "granted";
-  version = "0.36.0";
+  version = "0.37.0";
 
   src = fetchFromGitHub {
     owner = "common-fate";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-GWRQYdB3ifpCaAGC98TXGap30o9tWN503P43ZPSX+Ew=";
+    sha256 = "sha256-dy56xrn2BiVoFoQMnkl9jglecY9HAoRU/yubv5ddNU8=";
   };
 
-  vendorHash = "sha256-W8PxZyNvZN8MnfJlMUs+TT6ixfqLQ/lV511QYLwqv3U=";
+  vendorHash = "sha256-xL4+N1+Jb8KI9UbLfPV4R/MrIqL+6Lgpzsgq86J9cnE=";
 
   nativeBuildInputs = [ makeWrapper ];
 

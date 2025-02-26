@@ -2,7 +2,6 @@
   lib,
   rustPlatform,
   fetchFromGitHub,
-  clang,
   cmake,
   copyDesktopItems,
   curl,
@@ -34,6 +33,12 @@
   git,
   apple-sdk_15,
   darwinMinVersionHook,
+  makeWrapper,
+  nodejs,
+  libGL,
+  libX11,
+  libXext,
+  livekit-libwebrtc,
 
   withGLES ? false,
 }:
@@ -88,67 +93,47 @@ let
 in
 rustPlatform.buildRustPackage rec {
   pname = "zed-editor";
-  version = "0.160.7";
+  version = "0.169.2";
 
   src = fetchFromGitHub {
     owner = "zed-industries";
     repo = "zed";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-mbBETOZVXTcfS+yGWPqEh+NEjo6UMTvk3XMghd8+s/s=";
+    tag = "v${version}";
+    hash = "sha256-IdJVWsHWMzE0AZxFy6jOmquc2jFeozNDdAhbB3fFMwk=";
   };
 
-  patches =
+  patches = [
+    # Zed uses cargo-install to install cargo-about during the script execution.
+    # We provide cargo-about ourselves and can skip this step.
+    # Until https://github.com/zed-industries/zed/issues/19971 is fixed,
+    # we also skip any crate for which the license cannot be determined.
+    ./0001-generate-licenses.patch
+    # See https://github.com/zed-industries/zed/pull/21661#issuecomment-2524161840
+    "script/patches/use-cross-platform-livekit.patch"
+  ];
+
+  # Dynamically link WebRTC instead of static
+  postPatch = ''
+    substituteInPlace ../${pname}-${version}-vendor/webrtc-sys-*/build.rs \
+      --replace-fail "cargo:rustc-link-lib=static=webrtc" "cargo:rustc-link-lib=dylib=webrtc"
+  '';
+
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-0zH5J3nvBpqD22nFzX98MBoTtNDpWS4NSSMcT1DB2SM=";
+
+  nativeBuildInputs =
     [
-      # Zed uses cargo-install to install cargo-about during the script execution.
-      # We provide cargo-about ourselves and can skip this step.
-      # Until https://github.com/zed-industries/zed/issues/19971 is fixed,
-      # we also skip any crate for which the license cannot be determined.
-      ./0001-generate-licenses.patch
+      cmake
+      copyDesktopItems
+      curl
+      perl
+      pkg-config
+      protobuf
+      rustPlatform.bindgenHook
+      cargo-about
     ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      # The Swift variant of livekit currently used inside Zed requires
-      # Swift 6, which is not available in nixpkgs yet:
-      #   https://github.com/NixOS/nixpkgs/issues/343210
-      # The Rust variant of livekit for Zed is still pending and there is no
-      # schedule when it will be finished:
-      #   https://github.com/zed-industries/zed/pull/13343
-      ./0002-disable-livekit-darwin.patch
-    ];
-
-  cargoLock = {
-    lockFile = ./Cargo.lock;
-    outputHashes = {
-      "alacritty_terminal-0.24.1-dev" = "sha256-b4oSDhsAAYjpYGfFgA1Q1642JoJQ9k5RTsPgFUpAFmc=";
-      "async-pipe-0.1.3" = "sha256-g120X88HGT8P6GNCrzpS5SutALx5H+45Sf4iSSxzctE=";
-      "async-stripe-0.40.0" = "sha256-kVdYCmlM8DilSrcOGxI1tvSiUjSrXdnmKqBA9WUJgMw=";
-      "blade-graphics-0.5.0" = "sha256-j/JI34ZPD7RAHNHu3krgDLnIq4QmmZaZaU1FwD7f2FM=";
-      "cosmic-text-0.11.2" = "sha256-TLPDnqixuW+aPAhiBhSvuZIa69vgV3xLcw32OlkdCcM=";
-      "font-kit-0.14.1" = "sha256-qUKvmi+RDoyhMrZ7T6SoVAyMc/aasQ9Y/okzre4SzXo=";
-      "lsp-types-0.95.1" = "sha256-N4MKoU9j1p/Xeowki/+XiNQPwIcTm9DgmfM/Eieq4js=";
-      "nvim-rs-0.8.0-pre" = "sha256-VA8zIynflul1YKBlSxGCXCwa2Hz0pT3mH6OPsfS7Izo=";
-      "pet-0.1.0" = "sha256-RxwisvRC5I3TCMAOT+kPasijuf66F+VFok1O9Ep8tGE=";
-      "reqwest-0.12.8" = "sha256-mjO6SPYOMiw1H0ZEbd4BlPivPtaLVNftpsCu+M2i3Qw=";
-      "tree-sitter-gomod-1.0.2" = "sha256-FCb8ndKSFiLY7/nTX7tWF8c4KcSvoBU1QB5R4rdOgT0=";
-      "tree-sitter-gowork-0.0.1" = "sha256-WRMgGjOlJ+bT/YnSBeSLRTLlltA5WwTvV0Ow/949+BE=";
-      "tree-sitter-heex-0.0.1" = "sha256-SnjhL0WVsHOKuUp3dkTETnCgC/Z7WN0XmpQdJPBeBhw=";
-      "tree-sitter-md-0.3.2" = "sha256-q2/aJx+385B8HiU0soZ1vtRvjkE21ABGzIyR1qwKFOU=";
-      "tree-sitter-yaml-0.6.1" = "sha256-95u/bq74SiUHW8lVp3RpanmYS/lyVPW0Inn8gR7N3IQ=";
-      "xim-0.4.0" = "sha256-BXyaIBoqMNbzaSJqMadmofdjtlEVSoU6iogF66YP6a4=";
-      "xkbcommon-0.7.0" = "sha256-2RjZWiAaz8apYTrZ82qqH4Gv20WyCtPT+ldOzm0GWMo=";
-    };
-  };
-
-  nativeBuildInputs = [
-    clang
-    cmake
-    copyDesktopItems
-    curl
-    perl
-    pkg-config
-    protobuf
-    rustPlatform.bindgenHook
-    cargo-about
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ cargo-bundle ];
+    ++ lib.optionals stdenv.hostPlatform.isLinux [ makeWrapper ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [ cargo-bundle ];
 
   dontUseCmakeConfigure = true;
 
@@ -168,14 +153,16 @@ rustPlatform.buildRustPackage rec {
       libxkbcommon
       wayland
       xorg.libxcb
+      # required by livekit:
+      libGL
+      libX11
+      libXext
     ]
     ++ lib.optionals stdenv.hostPlatform.isDarwin [
       apple-sdk_15
-      # This will need to be increased to 12.3 once
-      # https://github.com/zed-industries/zed/pull/13343
-      # is merged and released, as ScreenCaptureKit is only available on 12.3 and up:
+      # ScreenCaptureKit, required by livekit, is only available on 12.3 and up:
       # https://developer.apple.com/documentation/screencapturekit
-      (darwinMinVersionHook "10.15")
+      (darwinMinVersionHook "12.3")
     ];
 
   cargoBuildFlags = [
@@ -200,9 +187,7 @@ rustPlatform.buildRustPackage rec {
     ZED_UPDATE_EXPLANATION = "Zed has been installed using Nix. Auto-updates have thus been disabled.";
     # Used by `zed --version`
     RELEASE_VERSION = version;
-    # Required until `-isysroot` can be used with libclang in nixpkgs on darwin, otherwise
-    # rust bindgen will not work as expected
-    NIX_CFLAGS_COMPILE = lib.optionalString stdenv.hostPlatform.isDarwin "-F${apple-sdk_15.sdkroot}/System/Library/Frameworks";
+    LK_CUSTOM_WEBRTC = livekit-libwebrtc;
   };
 
   RUSTFLAGS = if withGLES then "--cfg gles" else "";
@@ -215,6 +200,7 @@ rustPlatform.buildRustPackage rec {
   postFixup = lib.optionalString stdenv.hostPlatform.isLinux ''
     patchelf --add-rpath ${gpu-lib}/lib $out/libexec/*
     patchelf --add-rpath ${wayland}/lib $out/libexec/*
+    wrapProgram $out/libexec/zed-editor --suffix PATH : ${lib.makeBinPath [ nodejs ]}
   '';
 
   preCheck = ''
@@ -302,10 +288,20 @@ rustPlatform.buildRustPackage rec {
   versionCheckProgramArg = [ "--version" ];
   doInstallCheck = true;
 
+  # The darwin Applications directory is not stripped by default, see
+  # https://github.com/NixOS/nixpkgs/issues/367169
+  # This setting is not platform-guarded as it doesn't do any harm on Linux,
+  # where this directory simply does not exist.
+  stripDebugList = [
+    "bin"
+    "libexec"
+    "Applications"
+  ];
+
   passthru = {
     updateScript = gitUpdater {
       rev-prefix = "v";
-      ignoredVersions = "pre";
+      ignoredVersions = "(*-pre|0.999999.0|0.9999-temporary)";
     };
     fhs = fhs { };
     fhsWithPackages = f: fhs { additionalPkgs = f; };

@@ -1,30 +1,37 @@
-{ lib
-, stdenv
-, cmake
-, fetchFromGitHub
-, h3_4
-, postgresql
-, postgresqlTestExtension
+{
+  lib,
+  stdenv,
+  cmake,
+  fetchFromGitHub,
+  h3_4,
+  postgresql,
+  postgresqlTestExtension,
+  buildPostgresqlExtension,
 }:
 
-stdenv.mkDerivation (finalAttrs: {
+buildPostgresqlExtension (finalAttrs: {
   pname = "h3-pg";
-  version = "4.1.3";
+  version = "4.1.4";
 
   src = fetchFromGitHub {
     owner = "zachasme";
     repo = "h3-pg";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-nkaDZ+JuMtsGUJVx70DD2coLrmc/T8/cNov7pfNF1Eg=";
+    hash = "sha256-uZ4XI/VXRr636CI1r24D6ykPQqO5qZNxNQLUQKmoPtg=";
   };
 
-  postPatch = ''
-    substituteInPlace CMakeLists.txt \
-      --replace "add_subdirectory(cmake/h3)" "include_directories(${lib.getDev h3_4}/include/h3)"
-  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
-    substituteInPlace cmake/AddPostgreSQLExtension.cmake \
-      --replace "INTERPROCEDURAL_OPTIMIZATION TRUE" ""
-  '';
+  postPatch =
+    ''
+      substituteInPlace CMakeLists.txt \
+        --replace-fail "add_subdirectory(cmake/h3)" "include_directories(${lib.getDev h3_4}/include/h3)"
+    ''
+    + lib.optionalString stdenv.hostPlatform.isDarwin ''
+      substituteInPlace cmake/AddPostgreSQLExtension.cmake \
+        --replace-fail "INTERPROCEDURAL_OPTIMIZATION TRUE" ""
+      # Commented upstream: https://github.com/zachasme/h3-pg/pull/141/files#r1844970927
+      substituteInPlace cmake/FindPostgreSQL.cmake \
+        --replace-fail 'list(APPEND PostgreSQL_INCLUDE_DIRS "/usr/local/include")' ""
+    '';
 
   nativeBuildInputs = [
     cmake
@@ -32,15 +39,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [
     h3_4
-    postgresql
   ];
-
-  installPhase = ''
-    install -D -t $out/lib h3/h3.so
-    install -D -t $out/share/postgresql/extension h3/h3-*.sql h3/h3.control
-    install -D -t $out/lib h3_postgis/h3_postgis.so
-    install -D -t $out/share/postgresql/extension h3_postgis/h3_postgis-*.sql h3_postgis/h3_postgis.control
-  '';
 
   passthru.tests.extension = postgresqlTestExtension {
     inherit (finalAttrs) finalPackage;

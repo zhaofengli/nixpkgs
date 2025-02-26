@@ -15,7 +15,7 @@ rustPlatform.buildRustPackage rec {
   src = fetchFromGitHub {
     owner = "quarylabs";
     repo = "sqruff";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-Vlre3D1ydDqFdysf5no2rW2V2U/BimhCeV1vWZ2JPSM=";
   };
 
@@ -23,7 +23,7 @@ rustPlatform.buildRustPackage rec {
 
   buildInputs = [
     rust-jemalloc-sys
-  ] ++ lib.optionals stdenv.isDarwin [ darwin.apple_sdk.frameworks.CoreServices ];
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ darwin.apple_sdk.frameworks.CoreServices ];
 
   # Patch the tests to find the binary
   postPatch = ''

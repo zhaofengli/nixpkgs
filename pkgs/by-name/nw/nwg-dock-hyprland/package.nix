@@ -4,21 +4,22 @@
   fetchFromGitHub,
   pkg-config,
   wrapGAppsHook3,
+  gobject-introspection,
   gtk-layer-shell,
 }:
 
 buildGoModule rec {
   pname = "nwg-dock-hyprland";
-  version = "0.3.2";
+  version = "0.4.2";
 
   src = fetchFromGitHub {
     owner = "nwg-piotr";
     repo = "nwg-dock-hyprland";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-Vp8JmRQf71vezdknzifxlK7zTlorwiEHsyXpmy6mxIE=";
+    tag = "v${version}";
+    hash = "sha256-MujQMrqyxKl32cIzy7JHDeUIDEqDzFp6mr7pM3y9xng=";
   };
 
-  vendorHash = "sha256-RBU0l4YRtV5JPH1dLT+lZ05jmxRwyn3glMUKHw1Eg8g=";
+  vendorHash = "sha256-cAfKmcBf2hu3eP6a4ELEeNyPOYXi3chLkbHKFks14I0=";
 
   ldflags = [
     "-s"
@@ -26,6 +27,7 @@ buildGoModule rec {
   ];
 
   nativeBuildInputs = [
+    gobject-introspection
     pkg-config
     wrapGAppsHook3
   ];

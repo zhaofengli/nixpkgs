@@ -7,23 +7,23 @@
   lib,
   nix-update,
   nodejs,
-  pnpm,
+  pnpm_9,
   stdenv,
   writeShellScript,
   buildWebExtension ? false,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "vencord";
-  version = "1.10.6";
+  version = "1.10.9";
 
   src = fetchFromGitHub {
     owner = "Vendicated";
     repo = "Vencord";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-Pp8QpagTgWWHoC+e/iGfEveQYuMDDX7Oz1IAUx8cp3A=";
+    hash = "sha256-sU2eJUUw7crvzMGGBQP6rbxISkL+S5nmT3QspyYXlRQ=";
   };
 
-  pnpmDeps = pnpm.fetchDeps {
+  pnpmDeps = pnpm_9.fetchDeps {
     inherit (finalAttrs) pname src;
 
     hash = "sha256-vVzERis1W3QZB/i6SQR9dQR56yDWadKWvFr+nLTQY9Y=";
@@ -32,7 +32,7 @@ stdenv.mkDerivation (finalAttrs: {
   nativeBuildInputs = [
     git
     nodejs
-    pnpm.configHook
+    pnpm_9.configHook
   ];
 
   env = {
@@ -51,8 +51,7 @@ stdenv.mkDerivation (finalAttrs: {
       )
     );
     VENCORD_REMOTE = "${finalAttrs.src.owner}/${finalAttrs.src.repo}";
-    # TODO: somehow update this automatically
-    VENCORD_HASH = "deadbeef";
+    VENCORD_HASH = "${finalAttrs.version}";
   };
 
   buildPhase = ''

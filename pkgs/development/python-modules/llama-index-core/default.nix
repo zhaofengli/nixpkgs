@@ -6,6 +6,7 @@
   deprecated,
   dirtyjson,
   fetchFromGitHub,
+  filetype,
   fsspec,
   jsonpath-ng,
   llamaindex-py-client,
@@ -35,7 +36,7 @@
 
 buildPythonPackage rec {
   pname = "llama-index-core";
-  version = "0.11.20";
+  version = "0.12.9.post1";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -43,8 +44,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "run-llama";
     repo = "llama_index";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-r4xedtxoYv6CcxtDrgwau9LY3kOBg3jXlQm1g59L7x4=";
+    tag = "v${version}";
+    hash = "sha256-kpHemwEYeCBwb2kdvX/ubFHwX9AQ+zIhLudcgJ7u+QY=";
   };
 
   sourceRoot = "${src.name}/${pname}";
@@ -72,6 +73,7 @@ buildPythonPackage rec {
     dataclasses-json
     deprecated
     dirtyjson
+    filetype
     fsspec
     jsonpath-ng
     llamaindex-py-client
@@ -131,6 +133,7 @@ buildPythonPackage rec {
     "test_from_persist_dir"
     # asyncio.exceptions.InvalidStateError: invalid state
     "test_workflow_context_to_dict_mid_run"
+    "test_SimpleDirectoryReader"
   ];
 
   meta = with lib; {

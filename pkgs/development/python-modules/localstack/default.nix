@@ -19,6 +19,7 @@
   rich,
   semver,
   setuptools,
+  setuptools-scm,
   tailer,
 }:
 
@@ -30,11 +31,14 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "localstack";
     repo = "localstack";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-8xdP/qpmfqmXDt1gNhzkAGlBR6dJYznKr9+/Un6N7mA=";
   };
 
-  build-system = [ setuptools ];
+  build-system = [
+    setuptools
+    setuptools-scm
+  ];
 
   dependencies = [
     apispec
