@@ -2594,8 +2594,6 @@ with pkgs;
     inherit (darwin.apple_sdk.frameworks) Security;
   };
 
-  smali2java = callPackage ../development/tools/smali2java { };
-
   steampipePackages = recurseIntoAttrs (
     callPackage ../tools/misc/steampipe-packages { }
   );
