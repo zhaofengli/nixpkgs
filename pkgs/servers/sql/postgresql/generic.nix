@@ -4,15 +4,17 @@ let
     # utils
     {
       stdenv,
+      fetchFromGitHub,
       fetchpatch,
       fetchurl,
       lib,
-      substituteAll,
+      replaceVars,
       writeShellScriptBin,
 
       # source specification
       hash,
       muslPatches ? { },
+      rev,
       version,
 
       # runtime dependencies
@@ -130,9 +132,12 @@ let
       inherit version;
       pname = pname + lib.optionalString jitSupport "-jit";
 
-      src = fetchurl {
-        url = "mirror://postgresql/source/v${version}/${pname}-${version}.tar.bz2";
-        inherit hash;
+      src = fetchFromGitHub {
+        owner = "postgres";
+        repo = "postgres";
+        # rev, not tag, on purpose: allows updating when new versions
+        # are "stamped" a few days before release (tag).
+        inherit hash rev;
       };
 
       __structuredAttrs = true;
@@ -146,51 +151,48 @@ let
         "lib"
         "man"
       ];
-      outputChecks =
-        {
-          out = {
-            disallowedReferences = [
-              "dev"
-              "doc"
-              "man"
-            ];
-            disallowedRequisites = [
-              stdenv'.cc
-              llvmPackages.llvm.out
-            ] ++ (map lib.getDev (builtins.filter (drv: drv ? "dev") finalAttrs.buildInputs));
-          };
-
-          lib = {
-            disallowedReferences = [
-              "out"
-              "dev"
-              "doc"
-              "man"
-            ];
-            disallowedRequisites = [
-              stdenv'.cc
-              llvmPackages.llvm.out
-            ] ++ (map lib.getDev (builtins.filter (drv: drv ? "dev") finalAttrs.buildInputs));
-          };
-        }
-        // lib.optionalAttrs (atLeast "14" && olderThan "15") {
-          # TODO: Make this unconditional via staging because of number of rebuilds.
-          doc = {
-            disallowedReferences = [
-              "out"
-              "dev"
-              "man"
-            ];
-          };
-
-          man = {
-            disallowedReferences = [
-              "out"
-              "dev"
-              "doc"
-            ];
-          };
+      outputChecks = {
+        out = {
+          disallowedReferences = [
+            "dev"
+            "doc"
+            "man"
+          ];
+          disallowedRequisites = [
+            stdenv'.cc
+            llvmPackages.llvm.out
+          ] ++ (map lib.getDev (builtins.filter (drv: drv ? "dev") finalAttrs.buildInputs));
         };
+
+        lib = {
+          disallowedReferences = [
+            "out"
+            "dev"
+            "doc"
+            "man"
+          ];
+          disallowedRequisites = [
+            stdenv'.cc
+            llvmPackages.llvm.out
+          ] ++ (map lib.getDev (builtins.filter (drv: drv ? "dev") finalAttrs.buildInputs));
+        };
+
+        doc = {
+          disallowedReferences = [
+            "out"
+            "dev"
+            "man"
+          ];
+        };
+
+        man = {
+          disallowedReferences = [
+            "out"
+            "dev"
+            "doc"
+          ];
+        };
+      };
 
       strictDeps = true;
 
@@ -218,22 +220,20 @@ let
 
       nativeBuildInputs =
         [
+          bison
+          docbook-xsl-nons
+          docbook_xml_dtd_45
+          flex
           libxml2
+          libxslt
           makeWrapper
+          perl
           pkg-config
           removeReferencesTo
         ]
         ++ lib.optionals jitSupport [
           llvmPackages.llvm.dev
           nukeReferences
-        ]
-        ++ lib.optionals (atLeast "17") [
-          bison
-          flex
-          perl
-          docbook_xml_dtd_45
-          docbook-xsl-nons
-          libxslt
         ];
 
       enableParallelBuilding = true;
@@ -247,9 +247,11 @@ let
       # flags will remove unused sections from all shared libraries and binaries - including
       # those paths. This avoids a lot of circular dependency problems with different outputs,
       # and allows splitting them cleanly.
-      env.CFLAGS =
-        "-fdata-sections -ffunction-sections"
-        + (if stdenv'.cc.isClang then " -flto" else " -fmerge-constants -Wl,--gc-sections");
+      env = {
+        CFLAGS =
+          "-fdata-sections -ffunction-sections"
+          + (if stdenv'.cc.isClang then " -flto" else " -fmerge-constants -Wl,--gc-sections");
+      } // lib.optionalAttrs pythonSupport { PYTHON = "${python3}/bin/python"; };
 
       configureFlags =
         let
@@ -300,8 +302,7 @@ let
           ./patches/paths-for-split-outputs.patch
           ./patches/paths-with-postgresql-suffix.patch
 
-          (substituteAll {
-            src = ./patches/locale-binary-path.patch;
+          (replaceVars ./patches/locale-binary-path.patch {
             locale = "${
               if stdenv.hostPlatform.isDarwin then darwin.adv_cmds else lib.getBin stdenv.cc.libc
             }/bin/locale";
@@ -378,18 +379,28 @@ let
             --replace-fail '-bundle_loader $(bindir)/postgres' "-bundle_loader $out/bin/postgres"
         '';
 
-      postFixup = lib.optionalString stdenv'.hostPlatform.isGnu ''
-        # initdb needs access to "locale" command from glibc.
-        wrapProgram $out/bin/initdb --prefix PATH ":" ${glibc.bin}/bin
-      '';
+      postFixup =
+        lib.optionalString stdenv'.hostPlatform.isGnu ''
+          # initdb needs access to "locale" command from glibc.
+          wrapProgram $out/bin/initdb --prefix PATH ":" ${glibc.bin}/bin
+        ''
+        + lib.optionalString pythonSupport ''
+          wrapProgram "$out/bin/postgres" --set PYTHONPATH "${python3}/${python3.sitePackages}"
+        '';
 
       # Running tests as "install check" to work around SIP issue on macOS:
       # https://www.postgresql.org/message-id/flat/4D8E1BC5-BBCF-4B19-8226-359201EA8305%40gmail.com
       # Also see <nixpkgs>/doc/stdenv/platform-notes.chapter.md
       doCheck = false;
-      # Tests just get stuck on macOS 14.x for v13 and v14
       doInstallCheck =
-        !(stdenv'.hostPlatform.isDarwin && olderThan "15") && !(stdenv'.hostPlatform.isStatic);
+        !(stdenv'.hostPlatform.isStatic)
+        &&
+          # Tests just get stuck on macOS 14.x for v13 and v14
+          !(stdenv'.hostPlatform.isDarwin && olderThan "15")
+        &&
+          # Likely due to rosetta emulation:
+          #   FATAL:  could not create shared memory segment: Cannot allocate memory
+          !(stdenv'.hostPlatform.isDarwin && stdenv'.hostPlatform.isx86_64);
       installCheckTarget = "check-world";
 
       passthru =

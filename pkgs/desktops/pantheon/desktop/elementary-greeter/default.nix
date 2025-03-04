@@ -3,7 +3,7 @@
 , fetchFromGitHub
 , nix-update-script
 , linkFarm
-, substituteAll
+, replaceVars
 , elementary-greeter
 , pkg-config
 , meson
@@ -31,20 +31,19 @@
 
 stdenv.mkDerivation rec {
   pname = "elementary-greeter";
-  version = "8.0.0";
+  version = "8.0.1";
 
   src = fetchFromGitHub {
     owner = "elementary";
     repo = "greeter";
     rev = version;
-    sha256 = "sha256-fx3KHMF6UhIFXyJHQ4dKJnVidsNMBk7AvHzaF3ELH1k=";
+    sha256 = "sha256-T/tI8WRVbTLdolDYa98M2Vm26p0xhGiai74lXAlpQ8k=";
   };
 
   patches = [
     ./sysconfdir-install.patch
     # Needed until https://github.com/elementary/greeter/issues/360 is fixed
-    (substituteAll {
-      src = ./hardcode-fallback-background.patch;
+    (replaceVars ./hardcode-fallback-background.patch {
       default_wallpaper = "${nixos-artwork.wallpapers.simple-dark-gray.gnomeFilePath}";
     })
   ];

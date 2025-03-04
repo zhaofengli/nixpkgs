@@ -10,7 +10,6 @@ let
   cfg = config.services.wyoming.faster-whisper;
 
   inherit (lib)
-    escapeShellArgs
     mkOption
     mkEnableOption
     mkPackageOption
@@ -240,7 +239,6 @@ in
                 description = ''
                   Extra arguments to pass to the server commandline.
                 '';
-                apply = escapeShellArgs;
               };
             };
           }
@@ -277,18 +275,13 @@ in
           serviceConfig = {
             DynamicUser = true;
             User = "wyoming-faster-whisper";
-            StateDirectory = [
-              "wyoming/faster-whisper"
-              "wyoming/faster-whisper/models"
-            ];
+            StateDirectory = [ "wyoming/faster-whisper" ];
             # https://github.com/home-assistant/addons/blob/master/whisper/rootfs/etc/s6-overlay/s6-rc.d/whisper/run
             ExecStart = escapeSystemdExecArgs (
               [
                 (lib.getExe cfg.package)
                 "--data-dir"
                 "/var/lib/wyoming/faster-whisper"
-                "--download-dir"
-                "/var/lib/wyoming/faster-whisper/models"
                 "--uri"
                 options.uri
                 "--device"

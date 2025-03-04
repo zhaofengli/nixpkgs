@@ -8,16 +8,16 @@
 
 buildNpmPackage rec {
   pname = "repomix";
-  version = "0.2.15";
+  version = "0.2.29";
 
   src = fetchFromGitHub {
     owner = "yamadashy";
     repo = "repomix";
     tag = "v${version}";
-    hash = "sha256-mtZkp5GZSI/3N0xe3SLaYyHDM+ncnKDjShUqAoUa13s=";
+    hash = "sha256-AOqGmI5hnDA18/+uFGQwVKdLniOvGMEBKHTZJa5gE2w=";
   };
 
-  npmDepsHash = "sha256-F6XbNIzuRyLMQzlOoaRW/x1N4y5WbXS57zzYfhdK/jU=";
+  npmDepsHash = "sha256-R/NTlU5ljwmoGHB/5wPADkGx8xjfF4d2bPWWkAr+VOk=";
 
   nativeInstallCheckInputs = [ versionCheckHook ];
   doInstallCheck = true;
@@ -37,7 +37,7 @@ buildNpmPackage rec {
     homepage = "https://github.com/yamadashy/repomix";
     changelog = "https://github.com/yamadashy/repomix/releases/tag/v${version}";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ thinnerthinker ];
+    maintainers = with lib.maintainers; [ boralg ];
     mainProgram = "repomix";
   };
 }

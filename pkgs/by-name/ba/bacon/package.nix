@@ -3,28 +3,58 @@
   stdenv,
   rustPlatform,
   fetchFromGitHub,
+  pkg-config,
+  alsa-lib,
   versionCheckHook,
+  bacon,
   nix-update-script,
+
+  withSound ? false,
 }:
 
-rustPlatform.buildRustPackage rec {
+let
+  soundDependencies =
+    lib.optionals stdenv.hostPlatform.isLinux [
+      alsa-lib
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      # bindgenHook is only included on darwin as it is needed to build `coreaudio-sys`, a darwin-specific crate
+      rustPlatform.bindgenHook
+    ];
+in
+
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "bacon";
-  version = "3.7.0";
+  version = "3.11.0";
 
   src = fetchFromGitHub {
     owner = "Canop";
     repo = "bacon";
-    tag = "v${version}";
-    hash = "sha256-pw+EfmpDvMCKSHOeHiv06x13/tRuf053Zcj8z0eWnPs=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-yFU4U1TWoumg61Vs6F5Gqz22VuI2Qs0IRz/TPGBYX4E=";
   };
 
-  cargoHash = "sha256-W1bDZSUBjPmb/7bOnE+E5byA0clJZ+qGJ4XYASAjfeU=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-g8DWFhgguxPked7kCCsmUPXzRqu5DaPopoxORBl4/1o=";
+
+  buildFeatures = lib.optionals withSound [
+    "sound"
+  ];
+
+  nativeBuildInputs = lib.optionals withSound [
+    pkg-config
+  ];
+
+  buildInputs = lib.optionals withSound soundDependencies;
 
   nativeInstallCheckInputs = [ versionCheckHook ];
   versionCheckProgramArg = [ "--version" ];
   doInstallCheck = true;
 
   passthru = {
+    tests = {
+      withSound = bacon.override { withSound = true; };
+    };
     updateScript = nix-update-script { };
   };
 
@@ -32,11 +62,11 @@ rustPlatform.buildRustPackage rec {
     description = "Background rust code checker";
     mainProgram = "bacon";
     homepage = "https://github.com/Canop/bacon";
-    changelog = "https://github.com/Canop/bacon/blob/v${version}/CHANGELOG.md";
+    changelog = "https://github.com/Canop/bacon/blob/v${finalAttrs.version}/CHANGELOG.md";
     license = lib.licenses.agpl3Only;
     maintainers = with lib.maintainers; [
       FlorianFranzen
       matthiasbeyer
     ];
   };
-}
+})

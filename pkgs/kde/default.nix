@@ -5,7 +5,6 @@
   fetchurl,
   libsForQt5,
   qt6Packages,
-  stdenv,
   cmark,
   gpgme,
   taglib,
@@ -94,6 +93,7 @@ let
         koi = self.callPackage ./third-party/koi { };
         krohnkite = self.callPackage ./third-party/krohnkite { };
         kzones = self.callPackage ./third-party/kzones { };
+        wallpaper-engine-plugin = self.callPackage ./third-party/wallpaper-engine-plugin { };
       }
     );
 in

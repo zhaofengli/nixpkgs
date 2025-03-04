@@ -1,5 +1,6 @@
 {
   lib,
+  stdenv,
   buildPythonPackage,
   fetchFromGitHub,
 
@@ -28,14 +29,14 @@
 
 buildPythonPackage rec {
   pname = "numpyro";
-  version = "0.16.1";
+  version = "0.17.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "pyro-ppl";
     repo = "numpyro";
     tag = version;
-    hash = "sha256-6i7LPdmMakGeLujhA9d7Ep9oiVcND3ni/jzUkqgEqxw=";
+    hash = "sha256-S5A5wBb2ZMxpLvP/EYahdg2BqgzKGvnzvZOII76O/+w=";
   };
 
   build-system = [ setuptools ];
@@ -75,40 +76,33 @@ buildPythonPackage rec {
     "ignore::UserWarning"
   ];
 
-  disabledTests = [
-    # jax.errors.UnexpectedTracerError: Encountered an unexpected tracer
-    "test_haiku_state_dropout_smoke"
-    "test_flax_state_dropout_smoke"
+  disabledTests =
+    [
+      # AssertionError due to tolerance issues
+      "test_bijective_transforms"
+      "test_cpu"
+      "test_entropy_categorical"
+      "test_gaussian_model"
 
-    # AssertionError due to tolerance issues
-    "test_beta_binomial_log_prob"
-    "test_collapse_beta"
-    "test_cpu"
-    "test_gamma_poisson"
-    "test_gof"
-    "test_hpdi"
-    "test_kl_dirichlet_dirichlet"
-    "test_kl_univariate"
-    "test_mean_var"
+      # >       with pytest.warns(UserWarning, match="Hessian of log posterior"):
+      # E       Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.
+      # E        Emitted warnings: [].
+      "test_laplace_approximation_warning"
 
-    # Tests want to download data
-    "data_load"
-    "test_jsb_chorales"
+      # Tests want to download data
+      "data_load"
+      "test_jsb_chorales"
 
-    # RuntimeWarning: overflow encountered in cast
-    "test_zero_inflated_logits_probs_agree"
+      # ValueError: compiling computation that requires 2 logical devices, but only 1 XLA devices are available (num_replicas=2)
+      "test_chain"
 
-    # NameError: unbound axis name: _provenance
-    "test_model_transformation"
-
-    # ValueError: compiling computation that requires 2 logical devices, but only 1 XLA devices are available (num_replicas=2)
-    "test_chain"
-  ];
-
-  disabledTestPaths = [
-    # require jaxns (unpackaged)
-    "test/contrib/test_nested_sampling.py"
-  ];
+      # test_biject_to[CorrMatrix()-(15,)] - assert Array(False, dtype=bool)
+      "test_biject_to"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      # AssertionError: Not equal to tolerance rtol=0.06, atol=0
+      "test_functional_map"
+    ];
 
   meta = {
     description = "Library for probabilistic programming with NumPy";

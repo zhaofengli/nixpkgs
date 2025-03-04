@@ -214,8 +214,10 @@ let
         });
 
         erlang = super.erlang.overrideAttrs (attrs: {
-          buildInputs = attrs.buildInputs ++ [
+          nativeBuildInputs = attrs.nativeBuildInputs or [ ] ++ [
             pkgs.perl
+          ];
+          buildInputs = attrs.buildInputs or [ ] ++ [
             pkgs.ncurses
           ];
         });
@@ -316,9 +318,7 @@ let
         });
 
         # tries to write a log file to $HOME
-        insert-shebang = super.insert-shebang.overrideAttrs (attrs: {
-          HOME = "/tmp";
-        });
+        insert-shebang = mkHome super.insert-shebang;
 
         ivy-rtags = ignoreCompilationError (fix-rtags super.ivy-rtags); # elisp error
 
@@ -447,7 +447,8 @@ let
 
         magit-circleci = buildWithGit super.magit-circleci;
 
-        magit-delta = buildWithGit super.magit-delta;
+        # https://github.com/dandavison/magit-delta/issues/30
+        magit-delta = addPackageRequires (buildWithGit super.magit-delta) [ self.dash ];
 
         orgit = buildWithGit super.orgit;
 
@@ -595,11 +596,13 @@ let
             export EZMQ_LIBDIR=$(mktemp -d)
             make
           '';
-          nativeBuildInputs = old.nativeBuildInputs ++ [
+          nativeBuildInputs = old.nativeBuildInputs or [ ] ++ [
             pkgs.autoconf
             pkgs.automake
             pkgs.pkg-config
             pkgs.libtool
+          ];
+          buildInputs = old.buildInputs or [ ] ++ [
             (pkgs.zeromq.override { enableDrafts = true; })
           ];
           postInstall = (old.postInstall or "") + "\n" + ''
@@ -665,9 +668,7 @@ let
         helm-rtags = ignoreCompilationError (fix-rtags super.helm-rtags); # elisp error
 
         # tries to write to $HOME
-        php-auto-yasnippets = super.php-auto-yasnippets.overrideAttrs (attrs: {
-          HOME = "/tmp";
-        });
+        php-auto-yasnippets = mkHome super.php-auto-yasnippets;
 
         racer = super.racer.overrideAttrs (attrs: {
           postPatch = attrs.postPatch or "" + ''
@@ -956,11 +957,18 @@ let
         # missing optional dependencies
         conda = addPackageRequires super.conda [ self.projectile ];
 
-        consult-gh = super.consult-gh.overrideAttrs (old: {
-          propagatedUserEnvPkgs = old.propagatedUserEnvPkgs or [ ] ++ [ pkgs.gh ];
-        });
+        # needs network during compilation, also native-ice
+        consult-gh = ignoreCompilationError (
+          super.consult-gh.overrideAttrs (old: {
+            propagatedUserEnvPkgs = old.propagatedUserEnvPkgs or [ ] ++ [ pkgs.gh ];
+          })
+        );
 
-        consult-gh-forge = buildWithGit super.consult-gh-forge;
+        # needs network during compilation
+        consult-gh-embark = ignoreCompilationError super.consult-gh-embark;
+
+        # needs network during compilation
+        consult-gh-forge = ignoreCompilationError (buildWithGit super.consult-gh-forge);
 
         counsel-gtags = ignoreCompilationError super.counsel-gtags; # elisp error
 
@@ -974,14 +982,19 @@ let
 
         cssh = ignoreCompilationError super.cssh; # elisp error
 
-        dap-mode = super.dap-mode.overrideAttrs (old: {
-          # empty file causing native-compiler-error-empty-byte
-          preBuild =
-            ''
-              rm --verbose dapui.el
-            ''
-            + old.preBuild or "";
-        });
+        dap-mode = super.dap-mode.overrideAttrs (
+          finalAttrs: previousAttrs: {
+            # empty file causing native-compiler-error-empty-byte
+            preBuild =
+              if lib.versionOlder finalAttrs.version "20250131.1624" then
+                ''
+                  rm --verbose dapui.el
+                ''
+                + previousAttrs.preBuild or ""
+              else
+                previousAttrs.preBuild or null;
+          }
+        );
 
         db-pg = ignoreCompilationError super.db-pg; # elisp error
 
@@ -1136,6 +1149,8 @@ let
         );
 
         fxrd-mode = ignoreCompilationError super.fxrd-mode; # elisp error
+
+        gams-ac = ignoreCompilationError super.gams-ac; # need gams in PATH during compilation
 
         # missing optional dependencies
         gap-mode = addPackageRequires super.gap-mode [
@@ -1312,7 +1327,7 @@ let
         mastodon = ignoreCompilationError super.mastodon; # elisp error
 
         # https://github.com/org2blog/org2blog/issues/339
-        metaweblog = addPackageRequires super.metaweblog [ self.xml-rpc ];
+        metaweblog = addPackageRequiresIfOlder super.metaweblog [ self.xml-rpc ] "20250204.1820";
 
         mu-cite = ignoreCompilationError super.mu-cite; # elisp error
 
@@ -1398,7 +1413,7 @@ let
         org-gtd = ignoreCompilationError super.org-gtd; # elisp error
 
         # needs newer org than the Eamcs 29.4 builtin one
-        org-link-beautify = addPackageRequires super.org-link-beautify [ self.org ];
+        org-link-beautify = addPackageRequires super.org-link-beautify [ self.org self.qrencode ];
 
         # TODO report to upstream
         org-kindle = addPackageRequires super.org-kindle [ self.dash ];
@@ -1478,6 +1493,8 @@ let
 
         # https://github.com/polymode/poly-R/issues/41
         poly-R = addPackageRequires super.poly-R [ self.ess ];
+
+        poly-gams = ignoreCompilationError super.poly-gams; # need gams in PATH during compilation
 
         # missing optional dependencies: direx e2wm yaol, yaol not on any ELPA
         pophint = ignoreCompilationError super.pophint;
@@ -1595,6 +1612,8 @@ let
         tommyh-theme = ignoreCompilationError super.tommyh-theme; # elisp error
 
         tramp-hdfs = ignoreCompilationError super.tramp-hdfs; # elisp error
+
+        twtxt = ignoreCompilationError super.twtxt; # needs to read ~/twtxt.txt
 
         universal-emotions-emoticons = ignoreCompilationError super.universal-emotions-emoticons; # elisp error
 

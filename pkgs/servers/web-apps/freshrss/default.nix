@@ -8,23 +8,26 @@
 
 stdenvNoCC.mkDerivation rec {
   pname = "FreshRSS";
-  version = "1.25.0";
+  version = "1.26.0";
 
   src = fetchFromGitHub {
     owner = "FreshRSS";
     repo = "FreshRSS";
     rev = version;
-    hash = "sha256-jBIU8xxXsl/67sebo8MS59Q0dWBTe0tO+xpVf1/uo0c=";
+    hash = "sha256-J3YYx2enB8NHxgWUcJHStd5LkGRIB6dx3avbjhyIs3Q=";
   };
 
   postPatch = ''
     patchShebangs cli/*.php app/actualize_script.php
   '';
 
-  # the thirdparty_extension_path can only be set by config, but should be read by an env-var.
+  # THIRDPARTY_EXTENSIONS_PATH can only be set by config, but should be read from an env-var.
   overrideConfig = writeText "constants.local.php" ''
     <?php
-      define('THIRDPARTY_EXTENSIONS_PATH', getenv('THIRDPARTY_EXTENSIONS_PATH') . '/extensions');
+      $thirdpartyExtensionsPath = getenv('THIRDPARTY_EXTENSIONS_PATH');
+      if (is_string($thirdpartyExtensionsPath) && $thirdpartyExtensionsPath !== "") {
+        define('THIRDPARTY_EXTENSIONS_PATH', $thirdpartyExtensionsPath . '/extensions');
+      }
   '';
 
   buildInputs = [ php ];

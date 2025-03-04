@@ -54,7 +54,12 @@ makeScopeWithSplicing' {
 
   futuresql = callPackage ../development/libraries/futuresql { };
   kquickimageedit = callPackage ../development/libraries/kquickimageedit { };
+
+  libiodata = callPackage ../development/libraries/libiodata { };
+
   libqaccessibilityclient = callPackage ../development/libraries/libqaccessibilityclient { };
+
+  libqglviewer = callPackage ../development/libraries/libqglviewer { };
 
   libqtpas = callPackage ../development/compilers/fpc/libqtpas.nix { };
 
@@ -98,7 +103,7 @@ makeScopeWithSplicing' {
   qtspell = callPackage ../development/libraries/qtspell { };
 
   qwlroots = callPackage ../development/libraries/qwlroots {
-    wlroots = pkgs.wlroots_0_17;
+    wlroots = pkgs.wlroots_0_18;
   };
 
   qxlsx = callPackage ../development/libraries/qxlsx { };
@@ -111,6 +116,8 @@ makeScopeWithSplicing' {
     suffix = "qt6";
   };
 
+  sailfish-access-control-plugin = callPackage ../development/libraries/sailfish-access-control-plugin { };
+
   # Not a library, but we do want it to be built for every qt version there
   # is, to allow users to choose the right build if needed.
   sddm = kdePackages.callPackage ../applications/display-managers/sddm {};
@@ -118,6 +125,8 @@ makeScopeWithSplicing' {
   sierra-breeze-enhanced = kdePackages.callPackage ../data/themes/kwin-decorations/sierra-breeze-enhanced { };
 
   signond = callPackage ../development/libraries/signond {};
+
+  timed = callPackage ../applications/system/timed { };
 
   waylib = callPackage ../development/libraries/waylib { };
 

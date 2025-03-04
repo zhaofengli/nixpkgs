@@ -16,18 +16,30 @@ in
 
 stdenv.mkDerivation rec {
   pname = "sqlite${lib.optionalString interactive "-interactive"}";
-  version = "3.47.0";
+  version = "3.48.0";
 
   # nixpkgs-update: no auto update
   # NB! Make sure to update ./tools.nix src (in the same directory).
   src = fetchurl {
-    url = "https://sqlite.org/2024/sqlite-autoconf-${archiveVersion version}.tar.gz";
-    hash = "sha256-g+shpvamSfUG34vTqrhaCPdVbO7V29jep0PqAD/DqVc=";
+    url = "https://sqlite.org/2025/sqlite-autoconf-${archiveVersion version}.tar.gz";
+    hash = "sha256-rJkvf8o5id5+0f6ZwWNj+Eh5TIwyoVja/U65J6LgL9U=";
   };
   docsrc = fetchurl {
-    url = "https://sqlite.org/2024/sqlite-doc-${archiveVersion version}.zip";
-    hash = "sha256-3yXJb6+4Cck7jhwlxs/XSPRJ99SmV+jBJNOO/v5Ws04=";
+    url = "https://sqlite.org/2025/sqlite-doc-${archiveVersion version}.zip";
+    hash = "sha256-PcE3/NfGrLMmr2CmG5hE3RXTdzywXnqc4nbEH3E9dlo=";
   };
+
+  patches = [
+    # https://sqlite.org/forum/forumpost/3380558ea82c8a3e
+    # Can be removed with the next release.
+    # Test: pkgsStatic.gnupg
+    ./Libs.private.patch
+
+    # https://sqlite.org/forum/forumpost/00f3aab3d3be9690
+    # https://sqlite.org/src/info/d7c07581
+    # TODO: Remove in 3.49.0
+    ./3.48.0-fk-conflict-handling.patch
+  ];
 
   outputs = [ "bin" "dev" "man" "doc" "out" ];
   separateDebugInfo = stdenv.hostPlatform.isLinux;
@@ -51,7 +63,9 @@ stdenv.mkDerivation rec {
     "-DSQLITE_ENABLE_FTS3_TOKENIZER"
     "-DSQLITE_ENABLE_FTS4"
     "-DSQLITE_ENABLE_FTS5"
+    "-DSQLITE_ENABLE_PREUPDATE_HOOK"
     "-DSQLITE_ENABLE_RTREE"
+    "-DSQLITE_ENABLE_SESSION"
     "-DSQLITE_ENABLE_STMT_SCANSTATUS"
     "-DSQLITE_ENABLE_UNLOCK_NOTIFY"
     "-DSQLITE_SOUNDEX"
@@ -84,9 +98,6 @@ stdenv.mkDerivation rec {
   '';
 
   postInstall = ''
-    # Do not contaminate dependent libtool-based projects with sqlite dependencies.
-    sed -i $out/lib/libsqlite3.la -e "s/dependency_libs=.*/dependency_libs='''/"
-
     mkdir -p $doc/share/doc
     unzip $docsrc
     mv sqlite-doc-${archiveVersion version} $doc/share/doc/sqlite

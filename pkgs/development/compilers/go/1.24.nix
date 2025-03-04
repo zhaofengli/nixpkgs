@@ -3,7 +3,7 @@
   stdenv,
   fetchurl,
   tzdata,
-  substituteAll,
+  replaceVars,
   iana-etc,
   xcbuild,
   mailcap,
@@ -49,11 +49,11 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "go";
-  version = "1.24rc1";
+  version = "1.24.0";
 
   src = fetchurl {
     url = "https://go.dev/dl/go${finalAttrs.version}.src.tar.gz";
-    hash = "sha256-r9iiP9Jg8qJG0XQEmgdrigW7C62T8SIHaNIZuL33U50=";
+    hash = "sha256-0UEgYUrLKdEryrcr1onyV+tL6eC2+IqPt+Qaxl+FVuU=";
   };
 
   strictDeps = true;
@@ -75,24 +75,21 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   patches = [
-    (substituteAll {
-      src = ./iana-etc-1.17.patch;
+    (replaceVars ./iana-etc-1.17.patch {
       iana = iana-etc;
     })
     # Patch the mimetype database location which is missing on NixOS.
     # but also allow static binaries built with NixOS to run outside nix
-    (substituteAll {
-      src = ./mailcap-1.17.patch;
+    (replaceVars ./mailcap-1.17.patch {
       inherit mailcap;
     })
     # prepend the nix path to the zoneinfo files but also leave the original value for static binaries
     # that run outside a nix server
-    (substituteAll {
-      src = ./tzdata-1.19.patch;
+    (replaceVars ./tzdata-1.19.patch {
       inherit tzdata;
     })
     ./remove-tools-1.11.patch
-    ./go_no_vendor_checks-1.22.patch
+    ./go_no_vendor_checks-1.23.patch
   ];
 
   GOOS = if stdenv.targetPlatform.isWasi then "wasip1" else stdenv.targetPlatform.parsed.kernel.name;

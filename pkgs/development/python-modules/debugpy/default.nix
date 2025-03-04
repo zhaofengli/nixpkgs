@@ -5,7 +5,7 @@
   pythonOlder,
   pythonAtLeast,
   fetchFromGitHub,
-  substituteAll,
+  replaceVars,
   gdb,
   lldb,
   pytestCheckHook,
@@ -24,7 +24,7 @@
 
 buildPythonPackage rec {
   pname = "debugpy";
-  version = "1.8.11";
+  version = "1.8.12";
   format = "setuptools";
 
   disabled = pythonOlder "3.8";
@@ -33,14 +33,13 @@ buildPythonPackage rec {
     owner = "microsoft";
     repo = "debugpy";
     tag = "v${version}";
-    hash = "sha256-C/cLUMQNmiLn3z93LOg++3WeDUihMR9O3XKouL4uPqw=";
+    hash = "sha256-9hkHvanetjZ3Rww3DdTEcij47DgzhTRTk2rrtrJiQBU=";
   };
 
   patches =
     [
       # Use nixpkgs version instead of versioneer
-      (substituteAll {
-        src = ./hardcode-version.patch;
+      (replaceVars ./hardcode-version.patch {
         inherit version;
       })
 
@@ -62,15 +61,13 @@ buildPythonPackage rec {
     ]
     ++ lib.optionals stdenv.hostPlatform.isLinux [
       # Hard code GDB path (used to attach to process)
-      (substituteAll {
-        src = ./hardcode-gdb.patch;
+      (replaceVars ./hardcode-gdb.patch {
         inherit gdb;
       })
     ]
     ++ lib.optionals stdenv.hostPlatform.isDarwin [
       # Hard code LLDB path (used to attach to process)
-      (substituteAll {
-        src = ./hardcode-lldb.patch;
+      (replaceVars ./hardcode-lldb.patch {
         inherit lldb;
       })
     ];

@@ -21,7 +21,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "mvfst";
-  version = "2024.11.18.00";
+  version = "2025.02.10.00";
 
   outputs = [
     "bin"
@@ -33,8 +33,12 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "facebook";
     repo = "mvfst";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-2Iqk6QshM8fVO65uIqrTbex7aj8ELNSzNseYEeNdzCY=";
+    hash = "sha256-IsBydt1T33yedlaoyKl43fB7Dsuu4RPPiJuUtwZIUGg=";
   };
+
+  patches = [
+    ./glog-0.7.patch
+  ];
 
   nativeBuildInputs = [
     cmake

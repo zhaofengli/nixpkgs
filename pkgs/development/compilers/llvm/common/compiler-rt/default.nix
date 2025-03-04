@@ -26,7 +26,7 @@
 # In recent releases, the compiler-rt build seems to produce
 # many `libclang_rt*` libraries, but not a single unified
 # `libcompiler_rt` library, at least under certain configurations. Some
-# platforms stil expect this, however, so we symlink one into place.
+# platforms still expect this, however, so we symlink one into place.
 , forceLinkCompilerRt ? stdenv.hostPlatform.isOpenBSD
 , devExtraCmakeFlags ? []
 }:
@@ -148,22 +148,22 @@ stdenv.mkDerivation {
 
   postPatch = lib.optionalString (!stdenv.hostPlatform.isDarwin) ''
     substituteInPlace cmake/builtin-config-ix.cmake \
-      --replace 'set(X86 i386)' 'set(X86 i386 i486 i586 i686)'
+      --replace-fail 'set(X86 i386)' 'set(X86 i386 i486 i586 i686)'
   '' + lib.optionalString (!haveLibc) ((lib.optionalString (lib.versions.major release_version == "18") ''
     substituteInPlace lib/builtins/aarch64/sme-libc-routines.c \
-      --replace "<stdlib.h>" "<stddef.h>"
+      --replace-fail "<stdlib.h>" "<stddef.h>"
   '') + ''
     substituteInPlace lib/builtins/int_util.c \
-      --replace "#include <stdlib.h>" ""
+      --replace-fail "#include <stdlib.h>" ""
   '' + (lib.optionalString (!stdenv.hostPlatform.isFreeBSD)
     # On FreeBSD, assert/static_assert are macros and allowing them to be implicitly declared causes link errors.
     # see description above for why we're nuking assert.h normally but that doesn't work here.
     # instead, we add the freebsd.include dependency explicitly
     ''
     substituteInPlace lib/builtins/clear_cache.c \
-      --replace "#include <assert.h>" ""
+      --replace-fail "#include <assert.h>" ""
     substituteInPlace lib/builtins/cpu_model${lib.optionalString (lib.versionAtLeast release_version "18") "/x86"}.c \
-      --replace "#include <assert.h>" ""
+      --replace-fail "#include <assert.h>" ""
   '')) + lib.optionalString (lib.versionAtLeast release_version "13" && lib.versionOlder release_version "14") ''
     # https://github.com/llvm/llvm-project/blob/llvmorg-14.0.6/libcxx/utils/merge_archives.py
     # Seems to only be used in v13 though it's present in v12 and v14, and dropped in v15.
@@ -188,7 +188,7 @@ stdenv.mkDerivation {
     )
   '';
 
-  # Hack around weird upsream RPATH bug
+  # Hack around weird upstream RPATH bug
   postInstall = lib.optionalString (stdenv.hostPlatform.isDarwin) ''
     ln -s "$out/lib"/*/* "$out/lib"
   '' + lib.optionalString (useLLVM && stdenv.hostPlatform.isLinux) ''
@@ -226,7 +226,7 @@ stdenv.mkDerivation {
       # compiler-rt requires a Clang stdenv on 32-bit RISC-V:
       # https://reviews.llvm.org/D43106#1019077
       (stdenv.hostPlatform.isRiscV32 && !stdenv.cc.isClang)
-      # emutls wants `<pthread.h>` which isn't avaiable (without exeprimental WASM threads proposal).
+      # emutls wants `<pthread.h>` which isn't available (without experimental WASM threads proposal).
       # `enable_execute_stack.c` Also doesn't sound like something WASM would support.
       || (stdenv.hostPlatform.isWasm && haveLibc);
   };

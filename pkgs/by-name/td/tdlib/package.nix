@@ -10,6 +10,7 @@
   writeShellApplication,
   common-updater-scripts,
   jq,
+  buildPackages,
 }:
 
 let
@@ -35,7 +36,7 @@ in
 
 stdenv.mkDerivation {
   pname = "tdlib";
-  version = "1.8.42";
+  version = "1.8.45";
 
   src = fetchFromGitHub {
     owner = "tdlib";
@@ -44,17 +45,33 @@ stdenv.mkDerivation {
     # The tdlib authors do not set tags for minor versions, but
     # external programs depending on tdlib constrain the minor
     # version, hence we set a specific commit with a known version.
-    rev = "ef580cd3dd0e5223c2be503342dc29e128be866e";
-    hash = "sha256-k1YQpQXYmEdoiyWeAcj2KRU+BcWuWbHpd4etxLspEoo=";
+    rev = "8e29c4d7d21db3ab2c7a88c384626e95ef789f61";
+    hash = "sha256-R/OkKj65PEDrFOTvybv3tQ/cyqBZDzusnd5RJgrgspo=";
   };
 
   buildInputs = [
-    gperf
     openssl
     readline
     zlib
   ];
-  nativeBuildInputs = [ cmake ];
+
+  nativeBuildInputs = [
+    cmake
+    gperf
+  ];
+
+  depsBuildBuild = [ buildPackages.stdenv.cc ];
+
+  preConfigure = lib.optionalString (stdenv.buildPlatform != stdenv.hostPlatform) ''
+    cmake -B native-build \
+      -DCMAKE_C_COMPILER=$CC_FOR_BUILD \
+      -DCMAKE_CXX_COMPILER=$CXX_FOR_BUILD \
+      -DCMAKE_AR=$(command -v $AR_FOR_BUILD) \
+      -DCMAKE_RANLIB=$(command -v $RANLIB_FOR_BUILD) \
+      -DCMAKE_STRIP=$(command -v $STRIP_FOR_BUILD) \
+      -DTD_GENERATE_SOURCE_FILES=ON .
+    cmake --build native-build -j $NIX_BUILD_CORES
+  '';
 
   # https://github.com/tdlib/td/issues/1974
   postPatch =

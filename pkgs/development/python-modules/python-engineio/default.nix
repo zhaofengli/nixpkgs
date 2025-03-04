@@ -20,7 +20,7 @@
 
 buildPythonPackage rec {
   pname = "python-engineio";
-  version = "4.11.1";
+  version = "4.11.2";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -29,7 +29,7 @@ buildPythonPackage rec {
     owner = "miguelgrinberg";
     repo = "python-engineio";
     tag = "v${version}";
-    hash = "sha256-6gSpnBXznpWDtGEdV6PDtQvRodAz4jqOY+zGT2+NUj0=";
+    hash = "sha256-3yCT9u3Bz5QPaDtPe1Ezio+O+wWjQ+4pLh55sYAfnNc=";
   };
 
   build-system = [ setuptools ];
@@ -46,6 +46,7 @@ buildPythonPackage rec {
 
   nativeCheckInputs = [
     eventlet
+    libredirect.hook
     mock
     tornado
     pytest-asyncio
@@ -56,8 +57,7 @@ buildPythonPackage rec {
 
   preCheck = lib.optionalString stdenv.hostPlatform.isLinux ''
     echo "nameserver 127.0.0.1" > resolv.conf
-    export NIX_REDIRECTS=/etc/protocols=${iana-etc}/etc/protocols:/etc/resolv.conf=$(realpath resolv.conf) \
-      LD_PRELOAD=${libredirect}/lib/libredirect.so
+    export NIX_REDIRECTS=/etc/protocols=${iana-etc}/etc/protocols:/etc/resolv.conf=$(realpath resolv.conf)
   '';
 
   postCheck = ''

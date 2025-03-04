@@ -4,22 +4,22 @@
   buildPythonPackage,
   fastapi,
   fetchFromGitHub,
-  httpx,
   httpx-sse,
+  httpx,
   mashumaro,
-  poetry-core,
   pytest-asyncio,
   pytest-cov-stub,
   pytest-httpx,
   pytestCheckHook,
   pythonOlder,
+  setuptools,
   typer,
   uvicorn,
 }:
 
 buildPythonPackage rec {
   pname = "aiohomeconnect";
-  version = "0.11.0";
+  version = "0.16.0";
   pyproject = true;
 
   disabled = pythonOlder "3.11";
@@ -28,12 +28,10 @@ buildPythonPackage rec {
     owner = "MartinHjelmare";
     repo = "aiohomeconnect";
     tag = "v${version}";
-    hash = "sha256-fg3WusrONJtPO/IpHlXzO17C2OuQe28kprXrBG9PqMY=";
+    hash = "sha256-xnihwHtU39OQDk/DgUXkUy6/4GrlFLgjK2via7ELedU=";
   };
 
-  pythonRelaxDeps = [ "httpx" ];
-
-  build-system = [ poetry-core ];
+  build-system = [ setuptools ];
 
   dependencies = [
     httpx

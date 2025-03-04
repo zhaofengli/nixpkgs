@@ -17,7 +17,7 @@
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "dbeaver-bin";
-  version = "24.3.2";
+  version = "24.3.5";
 
   src =
     let
@@ -30,10 +30,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
         aarch64-darwin = "macos-aarch64.dmg";
       };
       hash = selectSystem {
-        x86_64-linux = "sha256-kbpdAA/ZmH1f+MEfozyjr8HTKLhWEhswAGc7iSpy9rE=";
-        aarch64-linux = "sha256-SiNriPbyiMeHZSHab3JwyedURogPjI9McXwJqjpZXiA=";
-        x86_64-darwin = "sha256-cBJvElGfuCbyFRXzqcuQRa4GA6nXmEDxtse388FuH30=";
-        aarch64-darwin = "sha256-kzJeKY7V8CBcdsoDZDI9eBrr1hEWh3vyHI3wgos/s/M=";
+        x86_64-linux = "sha256-Kt+CPPgeqKMxZZeWG3NjNKdlcQFyS9NvEaAQSI9c5CI=";
+        aarch64-linux = "sha256-9O0BhsrhVMpf3FMzqZeaNrCKdSscsOrLmo6Mq42aRLU=";
+        x86_64-darwin = "sha256-4uZrlgjHJz7zOgGn7mTRtz/qjlvzBglXAVcjf7SDmCs=";
+        aarch64-darwin = "sha256-Hm9215hcoNEc/amTQ9mBX2wl95aTCF1/T+5crctbaeA=";
       };
     in
     fetchurl {
@@ -60,6 +60,14 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       --replace-fail '-Xmx1024m' '-Xmx${override_xmx}'
   '';
 
+  preInstall = ''
+    # most directories are for different architectures, only keep what we need
+    shopt -s extglob
+    pushd ${lib.optionalString stdenvNoCC.hostPlatform.isDarwin "Contents/Eclipse/"}plugins/com.sun.jna_5.15.0.v20240915-2000/com/sun/jna/
+    rm -r !(ptr|internal|linux-x86-64|linux-aarch64|darwin-x86-64|darwin-aarch64)/
+    popd
+  '';
+
   installPhase =
     if !stdenvNoCC.hostPlatform.isDarwin then
       ''
@@ -81,7 +89,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
           }"
 
         mkdir -p $out/share/icons/hicolor/256x256/apps
-        ln -s $out/opt/dbeaver/dbeaver.png $out/share/icons/hicolor/256x256/apps/dbeaver.png
+        # for some reason it's missing from the aarch64 build
+        if [ -e $out/opt/dbeaver/dbeaver.png ]; then
+          ln -s $out/opt/dbeaver/dbeaver.png $out/share/icons/hicolor/256x256/apps/dbeaver.png
+        fi
 
         mkdir -p $out/share/applications
         ln -s $out/opt/dbeaver/dbeaver-ce.desktop $out/share/applications/dbeaver.desktop
@@ -106,10 +117,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
         runHook postInstall
       '';
-
-  autoPatchelfIgnoreMissingDeps = [
-    "libc.so.8"
-  ];
 
   passthru.updateScript = ./update.sh;
 
