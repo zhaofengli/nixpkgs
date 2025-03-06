@@ -400,9 +400,7 @@ in
         [ ]
         ++ lib.optional hasNonFixedRule "/run/binfmt"
         ++ lib.optional hasWrappedRule "${pkgs.bash}"
-        ++ (lib.filter (p: p != null) (
-          map (system: (ruleFor system).interpreterSandboxPath) cfg.emulatedSystems
-        ));
+        ++ (map (system: (ruleFor system).interpreterSandboxPath) cfg.emulatedSystems);
     };
 
     environment.etc."binfmt.d/nixos.conf".source = builtins.toFile "binfmt_nixos.conf" (
