@@ -398,9 +398,10 @@ let
           # Tests just get stuck on macOS 14.x for v13 and v14
           !(stdenv'.hostPlatform.isDarwin && olderThan "15")
         &&
-          # Likely due to rosetta emulation:
+          # x86: Likely due to rosetta emulation:
           #   FATAL:  could not create shared memory segment: Cannot allocate memory
-          !(stdenv'.hostPlatform.isDarwin && stdenv'.hostPlatform.isx86_64);
+          # aarch64: not sure why, e.g. https://hydra.nixos.org/build/292573408/nixlog/7
+          !(stdenv'.hostPlatform.isDarwin);
       installCheckTarget = "check-world";
 
       passthru =
@@ -425,41 +426,15 @@ let
                 inherit (llvmPackages) llvm;
                 postgresql = this;
                 stdenv = stdenv';
-                postgresqlTestExtension =
-                  {
-                    finalPackage,
-                    withPackages ? [ ],
-                    ...
-                  }@extraArgs:
-                  stdenvNoCC.mkDerivation (
-                    {
-                      name = "${finalPackage.name}-test-extension";
-                      dontUnpack = true;
-                      doCheck = true;
-                      nativeCheckInputs = [
-                        postgresqlTestHook
-                        (this.withPackages (ps: [ finalPackage ] ++ (map (p: ps."${p}") withPackages)))
-                      ];
-                      failureHook = "postgresqlStop";
-                      postgresqlTestUserOptions = "LOGIN SUPERUSER";
-                      passAsFile = [ "sql" ];
-                      checkPhase = ''
-                        runHook preCheck
-                        psql -a -v ON_ERROR_STOP=1 -f "$sqlPath"
-                        runHook postCheck
-                      '';
-                      installPhase = "touch $out";
-                    }
-                    // extraArgs
-                  );
-                buildPostgresqlExtension = newSuper.callPackage ./buildPostgresqlExtension.nix { };
+                postgresqlTestExtension = newSuper.callPackage ./postgresqlTestExtension.nix { };
+                postgresqlBuildExtension = newSuper.callPackage ./postgresqlBuildExtension.nix { };
               };
               newSelf = self // scope;
               newSuper = {
                 callPackage = newScope (scope // this.pkgs);
               };
             in
-            import ./ext newSelf newSuper;
+            import ./ext.nix newSelf newSuper;
 
           withPackages = postgresqlWithPackages {
             inherit buildEnv;
