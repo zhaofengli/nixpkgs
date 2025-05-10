@@ -11,7 +11,6 @@ let
   defaultWhitelist = [
     "gnome-shell"
     "io.elementary.desktop.agent-geoclue2"
-    "sm.puri.Phosh"
   ];
 
   appConfigModule = lib.types.submodule (
