@@ -20,7 +20,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "ccache";
-  version = "4.11.1";
+  version = "4.11.3";
 
   src = fetchFromGitHub {
     owner = "ccache";
@@ -39,7 +39,7 @@ stdenv.mkDerivation (finalAttrs: {
         exit 1
       fi
     '';
-    hash = "sha256-oYuvcM1BkOh+fj6FmZ8GiiyMyNCAHNp+zQdYvoAb/lU=";
+    hash = "sha256-w41e73Zh5HhYhgLPtaaSiJ48BklBNtnK9S859tol5wc=";
   };
 
   outputs = [

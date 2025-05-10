@@ -1,20 +1,24 @@
-{ lib
-, stdenv
-, buildPackages
-, fetchurl
-, getconf
-, gitUpdater
-, testers
+{
+  lib,
+  stdenv,
+  buildPackages,
+  fetchurl,
+  getconf,
+  gitUpdater,
+  testers,
+  unixtools,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "passt";
-  version = "2024_12_11.09478d5";
+  version = "2025_04_15.2340bbf";
 
   src = fetchurl {
     url = "https://passt.top/passt/snapshot/passt-${finalAttrs.version}.tar.gz";
-    hash = "sha256-IE0BMM24lrl5NHeQGkAZZVwmAsvkhDN64pARdEiOM6s=";
+    hash = "sha256-eYIgAj8BtCZ9OxG8/IDaUvFCtB+1ROU0UHf6sbaVUEY=";
   };
+
+  separateDebugInfo = true;
 
   postPatch = ''
     substituteInPlace Makefile --replace-fail \
@@ -30,6 +34,7 @@ stdenv.mkDerivation (finalAttrs: {
   passthru = {
     tests.version = testers.testVersion {
       package = finalAttrs.finalPackage;
+      command = "${unixtools.script}/bin/script -c 'passt --version'";
     };
 
     updateScript = gitUpdater {
@@ -52,7 +57,10 @@ stdenv.mkDerivation (finalAttrs: {
       interfaces on the host, hence not requiring any capabilities or
       privileges.
     '';
-    license = [ licenses.bsd3 /* and */ licenses.gpl2Plus ];
+    license = [
+      licenses.bsd3 # and
+      licenses.gpl2Plus
+    ];
     platforms = platforms.linux;
     maintainers = with maintainers; [ _8aed ];
     mainProgram = "passt";

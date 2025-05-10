@@ -10,24 +10,23 @@
   versionCheckHook,
 
   # passthru
-  ruff-lsp,
   nixosTests,
   nix-update-script,
 }:
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "ruff";
-  version = "0.11.1";
+  version = "0.11.8";
 
   src = fetchFromGitHub {
     owner = "astral-sh";
     repo = "ruff";
     tag = finalAttrs.version;
-    hash = "sha256-uouy47Lzrrht3wBUiQePW7x6QJfpIce9ny/p6HNwCNY=";
+    hash = "sha256-HVZADn9xpwywubEbaMJgOs3yCXa4pNWnnrfSICF2+DE=";
   };
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-EaMNkliJmeKwxrnlK+aCFGvzbvVIjS0qHc9h9z9m47I=";
+  cargoHash = "sha256-TB7ARPTwYTNqbrcfwl9RCYmAw+y0uudaBp1YyDg52/w=";
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -35,7 +34,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     rust-jemalloc-sys
   ];
 
-  postInstall =
+  postInstall = lib.optionalString (stdenv.hostPlatform.emulatorAvailable buildPackages) (
     let
       emulator = stdenv.hostPlatform.emulator buildPackages;
     in
@@ -44,7 +43,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
         --bash <(${emulator} $out/bin/ruff generate-shell-completion bash) \
         --fish <(${emulator} $out/bin/ruff generate-shell-completion fish) \
         --zsh <(${emulator} $out/bin/ruff generate-shell-completion zsh)
-    '';
+    ''
+  );
 
   # Run cargo tests
   checkType = "debug";
@@ -65,17 +65,13 @@ rustPlatform.buildRustPackage (finalAttrs: {
   nativeInstallCheckInputs = [
     versionCheckHook
   ];
-  versionCheckProgramArg = [ "--version" ];
+  versionCheckProgramArg = "--version";
   doInstallCheck = true;
 
   passthru = {
-    tests =
-      {
-        inherit ruff-lsp;
-      }
-      // lib.optionalAttrs stdenv.hostPlatform.isLinux {
-        nixos-test-driver-busybox = nixosTests.nixos-test-driver.busybox;
-      };
+    tests = lib.optionalAttrs stdenv.hostPlatform.isLinux {
+      nixos-test-driver-busybox = nixosTests.nixos-test-driver.busybox;
+    };
     updateScript = nix-update-script { };
   };
 

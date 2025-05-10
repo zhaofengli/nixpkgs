@@ -7,15 +7,15 @@
   nix-update-script,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "presenterm";
-  version = "0.11.0";
+  version = "0.13.0";
 
   src = fetchFromGitHub {
     owner = "mfontanini";
     repo = "presenterm";
-    tag = "v${version}";
-    hash = "sha256-R2ATN495/sk+EMYs5BBxWk8nLO1ublWKfznn075/V5c=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-5eDGoY4Yb27ATgBhNjlee6tSgwAKiLuuDMrL96cBpko=";
   };
 
   buildInputs = [
@@ -23,7 +23,7 @@ rustPlatform.buildRustPackage rec {
   ];
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-XXJGduSiPxlmcUyYp8QbTrPYI6NkoYxFA9cfsWgy1Es=";
+  cargoHash = "sha256-MOX5QWxN7uEnvm9JU9jRW8Z2D2LMle+H1rOmfMxz100=";
 
   checkFlags = [
     # failed to load .tmpEeeeaQ: No such file or directory (os error 2)
@@ -33,7 +33,7 @@ rustPlatform.buildRustPackage rec {
   nativeInstallCheckInputs = [
     versionCheckHook
   ];
-  versionCheckProgramArg = [ "--version" ];
+  versionCheckProgramArg = "--version";
   doInstallCheck = true;
 
   passthru = {
@@ -42,10 +42,10 @@ rustPlatform.buildRustPackage rec {
 
   meta = {
     description = "Terminal based slideshow tool";
-    changelog = "https://github.com/mfontanini/presenterm/releases/tag/v${version}";
+    changelog = "https://github.com/mfontanini/presenterm/releases/tag/v${finalAttrs.version}";
     homepage = "https://github.com/mfontanini/presenterm";
     license = lib.licenses.bsd2;
     maintainers = with lib.maintainers; [ mikaelfangel ];
     mainProgram = "presenterm";
   };
-}
+})

@@ -139,6 +139,11 @@ stdenv.mkDerivation (finalAttrs: {
     # Replace rocm-opencl-icd functionality
     mkdir -p $icd/etc/OpenCL/vendors
     echo "$out/lib/libamdocl64.so" > $icd/etc/OpenCL/vendors/amdocl64.icd
+
+    # add version info to output (downstream rocmPackages look for this)
+    echo "HIP_VERSION_MAJOR=${builtins.elemAt (lib.splitVersion finalAttrs.version) 0}" > $out/bin/.hipVersion
+    echo "HIP_VERSION_MINOR=${builtins.elemAt (lib.splitVersion finalAttrs.version) 1}" >> $out/bin/.hipVersion
+    echo "HIP_VERSION_PATCH=${builtins.elemAt (lib.splitVersion finalAttrs.version) 2}" >> $out/bin/.hipVersion
   '';
 
   passthru = {
@@ -185,7 +190,8 @@ stdenv.mkDerivation (finalAttrs: {
     description = "AMD Common Language Runtime for hipamd, opencl, and rocclr";
     homepage = "https://github.com/ROCm/clr";
     license = with licenses; [ mit ];
-    maintainers = with maintainers; [ lovesegfault ] ++ teams.rocm.members;
+    maintainers = with maintainers; [ lovesegfault ];
+    teams = [ teams.rocm ];
     platforms = platforms.linux;
     broken =
       versions.minor finalAttrs.version != versions.minor stdenv.cc.version

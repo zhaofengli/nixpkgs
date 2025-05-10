@@ -5,7 +5,7 @@
   fetchurl,
   makeBinaryWrapper,
   # use specific electron since it has to load a compiled module
-  electron_34,
+  electron_35,
   autoPatchelfHook,
   makeDesktopItem,
   copyDesktopItems,
@@ -15,7 +15,7 @@
 
 let
   pname = "trilium-next-desktop";
-  version = "0.91.6";
+  version = "0.93.0";
 
   triliumSource = os: arch: sha256: {
     url = "https://github.com/TriliumNext/Notes/releases/download/v${version}/TriliumNextNotes-v${version}-${os}-${arch}.zip";
@@ -26,10 +26,10 @@ let
   darwinSource = triliumSource "macos";
 
   # exposed like this for update.sh
-  x86_64-linux.sha256 = "13r9akfakmrpvnyab182irhraf9hpqb24205r8rxjfgj8dpmfa4p";
-  aarch64-linux.sha256 = "07bh5fcdcw3al5w8nqx5kxzqa5vgni27gb6591y6j6jynz6cmyqp";
-  x86_64-darwin.sha256 = "0iaz4wim11x110phg4xgzdw3sjcbmxwbksk5gpygjbhlzhjprnnp";
-  aarch64-darwin.sha256 = "1x2s8sdz89sy69lvdg552qmr3chj20d32sskks1r8g5rs16fwqd1";
+  x86_64-linux.sha256 = "02cz98bgv8l5c96irmxla93h9vpxpfh2l25q5h4r1wcyg00k0gqc";
+  aarch64-linux.sha256 = "0ahkskdaggff34zn6ml8s3v3ig8fq3isrcrckpvy9acyhk2nm924";
+  x86_64-darwin.sha256 = "0p1db3bij5pipwjjh0vyscvd6anq1qriny7y7yxx2sviksgyl0i8";
+  aarch64-darwin.sha256 = "0fkqlxssrdz2g63yhs1l74h037xac04y3dng7kqnrzhn740p2wjc";
 
   sources = {
     x86_64-linux = linuxSource "x64" x86_64-linux.sha256;
@@ -53,7 +53,7 @@ let
     platforms = lib.attrNames sources;
   };
 
-  linux = stdenv.mkDerivation rec {
+  linux = stdenv.mkDerivation {
     inherit
       pname
       version
@@ -105,7 +105,7 @@ let
       asar extract $out/share/trilium/resources/app.asar $tmp
       rm $out/share/trilium/resources/app.asar
 
-      for f in "src/services/utils.ts" "dist/src/services/utils.js"; do
+      for f in "src/services/utils.js"; do
         substituteInPlace $tmp/$f \
           --replace-fail "process.resourcesPath" "'$out/share/trilium/resources'"
       done
@@ -115,7 +115,7 @@ let
       asar pack $tmp/ $out/share/trilium/resources/app.asar
       rm -rf $tmp
 
-      makeWrapper ${lib.getExe electron_34} $out/bin/trilium \
+      makeWrapper ${lib.getExe electron_35} $out/bin/trilium \
         "''${gappsWrapperArgs[@]}" \
         --set-default ELECTRON_IS_DEV 0 \
         --add-flags $out/share/trilium/resources/app.asar

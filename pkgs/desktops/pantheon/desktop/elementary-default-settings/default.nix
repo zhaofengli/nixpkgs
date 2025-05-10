@@ -1,15 +1,16 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, nix-update-script
-, meson
-, ninja
-, nixos-artwork
-, glib
-, pkg-config
-, dbus
-, polkit
-, accountsservice
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  nix-update-script,
+  meson,
+  ninja,
+  nixos-artwork,
+  glib,
+  pkg-config,
+  dbus,
+  polkit,
+  accountsservice,
 }:
 
 stdenv.mkDerivation rec {
@@ -56,6 +57,6 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/elementary/default-settings";
     license = licenses.gpl2Plus;
     platforms = platforms.linux;
-    maintainers = teams.pantheon.members;
+    teams = [ teams.pantheon ];
   };
 }

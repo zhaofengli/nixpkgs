@@ -21,6 +21,7 @@ let
     comment = "Calculate Investment Portfolio Performance";
     desktopName = "Portfolio Performance";
     categories = [ "Office" ];
+    startupWMClass = "Portfolio Performance";
   };
 
   runtimeLibs = lib.makeLibraryPath [
@@ -33,11 +34,11 @@ let
 in
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "PortfolioPerformance";
-  version = "0.74.2";
+  version = "0.76.1";
 
   src = fetchurl {
     url = "https://github.com/buchen/portfolio/releases/download/${finalAttrs.version}/PortfolioPerformance-${finalAttrs.version}-linux.gtk.x86_64.tar.gz";
-    hash = "sha256-RPoEby12DiJwdM2ejVfOQyrJjy/qgQ9BbqYyaV9KMD0=";
+    hash = "sha256-e4ZdygS7x5cD9SD9+n7fBWAfAPiJLwQXlApTR8OkXeI=";
   };
 
   nativeBuildInputs = [

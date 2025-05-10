@@ -15,6 +15,7 @@
   meta,
   webkitgtk_4_1,
   openssl,
+  jq,
 }:
 
 rustPlatform.buildRustPackage {
@@ -40,18 +41,24 @@ rustPlatform.buildRustPackage {
       --replace-fail '"kwriteconfig5"' '"${libsForQt5.kconfig}/bin/kwriteconfig5"' \
       --replace-fail '"kwriteconfig6"' '"${kdePackages.kconfig}/bin/kwriteconfig6"'
 
-    substituteInPlace ./tauri.conf.json \
-      --replace-fail '"frontendDist": "../dist",' '"frontendDist": "${webui}",' \
-      --replace-fail '"beforeBuildCommand": "pnpm run web:build"' '"beforeBuildCommand": ""'
-    sed -i -e '/externalBin/d' -e '/resources/d' tauri.conf.json
-    sed -i -e '/sidecar/d' -e '/resources/d' tauri.linux.conf.json
+    cat tauri.conf.json | jq 'del(.bundle.resources) | del(.bundle.externalBin) | .build.frontendDist = "${webui}" | .build.beforeBuildCommand = ""' > tauri.conf.json.2
+    mv tauri.conf.json.2 tauri.conf.json
+    cat tauri.linux.conf.json | jq 'del(.bundle.externalBin)' > tauri.linux.conf.json.2
+    mv tauri.linux.conf.json.2 tauri.linux.conf.json
     chmod 777 ../.cargo
     rm ../.cargo/config.toml
+
+    # As a side effect of patching the service to fix the arbitrary file overwrite issue,
+    # we also need to update the timestamp format in the filename to the second level.
+    # This ensures that the Clash kernel can still be restarted within one minute without problems.
+    substituteInPlace src/utils/dirs.rs \
+      --replace-fail '%Y-%m-%d-%H%M' '%Y-%m-%d-%H%M%S'
   '';
 
   nativeBuildInputs = [
     pkg-config
     rustPlatform.cargoSetupHook
+    jq
   ];
 
   buildInputs = [

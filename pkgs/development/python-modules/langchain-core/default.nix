@@ -17,6 +17,7 @@
   typing-extensions,
 
   # tests
+  blockbuster,
   freezegun,
   grandalf,
   httpx,
@@ -28,37 +29,25 @@
   pytest-xdist,
   pytestCheckHook,
   syrupy,
-
-  # passthru
-  nix-update-script,
 }:
 
 buildPythonPackage rec {
   pname = "langchain-core";
-  version = "0.3.44";
+  version = "0.3.56";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "langchain-ai";
     repo = "langchain";
     tag = "langchain-core==${version}";
-    hash = "sha256-da1G/aGWbt73E1hmaGi8jkBEF1QyemHj+qIifyU8eik=";
+    hash = "sha256-gsjYr22Phb71oKN4iVGsi6r1iETDhFHCKKOiwp0SuLU=";
   };
 
   sourceRoot = "${src.name}/libs/core";
 
-  patches = [
-    # Remove dependency on blockbuster (not available in nixpkgs due to dependency on forbiddenfruit)
-    ./rm-blockbuster.patch
-  ];
-
   build-system = [ pdm-backend ];
 
   pythonRelaxDeps = [ "tenacity" ];
-
-  pythonRemoveDependencies = [
-    "blockbuster"
-  ];
 
   dependencies = [
     jsonpatch
@@ -76,6 +65,7 @@ buildPythonPackage rec {
   doCheck = false;
 
   nativeCheckInputs = [
+    blockbuster
     freezegun
     grandalf
     httpx
@@ -95,11 +85,9 @@ buildPythonPackage rec {
       doCheck = true;
     });
 
-    updateScript = nix-update-script {
-      extraArgs = [
-        "--version-regex"
-        "^langchain-core==([0-9.]+)$"
-      ];
+    updateScript = {
+      command = [ ./update.sh ];
+      supportedFeatures = [ "commit" ];
     };
   };
 

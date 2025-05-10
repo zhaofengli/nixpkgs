@@ -44,7 +44,7 @@
 
 buildPythonPackage rec {
   pname = "django";
-  version = "5.1.7";
+  version = "5.1.9";
   pyproject = true;
 
   disabled = pythonOlder "3.10";
@@ -53,7 +53,7 @@ buildPythonPackage rec {
     owner = "django";
     repo = "django";
     rev = "refs/tags/${version}";
-    hash = "sha256-BxhHqWpTZLcx46RofnXzZ5nj4xDPcj7hNng9ppUN5Hw=";
+    hash = "sha256-uBP6MoVjPUtNu6KxLjaYmKTN42JIUCTJSuSnQWSxyQU=";
   };
 
   patches =
@@ -72,12 +72,6 @@ buildPythonPackage rec {
         url = "https://github.com/django/django/commit/12f4f95405c7857cbf2f4bf4d0261154aac31676.patch";
         hash = "sha256-+K20/V8sh036Ox9U7CSPgfxue7f28Sdhr3MsB7erVOk=";
       })
-
-      # fix regression which breaks django-import-export
-      # https://github.com/django-import-export/django-import-export/pull/2045
-      # https://github.com/django/django/pull/19233
-      # manual backport because commit doesn't apply on stable cleanly
-      ./Restored-single_object-rgument-to-LogEntry-objects-log_actions.diff
     ]
     ++ lib.optionals withGdal [
       (replaceVars ./django_5_set_geos_gdal_lib.patch {
@@ -88,9 +82,6 @@ buildPythonPackage rec {
     ];
 
   postPatch = ''
-    substituteInPlace pyproject.toml \
-      --replace-fail "setuptools>=61.0.0,<69.3.0" setuptools
-
     substituteInPlace tests/utils_tests/test_autoreload.py \
       --replace-fail "/usr/bin/python" "${python.interpreter}"
   '';

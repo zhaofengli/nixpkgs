@@ -1,14 +1,24 @@
-{ stdenv, lib, buildGoModule, fetchFromGitHub, installShellFiles, testers, nix-update-script, k9s }:
+{
+  stdenv,
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  testers,
+  nix-update-script,
+  k9s,
+  writableTmpDirAsHomeHook,
+}:
 
 buildGoModule rec {
   pname = "k9s";
-  version = "0.40.10";
+  version = "0.50.4";
 
   src = fetchFromGitHub {
     owner = "derailed";
     repo = "k9s";
     rev = "v${version}";
-    hash = "sha256-QGymGiTHT3Qnf9l/hhE3lgJ7TBBjKMe2k1aJ32khU0E=";
+    hash = "sha256-JosFo7/JgM7tVMXY+OjASXnbwVYoJ5WGtgR5LTxaAYY=";
   };
 
   ldflags = [
@@ -23,12 +33,11 @@ buildGoModule rec {
 
   proxyVendor = true;
 
-  vendorHash = "sha256-jAxrOdQcMIH7uECKGuuiTZlyV4aJ/a76IuKGouWg/r4=";
+  vendorHash = "sha256-uWdSeHYbDvRWwKAd/wwUsI7uEtX6aunsB1+cRmfBNUc=";
 
   # TODO investigate why some config tests are failing
   doCheck = !(stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isAarch64);
-  # Required to workaround test check error:
-  preCheck = "export HOME=$(mktemp -d)";
+
   # For arch != x86
   # {"level":"fatal","error":"could not create any of the following paths: /homeless-shelter/.config, /etc/xdg","time":"2022-06-28T15:52:36Z","message":"Unable to create configuration directory for k9s"}
   passthru = {
@@ -53,12 +62,19 @@ buildGoModule rec {
       --zsh <($out/bin/k9s completion zsh)
   '';
 
+  nativeCheckInputs = [ writableTmpDirAsHomeHook ];
+
   meta = with lib; {
     description = "Kubernetes CLI To Manage Your Clusters In Style";
     homepage = "https://github.com/derailed/k9s";
     changelog = "https://github.com/derailed/k9s/releases/tag/v${version}";
     license = licenses.asl20;
     mainProgram = "k9s";
-    maintainers = with maintainers; [ Gonzih markus1189 bryanasdev000 qjoly ];
+    maintainers = with maintainers; [
+      Gonzih
+      markus1189
+      bryanasdev000
+      qjoly
+    ];
   };
 }

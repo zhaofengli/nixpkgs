@@ -5,7 +5,7 @@
   pnpm_9,
   nodejs,
   makeWrapper,
-  prisma-engines,
+  pkgs,
   ffmpeg,
   openssl,
   vips,
@@ -15,6 +15,22 @@
 }:
 
 let
+  prisma-engines = pkgs.prisma-engines.overrideAttrs (
+    finalAttrs: prevAttrs: {
+      version = "6.5.0";
+      src = fetchFromGitHub {
+        inherit (prevAttrs.src) owner repo;
+        rev = finalAttrs.version;
+        hash = "sha256-m3LBIMIVMI5GlY0+QNw/nTlNWt2rGOZ28z+CfdP51cY=";
+      };
+      cargoHash = "sha256-yG+omKAS1eWq3sFgKXMoZWhTP4M34dVRes7OhhTUyTQ=";
+      cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+        inherit (finalAttrs) pname version src;
+        hash = finalAttrs.cargoHash;
+      };
+    }
+  );
+
   environment = {
     NEXT_TELEMETRY_DISABLED = "1";
     FFMPEG_BIN = lib.getExe ffmpeg;
@@ -28,18 +44,18 @@ in
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "zipline";
-  version = "4.0.1";
+  version = "4.0.2";
 
   src = fetchFromGitHub {
     owner = "diced";
     repo = "zipline";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-HKd6OXnr9Xcxdaas0Pfvnq3nozFbOTcQsUxiIqDmvXI=";
+    hash = "sha256-waUc2DzD7oQ/ZuPKvUwu3Yj6uxrZauR4phcQwh7YfKw=";
   };
 
   pnpmDeps = pnpm_9.fetchDeps {
     inherit (finalAttrs) pname version src;
-    hash = "sha256-4dVhCv06ze7kmHhwejiMTleojzl//S0yabW7tPyeuT8=";
+    hash = "sha256-Q1PHXoiqUorAGcpIvM5iBvPINLRv+dAo0awhG4gvsrI=";
   };
 
   buildInputs = [ vips ];
@@ -101,6 +117,7 @@ stdenv.mkDerivation (finalAttrs: {
   doInstallCheck = true;
 
   passthru = {
+    inherit prisma-engines;
     tests = { inherit (nixosTests) zipline; };
     updateScript = nix-update-script { };
   };

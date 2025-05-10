@@ -10,7 +10,7 @@
   libxslt,
   perl,
   perlPackages,
-  box2d,
+  box2d_2,
   gettext,
   zlib,
   libjpeg,
@@ -201,12 +201,14 @@ let
     optionalString
     ;
 
-  notoSubset = suffixes: runCommand "noto-fonts-subset" {} ''
-    mkdir -p "$out/share/fonts/noto/"
-    ${concatMapStrings (x: ''
-      cp "${noto-fonts}/share/fonts/noto/NotoSans${x}["*.[ot]tf "$out/share/fonts/noto/"
-    '') suffixes}
-  '';
+  notoSubset =
+    suffixes:
+    runCommand "noto-fonts-subset" { } ''
+      mkdir -p "$out/share/fonts/noto/"
+      ${concatMapStrings (x: ''
+        cp "${noto-fonts}/share/fonts/noto/NotoSans${x}["*.[ot]tf "$out/share/fonts/noto/"
+      '') suffixes}
+    '';
 
   fontsConf = makeFontsConf {
     fontDirectories = [
@@ -222,7 +224,7 @@ let
       libertine-g
       # Font priority issues in some tests in Still
       noto-fonts-lgc-plus
-      (if variant == "fresh" then noto-fonts else (notoSubset ["Arabic"]))
+      (if variant == "fresh" then noto-fonts else (notoSubset [ "Arabic" ]))
       noto-fonts-cjk-sans
     ];
   };
@@ -351,6 +353,7 @@ stdenv.mkDerivation (finalAttrs: {
     ]
     ++ lib.optionals (variant == "collabora") [
       ./fix-unpack-collabora.patch
+      ./skip-broken-sentence-breaking-rules.patch
     ];
 
   postPatch = ''
@@ -394,7 +397,7 @@ stdenv.mkDerivation (finalAttrs: {
       ant
       bluez5
       boost
-      box2d
+      box2d_2
       cairo
       clucene_core_2
       cppunit

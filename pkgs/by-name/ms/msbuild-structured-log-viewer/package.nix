@@ -14,20 +14,20 @@
 }:
 buildDotnetModule (finalAttrs: rec {
   pname = "msbuild-structured-log-viewer";
-  version = "2.2.441";
+  version = "2.2.476";
 
   src = fetchFromGitHub {
     owner = "KirillOsenkov";
     repo = "MSBuildStructuredLog";
     rev = "v${version}";
-    hash = "sha256-bieHd5KUaQzEcOAlPybqRSXA38nWzvvQkDW90bqX4dM=";
+    hash = "sha256-HZhfrU7zPRaJWryEexf5/f3V22k5pdNMlVqDhOUw/UM=";
   };
 
   dotnet-sdk = dotnetCorePackages.sdk_8_0;
   dotnet-runtime = dotnetCorePackages.runtime_8_0;
 
   projectFile = [ "src/StructuredLogViewer.Avalonia/StructuredLogViewer.Avalonia.csproj" ];
-  nugetDeps = ./deps.nix;
+  nugetDeps = ./deps.json;
 
   # HACK: Clear out RuntimeIdentifiers that's set in StructuredLogViewer.Avalonia.csproj, otherwise our --runtime has no effect
   dotnetFlags = [ "-p:RuntimeIdentifiers=" ];

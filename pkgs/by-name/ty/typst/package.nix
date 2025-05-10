@@ -5,9 +5,9 @@
   installShellFiles,
   pkg-config,
   openssl,
-  xz,
   nix-update-script,
   versionCheckHook,
+  callPackage,
 }:
 
 rustPlatform.buildRustPackage (finalAttrs: {
@@ -31,7 +31,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   buildInputs = [
     openssl
-    xz
   ];
 
   env = {
@@ -54,13 +53,15 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   cargoTestFlags = [ "--workspace" ];
 
-  nativeInstallCheckInputs = [
-    versionCheckHook
-  ];
-  versionCheckProgramArg = [ "--version" ];
   doInstallCheck = true;
+  nativeInstallCheckInputs = [ versionCheckHook ];
+  versionCheckProgramArg = "--version";
 
-  passthru.updateScript = nix-update-script { };
+  passthru = {
+    updateScript = nix-update-script { };
+    packages = callPackage ./typst-packages.nix { };
+    withPackages = callPackage ./with-packages.nix { };
+  };
 
   meta = {
     changelog = "https://github.com/typst/typst/releases/tag/v${finalAttrs.version}";
@@ -72,6 +73,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
       drupol
       figsoda
       kanashimia
+      RossSmyth
     ];
   };
 })

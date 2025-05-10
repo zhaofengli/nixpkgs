@@ -10,13 +10,13 @@
 
 stdenv.mkDerivation rec {
   pname = "tail-tray";
-  version = "0.2.17";
+  version = "0.2.21";
 
   src = fetchFromGitHub {
     owner = "SneWs";
     repo = "tail-tray";
     tag = "v${version}";
-    sha256 = "sha256-Mobbh1c7f3aTxn0BEIm2A+DgS2TBSZTYiDlHxyaQEjk=";
+    sha256 = "sha256-zdmU4GdEVOT8wUgOxJAGsLQEb35O/RUjc8HcYpwIkiM=";
   };
 
   nativeBuildInputs = with kdePackages; [
@@ -39,6 +39,7 @@ stdenv.mkDerivation rec {
     description = "Tray icon to manage Tailscale";
     homepage = "https://github.com/SneWs/tail-tray";
     changelog = "https://github.com/SneWs/tail-tray/releases/tag/${version}";
+    mainProgram = "tail-tray";
     license = lib.licenses.gpl3Only;
     maintainers = with lib.maintainers; [ Svenum ];
     platforms = lib.platforms.linux;

@@ -3,6 +3,7 @@
   beautifulsoup4,
   buildPythonPackage,
   cryptography,
+  curl-cffi,
   fetchFromGitHub,
   frozendict,
   html5lib,
@@ -12,7 +13,6 @@
   pandas,
   peewee,
   platformdirs,
-  pythonOlder,
   pytz,
   requests-cache,
   requests-ratelimiter,
@@ -23,16 +23,14 @@
 
 buildPythonPackage rec {
   pname = "yfinance";
-  version = "0.2.54";
+  version = "0.2.58";
   pyproject = true;
-
-  disabled = pythonOlder "3.7";
 
   src = fetchFromGitHub {
     owner = "ranaroussi";
     repo = "yfinance";
     tag = version;
-    hash = "sha256-Jdp1X62cPalAHRGU4nsQEZGSicbZsZnYjW1idYX13tA=";
+    hash = "sha256-Xndky4sMVn0sPH4CFdLuwcfhPzMXtH4rdakQdve3RK0=";
   };
 
   build-system = [ setuptools ];
@@ -40,6 +38,7 @@ buildPythonPackage rec {
   dependencies = [
     beautifulsoup4
     cryptography
+    curl-cffi
     frozendict
     html5lib
     lxml

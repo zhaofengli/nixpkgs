@@ -1,44 +1,58 @@
 {
   lib,
+  stdenv,
   buildPythonPackage,
   fetchFromGitHub,
 
   # build-system
+  pybind11,
   setuptools,
-  torch,
+  setuptools-scm,
+
+  # nativeBuildInputs
+  cmake,
+  ninja,
 
   # dependencies
   cloudpickle,
+  importlib-metadata,
   numpy,
   orjson,
   packaging,
+  torch,
 
   # tests
   h5py,
   pytestCheckHook,
-
-  stdenv,
 }:
 
 buildPythonPackage rec {
   pname = "tensordict";
-  version = "0.7.2";
+  version = "0.8.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "pytorch";
     repo = "tensordict";
     tag = "v${version}";
-    hash = "sha256-ZDfRvfyBashU4kIoo8JX/EoCv4tpDOyggOlpdVCudT8=";
+    hash = "sha256-Qk+pVSwKAIOz6EczGjf4gsOsxAno/vHCgO1EQZDNTsk=";
   };
 
   build-system = [
+    pybind11
     setuptools
-    torch
+    setuptools-scm
   ];
+
+  nativeBuildInputs = [
+    cmake
+    ninja
+  ];
+  dontUseCmakeConfigure = true;
 
   dependencies = [
     cloudpickle
+    importlib-metadata
     numpy
     orjson
     packaging
@@ -72,7 +86,7 @@ buildPythonPackage rec {
       "test/test_compile.py"
     ]
     ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      # ModuleNotFoundError: No module named 'torch._C._distributed_c10d'; 'torch._C' is not a package
+      # Hangs forever
       "test/test_distributed.py"
     ];
 

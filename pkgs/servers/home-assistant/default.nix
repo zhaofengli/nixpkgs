@@ -129,12 +129,12 @@ let
       });
 
       google-genai = super.google-genai.overridePythonAttrs (old: rec {
-        version = "1.1.0";
+        version = "1.7.0";
         src = fetchFromGitHub {
           owner = "googleapis";
           repo = "python-genai";
           tag = "v${version}";
-          hash = "sha256-CszKr2dvo0dLMAD/FZHSosCczeAFDD0xxKysGNv4RxM=";
+          hash = "sha256-vmrFPE7H9s9varrP0s6WK4opoU1hREH7rVVjrKiXY5E=";
         };
       });
 
@@ -151,20 +151,16 @@ let
         ];
       });
 
-      # acme and thus hass-nabucasa doesn't support josepy v2
-      # https://github.com/certbot/certbot/issues/10185
-      josepy = super.josepy.overridePythonAttrs (old: rec {
-        version = "1.15.0";
+      # Pinned due to home-assistant still needing 1.10.0 verison
+      # Remove this when home-assistant upates the jellyfin-apiclient-python version
+      jellyfin-apiclient-python = super.jellyfin-apiclient-python.overridePythonAttrs (oldAttrs: rec {
+        version = "1.10.0";
         src = fetchFromGitHub {
-          owner = "certbot";
-          repo = "josepy";
+          owner = "jellyfin";
+          repo = "jellyfin-apiclient-python";
           tag = "v${version}";
-          hash = "sha256-fK4JHDP9eKZf2WO+CqRdEjGwJg/WNLvoxiVrb5xQxRc=";
+          hash = "sha256-H1FqypNuVIZ17cFdNDEmmKICswxJkUGq2LhlingbCVk=";
         };
-        dependencies = with self; [
-          pyopenssl
-          cryptography
-        ];
       });
 
       openhomedevice = super.openhomedevice.overridePythonAttrs (oldAttrs: rec {
@@ -271,28 +267,6 @@ let
         };
       });
 
-      pyopenweathermap = super.pyopenweathermap.overridePythonAttrs (old: rec {
-        version = "0.2.1";
-        src = fetchFromGitHub {
-          owner = "freekode";
-          repo = "pyopenweathermap";
-          tag = "v${version}";
-          hash = "sha256-UcnELAJf0Ltf0xJOlyzsHb4HQGSBTJ+/mOZ/XSTkA0w=";
-        };
-      });
-
-      pyrail = super.pyrail.overridePythonAttrs (rec {
-        version = "0.0.3";
-        src = fetchPypi {
-          pname = "pyrail";
-          inherit version;
-          hash = "sha256-XxcVcRXMjYAKevANAqNJkGDUWfxDaLqgCL6XL9Lhsf4=";
-        };
-        env.CI_JOB_ID = version;
-        build-system = [ self.setuptools ];
-        dependencies = [ self.requests ];
-      });
-
       # snmp component does not support pysnmp 7.0+
       pysnmp = super.pysnmp.overridePythonAttrs (oldAttrs: rec {
         version = "6.2.6";
@@ -363,6 +337,16 @@ let
         };
       });
 
+      wolf-comm = super.wolf-comm.overridePythonAttrs (rec {
+        version = "0.0.23";
+        src = fetchFromGitHub {
+          owner = "janrothkegel";
+          repo = "wolf-comm";
+          tag = version;
+          hash = "sha256-LpehooW3vmohiyMwOQTFNLiNCsaLKelWQxQk8bl+y1k=";
+        };
+      });
+
       # internal python packages only consumed by home-assistant itself
       hass-web-proxy-lib = self.callPackage ./python-modules/hass-web-proxy-lib { };
       home-assistant-frontend = self.callPackage ./frontend.nix { };
@@ -393,7 +377,7 @@ let
   extraBuildInputs = extraPackages python.pkgs;
 
   # Don't forget to run update-component-packages.py after updating
-  hassVersion = "2025.3.4";
+  hassVersion = "2025.4.4";
 
 in
 python.pkgs.buildPythonApplication rec {
@@ -414,46 +398,20 @@ python.pkgs.buildPythonApplication rec {
     owner = "home-assistant";
     repo = "core";
     tag = version;
-    hash = "sha256-g1t9xAjrSSePyAloTQ2qwxAGEXJUTWX2zIZmAvlGGa8=";
+    hash = "sha256-MiBsVsgV/M8ge7XQ4e4VpdAKTVZBCDu3Jqql2YHx9rY=";
   };
 
   # Secondary source is pypi sdist for translations
   sdist = fetchPypi {
     inherit pname version;
-    hash = "sha256-MIh8FMTKZVEZ/zC+Av8fykTpz9kkXgZZfnsuOZbgP0M=";
+    hash = "sha256-qOhOs6I2Jx/7GWVeCBJ6d77w3RCFjsvFxDUbR60Ucf0=";
   };
 
   build-system = with python.pkgs; [
     setuptools
   ];
 
-  pythonRelaxDeps = [
-    "aiohttp"
-    "aiozoneinfo"
-    "attrs"
-    "bcrypt"
-    "ciso8601"
-    "cryptography"
-    "fnv-hash-fast"
-    "hass-nabucasa"
-    "httpx"
-    "jinja2"
-    "orjson"
-    "pillow"
-    "propcache"
-    "pyjwt"
-    "pyopenssl"
-    "pyyaml"
-    "requests"
-    "securetar"
-    "sqlalchemy"
-    "typing-extensions"
-    "ulid-transform"
-    "urllib3"
-    "uv"
-    "voluptuous-openapi"
-    "yarl"
-  ];
+  pythonRelaxDeps = true;
 
   # extract translations from pypi sdist
   prePatch = ''
@@ -474,7 +432,8 @@ python.pkgs.buildPythonApplication rec {
   postPatch = ''
     substituteInPlace tests/test_core_config.py --replace-fail '"/usr"' "\"$NIX_BUILD_TOP/media\""
 
-    sed -i 's/setuptools[~=]/setuptools>/' pyproject.toml
+    substituteInPlace pyproject.toml \
+      --replace-fail "setuptools==78.1.1" setuptools
   '';
 
   dependencies = with python.pkgs; [
@@ -486,6 +445,7 @@ python.pkgs.buildPythonApplication rec {
     aiohttp-cors
     aiohttp-fast-zlib
     aiozoneinfo
+    annotatedyaml
     astral
     async-interrupt
     atomicwrites-homeassistant
@@ -498,20 +458,28 @@ python.pkgs.buildPythonApplication rec {
     cronsim
     cryptography
     fnv-hash-fast
+    ha-ffmpeg
     hass-nabucasa
+    hassil
     home-assistant-bluetooth
+    home-assistant-intents
     httpx
     ifaddr
     jinja2
     lru-dict
+    mutagen
+    numpy
     orjson
     packaging
     pillow
     propcache
     psutil-home-assistant
     pyjwt
+    pymicro-vad
     pyopenssl
+    pyspeex-noise
     python-slugify
+    pyturbojpeg
     pyyaml
     requests
     securetar
@@ -525,7 +493,9 @@ python.pkgs.buildPythonApplication rec {
     voluptuous
     voluptuous-openapi
     voluptuous-serialize
+    webrtc-models
     yarl
+    zeroconf
     # REQUIREMENTS in homeassistant/auth/mfa_modules/totp.py and homeassistant/auth/mfa_modules/notify.py
     pyotp
     pyqrcode
@@ -545,7 +515,6 @@ python.pkgs.buildPythonApplication rec {
       pytest-aiohttp
       pytest-freezer
       pytest-mock
-      pytest-rerunfailures
       pytest-socket
       pytest-timeout
       pytest-unordered
@@ -570,15 +539,16 @@ python.pkgs.buildPythonApplication rec {
   pytestFlagsArray = [
     # assign tests grouped by file to workers
     "--dist loadfile"
-    # retry racy tests that end in "RuntimeError: Event loop is closed"
-    "--reruns 3"
-    "--only-rerun RuntimeError"
     # enable full variable printing on error
     "--showlocals"
     # AssertionError: assert 1 == 0
     "--deselect tests/test_config.py::test_merge"
     # checks whether pip is installed
     "--deselect=tests/util/test_package.py::test_check_package_fragment"
+    # flaky
+    "--deselect=tests/test_bootstrap.py::test_setup_hass_takes_longer_than_log_slow_startup"
+    "--deselect=tests/test_test_fixtures.py::test_evict_faked_translations"
+    "--deselect=tests/helpers/test_backup.py::test_async_get_manager"
     # tests are located in tests/
     "tests"
   ];
@@ -634,7 +604,7 @@ python.pkgs.buildPythonApplication rec {
     changelog = "https://github.com/home-assistant/core/releases/tag/${src.tag}";
     description = "Open source home automation that puts local control and privacy first";
     license = licenses.asl20;
-    maintainers = teams.home-assistant.members;
+    teams = [ teams.home-assistant ];
     platforms = platforms.linux;
     mainProgram = "hass";
   };

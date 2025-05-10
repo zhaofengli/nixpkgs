@@ -6,13 +6,11 @@
   fetchFromGitHub,
   fsspec,
   huggingface-hub,
-  importlib-metadata,
   multiprocess,
   numpy,
   packaging,
   pandas,
   pyarrow,
-  pythonOlder,
   requests,
   responses,
   setuptools,
@@ -21,14 +19,14 @@
 }:
 buildPythonPackage rec {
   pname = "datasets";
-  version = "3.4.1";
+  version = "3.5.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "huggingface";
     repo = "datasets";
     tag = version;
-    hash = "sha256-a0c5E4N1X+PtO4+UZn8l1JcLGTNpLPyfEkrrxNsjfLA=";
+    hash = "sha256-+496dc7j2pIXEIMsuDHZgHhSuM4kBR5AS6A5tdbuVKg=";
   };
 
   build-system = [

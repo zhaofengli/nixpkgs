@@ -6,19 +6,19 @@
   versionCheckHook,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "zizmor";
-  version = "1.5.1";
+  version = "1.6.0";
 
   src = fetchFromGitHub {
     owner = "woodruffw";
     repo = "zizmor";
-    tag = "v${version}";
-    hash = "sha256-G0cayE8UDahLYZl2HG8315YYUOhH5u6L/VRWHqqavPk=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-Has3PrXJIKQh6FdhZ3aGvqJ5keHTRqa+nDAb4fv3xWg=";
   };
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-CRjr4X525t7xaFsnX3gOy4+HJis5T8nw6zrhkW60Bpw=";
+  cargoHash = "sha256-uXUvEbQpY9E7kTOeXMFN/9b4u4tn/S3HCs0a65Hssn4=";
 
   nativeInstallCheckInputs = [ versionCheckHook ];
 
@@ -29,9 +29,9 @@ rustPlatform.buildRustPackage rec {
   meta = {
     description = "Tool for finding security issues in GitHub Actions setups";
     homepage = "https://woodruffw.github.io/zizmor/";
-    changelog = "https://github.com/woodruffw/zizmor/releases/tag/v${version}";
+    changelog = "https://github.com/woodruffw/zizmor/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ lesuisse ];
     mainProgram = "zizmor";
   };
-}
+})

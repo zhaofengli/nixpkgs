@@ -53,14 +53,14 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "dolphin-emu";
-  version = "2503";
+  version = "2503a";
 
   src = fetchFromGitHub {
     owner = "dolphin-emu";
     repo = "dolphin";
     tag = finalAttrs.version;
     fetchSubmodules = true;
-    hash = "sha256-oqJKXFcsFgoYjUqdk3Z/CIFhOa8w0drcF4JwtHRI1Hs=";
+    hash = "sha256-vhXiEgJO8sEv937Ed87LaS7289PLZlxQGFTZGFjs1So=";
   };
 
   strictDeps = true;
@@ -180,6 +180,10 @@ stdenv.mkDerivation (finalAttrs: {
     branch = "master";
     license = lib.licenses.gpl2Plus;
     platforms = lib.platforms.unix;
+    badPlatforms = [
+      # error: implicit instantiation of undefined template 'std::char_traits<unsigned int>'
+      lib.systems.inspect.patterns.isDarwin
+    ];
     maintainers = with lib.maintainers; [ pbsds ];
   };
 })

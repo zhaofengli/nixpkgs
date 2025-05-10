@@ -9,7 +9,7 @@
   gobject-introspection,
   glib,
   gtk3,
-  freerdp3,
+  freerdp,
   fuse3,
   unstableGitUpdater,
 }:
@@ -37,7 +37,7 @@ stdenv.mkDerivation {
   buildInputs = [
     glib
     gtk3
-    freerdp3
+    freerdp
     fuse3
   ];
 
@@ -51,7 +51,7 @@ stdenv.mkDerivation {
   meta = with lib; {
     homepage = "https://gitlab.gnome.org/GNOME/gtk-frdp";
     description = "RDP viewer widget for GTK";
-    maintainers = teams.gnome.members;
+    teams = [ teams.gnome ];
     license = licenses.lgpl3Plus;
     platforms = platforms.unix;
   };

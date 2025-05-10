@@ -21,7 +21,7 @@ let
   baseAttrs = finalAttrs: {
     releaseName = "ICU";
 
-    sourceRoot = "source/icu/icu4c/source";
+    sourceRoot = "${finalAttrs.src.name}/icu/icu4c/source";
 
     patches = [
       # Skip MessageFormatTest test, which is known to crash sometimes and should be suppressed if it does.
@@ -69,7 +69,7 @@ let
     meta = {
       description = "Unicode and globalization support library with Apple customizations";
       license = [ lib.licenses.icu ];
-      maintainers = lib.teams.darwin.members;
+      teams = [ lib.teams.darwin ];
       platforms = lib.platforms.darwin;
       pkgConfigModules = [
         "icu-i18n"

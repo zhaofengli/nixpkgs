@@ -1,7 +1,7 @@
 {
-  "version" = "1.11.95";
+  "version" = "1.11.99";
   "hashes" = {
-    "webSrcHash" = "sha256-JS+lwPRj4Fb+UZNATS7IFMfytqRou+aIpjDVjI+iqao=";
-    "webYarnHash" = "sha256-Aw0wDGE0WbI975y+J2FVxlDrHcPeBDkHiD/7W8eTf1E=";
+    "webSrcHash" = "sha256-yTOvvoTt6HnXq+QFshYjpt0q5hpcR8cjpxgoyBtS2X0=";
+    "webYarnHash" = "sha256-kgwM1zo7/lRS2g/4fHuT/Z/fExOg6hWAJ7xoKt7vYA8=";
   };
 }

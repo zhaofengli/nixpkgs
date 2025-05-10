@@ -7,8 +7,8 @@ vscode-utils.buildVscodeMarketplaceExtension {
   mktplcRef = {
     name = "claude-dev";
     publisher = "saoudrizwan";
-    version = "3.6.9";
-    hash = "sha256-KAP9NhZDfga9/qLcoF/KJJNFRYnAxLlxxnITV3bUYtw=";
+    version = "3.14.0";
+    hash = "sha256-Eel+kU8WxCeKDaQvO8fVlmGiDBF0/bqiFrNWvmA0DbQ=";
   };
 
   meta = {

@@ -1,29 +1,30 @@
-{ lib
-, clangStdenv
-, fetchFromGitLab
-, rustPlatform
-, cargo
-, meson
-, ninja
-, pkg-config
-, rustc
-, glib
-, gtk4
-, libadwaita
-, zbar
-, sqlite
-, openssl
-, pipewire
-, gstreamer
-, gst-plugins-base
-, gst-plugins-bad
-, gst-plugins-good
-, gst-plugins-rs
-, wrapGAppsHook4
-, appstream-glib
-, desktop-file-utils
-, glycin-loaders
-, nix-update-script
+{
+  lib,
+  clangStdenv,
+  fetchFromGitLab,
+  rustPlatform,
+  cargo,
+  meson,
+  ninja,
+  pkg-config,
+  rustc,
+  glib,
+  gtk4,
+  libadwaita,
+  zbar,
+  sqlite,
+  openssl,
+  pipewire,
+  gstreamer,
+  gst-plugins-base,
+  gst-plugins-bad,
+  gst-plugins-good,
+  gst-plugins-rs,
+  wrapGAppsHook4,
+  appstream-glib,
+  desktop-file-utils,
+  glycin-loaders,
+  nix-update-script,
 }:
 
 clangStdenv.mkDerivation rec {
@@ -91,6 +92,7 @@ clangStdenv.mkDerivation rec {
     license = licenses.gpl3Plus;
     platforms = platforms.linux;
     mainProgram = "decoder";
-    maintainers = with maintainers; [ zendo ] ++ lib.teams.gnome-circle.members;
+    maintainers = with maintainers; [ zendo ];
+    teams = [ teams.gnome-circle ];
   };
 }

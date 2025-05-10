@@ -498,7 +498,8 @@ with self;
 
   core_unix = janePackage {
     pname = "core_unix";
-    hash = "sha256-eqBMiEJ5xUrgFJTMZoEDxqkhedQxxbbf0DedZKHprww=";
+    version = "0.17.1";
+    hash = "sha256-xJoBW6TBBnzR5n38E5LHBFYO2CRIsME7OTdEZKn8EqU=";
     meta.description = "Unix-specific portions of Core";
     buildInputs = [ jst-config ];
     propagatedBuildInputs = [
@@ -514,12 +515,6 @@ with self;
     '';
     doCheck = false; # command_validate_parsing.exe is not specified in test build deps
 
-    # Compatibility with OCaml 5.3
-    patches = lib.optional (lib.versionAtLeast ocaml.version "5.3") (fetchpatch {
-      url = "https://github.com/janestreet/core_unix/commit/ebce389ac68e098f542e34400e114ac992f415af.patch";
-      includes = [ "bigstring_unix/src/bigstring_unix_stubs.c" ];
-      hash = "sha256-FGg2zlyp3aZFu1VeFdm7pgSPiW0HAkLYgMGTj+tqju8=";
-    });
   };
 
   csvfields = janePackage {
@@ -765,6 +760,10 @@ with self;
   janestreet_cpuid = janePackage {
     pname = "janestreet_cpuid";
     hash = "sha256-3ZwEZQSkJJyFW5/+C9x8nW6+GrfVwccNFPlcs7qNcjQ=";
+    patches = fetchpatch {
+      url = "https://github.com/janestreet/janestreet_cpuid/commit/55223d9708388fe990553669d881f78a811979b9.patch";
+      hash = "sha256-aggT6GGMkQj4rRkSZK4hoPRzEfpC8z9qnIROptMDf9E=";
+    };
     meta.description = "A library for parsing CPU capabilities out of the `cpuid` instruction";
     propagatedBuildInputs = [
       core
@@ -1971,6 +1970,7 @@ with self;
     pname = "virtual_dom";
     hash = "sha256-5T+/N1fELa1cR9mhWLUgS3Fwr1OQXJ3J6T3YaHT9q7U=";
     meta.description = "OCaml bindings for the virtual-dom library";
+    meta.broken = lib.versionAtLeast ocaml.version "5.3";
     buildInputs = [ js_of_ocaml-ppx ];
     propagatedBuildInputs = [
       base64
