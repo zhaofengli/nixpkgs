@@ -414,7 +414,7 @@ in
         cfg.package
         cfg.qemu.package
       ];
-      etc.ethertypes.source = "${config.networking.firewall.package}/etc/ethertypes";
+      etc.ethertypes.source = "${pkgs.iptables}/etc/ethertypes";
     };
 
     boot.kernelModules = [ "tun" ];
