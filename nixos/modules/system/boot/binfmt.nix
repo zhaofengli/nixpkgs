@@ -54,8 +54,6 @@ let
     else
       interpreter;
 
-  getStaticEmulator = system: (lib.systems.elaborate { inherit system; }).staticEmulator pkgs;
-
   # Mapping of systems to “magicOrExtension” and “mask”. Mostly taken from:
   # - https://github.com/cleverca22/nixos-configs/blob/master/qemu.nix
   # and
