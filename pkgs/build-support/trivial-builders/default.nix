@@ -367,17 +367,14 @@ rec {
         '';
 
       checkPhase =
-        # GHC (=> shellcheck) isn't supported on some platforms (such as risc-v)
-        # but we still want to use writeShellApplication on those platforms
         let
-          shellcheckSupported =
-            lib.meta.availableOn stdenv.buildPlatform shellcheck-minimal.compiler
-            && (builtins.tryEval shellcheck-minimal.compiler.outPath).success;
           excludeFlags = lib.optionals (excludeShellChecks != [ ]) [
             "--exclude"
             (lib.concatStringsSep "," excludeShellChecks)
           ];
-          shellcheckCommand = lib.optionalString shellcheckSupported ''
+          # GHC (=> shellcheck) isn't supported on some platforms (such as risc-v)
+          # but we still want to use writeShellApplication on those platforms
+          shellcheckCommand = lib.optionalString shellcheck-minimal.compiler.bootstrapAvailable ''
             # use shellcheck which does not include docs
             # pandoc takes long to build and documentation isn't needed for just running the cli
             ${lib.getExe shellcheck-minimal} ${
@@ -1031,12 +1028,14 @@ rec {
       let
         keepAttrs = names: lib.filterAttrs (name: val: lib.elem name names);
         # enables tools like nix-update to determine what src attributes to replace
-        extraPassthru = keepAttrs [
-          "rev"
-          "tag"
-          "url"
-          "outputHash"
-        ] src;
+        extraPassthru = lib.optionalAttrs (lib.isAttrs src) (
+          keepAttrs [
+            "rev"
+            "tag"
+            "url"
+            "outputHash"
+          ] src
+        );
       in
       stdenvNoCC.mkDerivation (
         {

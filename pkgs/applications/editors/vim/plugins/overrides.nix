@@ -120,6 +120,8 @@
   websocat,
   # luau-lsp-nvim dependencies
   luau-lsp,
+  # nvim-vstsl dependencies
+  vtsls,
 }:
 self: super:
 let
@@ -292,6 +294,16 @@ in
 
   blink-cmp-git = super.blink-cmp-git.overrideAttrs {
     dependencies = [ self.plenary-nvim ];
+  };
+
+  blink-cmp-npm-nvim = super.blink-cmp-npm-nvim.overrideAttrs {
+    nvimSkipModules = [
+      # Test files
+      "blink-cmp-npm.utils.compute_meta_spec"
+      "blink-cmp-npm.utils.generate_doc_spec"
+      "blink-cmp-npm.utils.ignore_version_spec"
+      "blink-cmp-npm.utils.semantic_sort_spec"
+    ];
   };
 
   blink-emoji-nvim = super.blink-emoji-nvim.overrideAttrs {
@@ -616,6 +628,15 @@ in
       "codecompanion.actions.init"
       # Test
       "minimal"
+    ];
+  };
+
+  codecompanion-history-nvim = super.codecompanion-history-nvim.overrideAttrs {
+    dependencies = with self; [
+      # transitive dependency for codecompanion-nvim
+      plenary-nvim
+
+      codecompanion-nvim
     ];
   };
 
@@ -1766,8 +1787,12 @@ in
   };
 
   mason-nvim = super.mason-nvim.overrideAttrs {
-    # lua/mason-vendor/zzlib/inflate-bwo.lua:15: 'end' expected near '&'
-    nvimSkipModules = "mason-vendor.zzlib.inflate-bwo";
+    nvimSkipModules = [
+      # lua/mason-vendor/zzlib/inflate-bwo.lua:15: 'end' expected near '&'
+      "mason-vendor.zzlib.inflate-bwo"
+      # E5108: Error executing lua ...mplugin-mason.nvim-2025-05-06/lua/mason-test/helpers.lua:7: module 'luassert.spy' not found:
+      "mason-test.helpers"
+    ];
   };
 
   mason-tool-installer-nvim = super.mason-tool-installer-nvim.overrideAttrs {
@@ -2591,6 +2616,11 @@ in
     nvimSkipModules = "client.client";
   };
 
+  nvim-vtsls = super.nvim-vtsls.overrideAttrs {
+    runtimeDeps = [ vtsls ];
+    dependencies = [ self.nvim-lspconfig ];
+  };
+
   nvzone-menu = super.nvzone-menu.overrideAttrs {
     checkInputs = with self; [
       # Optional integrations
@@ -3344,6 +3374,10 @@ in
       # some leftover from development
       "textcase.plugin.range"
     ];
+  };
+
+  timerly = super.timerly.overrideAttrs {
+    dependencies = [ self.nvzone-volt ];
   };
 
   tmux-complete-vim = super.tmux-complete-vim.overrideAttrs {

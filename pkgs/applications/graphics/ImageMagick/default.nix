@@ -32,6 +32,8 @@
   libpng,
   liblqr1Support ? true,
   liblqr1,
+  libraqmSupport ? true,
+  libraqm,
   librawSupport ? true,
   libraw,
   librsvgSupport ? !stdenv.hostPlatform.isMinGW,
@@ -59,6 +61,7 @@
 }:
 
 assert libXtSupport -> libX11Support;
+assert libraqmSupport -> freetypeSupport;
 
 let
   arch =
@@ -134,6 +137,7 @@ stdenv.mkDerivation (finalAttrs: {
     ++ lib.optional ghostscriptSupport ghostscript
     ++ lib.optional liblqr1Support liblqr1
     ++ lib.optional libpngSupport libpng
+    ++ lib.optional libraqmSupport libraqm
     ++ lib.optional librawSupport libraw
     ++ lib.optional libtiffSupport libtiff
     ++ lib.optional libxml2Support libxml2
