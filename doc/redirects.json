@@ -5,6 +5,9 @@
   "chap-release-notes": [
     "release-notes.html#chap-release-notes"
   ],
+  "chap-toolchains": [
+    "index.html#chap-toolchains"
+  ],
   "cmake-ctest": [
     "index.html#cmake-ctest"
   ],
@@ -66,6 +69,9 @@
   "pkgs-replacevarswith": [
     "index.html#pkgs-replacevarswith"
   ],
+  "part-toolchains": [
+    "index.html#part-toolchains"
+  ],
   "preface": [
     "index.html#preface"
   ],
@@ -99,6 +105,12 @@
   "sec-build-helper-extendMkDerivation": [
     "index.html#sec-build-helper-extendMkDerivation"
   ],
+  "sec-building-packages-with-llvm": [
+    "index.html#sec-building-packages-with-llvm"
+  ],
+  "sec-building-packages-with-llvm-using-clang-stdenv": [
+    "index.html#sec-building-packages-with-llvm-using-clang-stdenv"
+  ],
   "sec-inkscape": [
     "index.html#sec-inkscape"
   ],
@@ -125,6 +137,30 @@
   ],
   "chap-overlays": [
     "index.html#chap-overlays"
+  ],
+  "sec-nixpkgs-release-25.11": [
+    "release-notes.html#sec-nixpkgs-release-25.11"
+  ],
+  "sec-nixpkgs-release-25.11-highlights": [
+    "release-notes.html#sec-nixpkgs-release-25.11-highlights"
+  ],
+  "sec-nixpkgs-release-25.11-incompatibilities": [
+    "release-notes.html#sec-nixpkgs-release-25.11-incompatibilities"
+  ],
+  "sec-nixpkgs-release-25.11-lib": [
+    "release-notes.html#sec-nixpkgs-release-25.11-lib"
+  ],
+  "sec-nixpkgs-release-25.11-lib-breaking": [
+    "release-notes.html#sec-nixpkgs-release-25.11-lib-breaking"
+  ],
+  "sec-nixpkgs-release-25.11-lib-deprecations": [
+    "release-notes.html#sec-nixpkgs-release-25.11-lib-deprecations"
+  ],
+  "sec-nixpkgs-release-25.11-lib-additions-improvements": [
+    "release-notes.html#sec-nixpkgs-release-25.11-lib-additions-improvements"
+  ],
+  "sec-nixpkgs-release-25.11-notable-changes": [
+    "release-notes.html#sec-nixpkgs-release-25.11-notable-changes"
   ],
   "sec-nixpkgs-release-25.05": [
     "release-notes.html#sec-nixpkgs-release-25.05"
@@ -359,6 +395,9 @@
   ],
   "chap-stdenv": [
     "index.html#chap-stdenv"
+  ],
+  "sec-using-llvm": [
+    "index.html#sec-using-llvm"
   ],
   "sec-using-stdenv": [
     "index.html#sec-using-stdenv"

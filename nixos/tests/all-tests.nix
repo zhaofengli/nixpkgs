@@ -781,6 +781,7 @@ in
   matrix-alertmanager = runTest ./matrix/matrix-alertmanager.nix;
   matrix-appservice-irc = runTest ./matrix/appservice-irc.nix;
   matrix-conduit = handleTest ./matrix/conduit.nix { };
+  matrix-continuwuity = runTest ./matrix/continuwuity.nix;
   matrix-synapse = handleTest ./matrix/synapse.nix { };
   matrix-synapse-workers = handleTest ./matrix/synapse-workers.nix { };
   mautrix-meta-postgres = handleTest ./matrix/mautrix-meta-postgres.nix { };
@@ -1273,6 +1274,7 @@ in
   syncthing-no-settings = handleTest ./syncthing-no-settings.nix { };
   syncthing-init = handleTest ./syncthing-init.nix { };
   syncthing-many-devices = handleTest ./syncthing-many-devices.nix { };
+  syncthing-folders = runTest ./syncthing-folders.nix;
   syncthing-relay = handleTest ./syncthing-relay.nix { };
   sysinit-reactivation = runTest ./sysinit-reactivation.nix;
   systemd = handleTest ./systemd.nix { };

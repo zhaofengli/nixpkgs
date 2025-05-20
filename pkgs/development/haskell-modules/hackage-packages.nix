@@ -642669,9 +642669,7 @@ self: {
       ];
       description = "SystemVerilog to Verilog conversion";
       license = lib.licenses.bsd3;
-      hydraPlatforms = lib.platforms.none;
       mainProgram = "sv2v";
-      broken = true;
     }
   ) { };
 
