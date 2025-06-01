@@ -692780,7 +692780,6 @@ self: {
       description = "Unleash feature toggle client";
       license = lib.licenses.mit;
       mainProgram = "example";
-      maintainers = [ lib.maintainers.evenbrenden ];
     }
   ) { };
 
@@ -692827,7 +692826,6 @@ self: {
       ];
       description = "Unleash feature toggle client core";
       license = lib.licenses.mit;
-      maintainers = [ lib.maintainers.evenbrenden ];
     }
   ) { };
 
