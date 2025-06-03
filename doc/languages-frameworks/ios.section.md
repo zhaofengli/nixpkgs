@@ -30,13 +30,9 @@ Xcode.
 ```nix
 let
   pkgs = import <nixpkgs> { };
-
-  xcodeenv = import ./xcodeenv {
-    inherit (pkgs) stdenv;
-  };
 in
-xcodeenv.composeXcodeWrapper {
-  version = "9.2";
+pkgs.xcodeenv.composeXcodeWrapper {
+  versions = [ "16.3" ];
   xcodeBaseDir = "/Applications/Xcode.app";
 }
 ```
@@ -64,12 +60,8 @@ executing the `xcodeenv.buildApp {}` function:
 ```nix
 let
   pkgs = import <nixpkgs> { };
-
-  xcodeenv = import ./xcodeenv {
-    inherit (pkgs) stdenv;
-  };
 in
-xcodeenv.buildApp {
+pkgs.xcodeenv.buildApp {
   name = "MyApp";
   src = ./myappsources;
   sdkVersion = "11.2";
