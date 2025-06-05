@@ -148,7 +148,8 @@ let
               (
                 platform ? gcc.arch -> final ? gcc.arch && architectures.canExecute final.gcc.arch platform.gcc.arch
               )
-          );
+          )
+          && (final.isDarwin -> (final.darwinPlatform == platform.darwinPlatform));
 
         # Derived meta-data
         useLLVM =
