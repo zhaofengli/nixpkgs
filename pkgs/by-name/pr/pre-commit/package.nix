@@ -11,16 +11,19 @@
   nodejs,
   perl,
   cabal-install,
+  julia,
+  julia-bin,
   pre-commit,
 }:
 
 with python3Packages;
 let
   i686Linux = stdenv.buildPlatform.system == "i686-linux";
+  julia' = if lib.meta.availableOn stdenv.hostPlatform julia then julia else julia-bin;
 in
 buildPythonApplication rec {
   pname = "pre-commit";
-  version = "4.0.1";
+  version = "4.2.0";
   format = "setuptools";
 
   disabled = pythonOlder "3.9";
@@ -29,7 +32,7 @@ buildPythonApplication rec {
     owner = "pre-commit";
     repo = "pre-commit";
     tag = "v${version}";
-    hash = "sha256-qMNnzAxJOS7mabHmGYZ/VkDrpaZbqTJyETSCxq/OrGQ=";
+    hash = "sha256-rUhI9NaxyRfLu/mfLwd5B0ybSnlAQV2Urx6+fef0sGM=";
   };
 
   patches = [
@@ -60,6 +63,7 @@ buildPythonApplication rec {
       pytestCheckHook
       re-assert
       cabal-install
+      julia'
     ]
     ++ lib.optionals (!i686Linux) [
       # coursier can be moved back to the main nativeCheckInputs list once we’re able to bootstrap a
@@ -135,6 +139,7 @@ buildPythonApplication rec {
       "test_additional_node_dependencies_installed"
       "test_additional_rust_cli_dependencies_installed"
       "test_additional_rust_lib_dependencies_installed"
+      "test_automatic_toolchain_switching"
       "test_coursier_hook"
       "test_coursier_hook_additional_dependencies"
       "test_dart"
@@ -150,6 +155,8 @@ buildPythonApplication rec {
       "test_language_version_with_rustup"
       "test_installs_rust_missing_rustup"
       "test_installs_without_links_outside_env"
+      "test_julia_hook"
+      "test_julia_repo_local"
       "test_local_golang_additional_deps"
       "test_lua"
       "test_lua_additional_dependencies"

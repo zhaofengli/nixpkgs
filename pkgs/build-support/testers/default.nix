@@ -225,6 +225,8 @@
       );
   hasPkgConfigModules = callPackage ./hasPkgConfigModules/tester.nix { };
 
+  hasCmakeConfigModules = callPackage ./hasCmakeConfigModules/tester.nix { };
+
   testMetaPkgConfig = callPackage ./testMetaPkgConfig/tester.nix { };
 
   testDarwinCodesign = callPackage ./testDarwinCodesign/tester.nix { };
