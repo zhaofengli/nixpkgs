@@ -754,6 +754,7 @@
   ./services/mail/spamassassin.nix
   ./services/mail/stalwart-mail.nix
   ./services/mail/sympa.nix
+  ./services/mail/tlsrpt.nix
   ./services/mail/zeyple.nix
   ./services/matrix/appservice-discord.nix
   ./services/matrix/appservice-irc.nix
@@ -766,6 +767,7 @@
   ./services/matrix/lk-jwt-service.nix
   ./services/matrix/matrix-alertmanager.nix
   ./services/matrix/maubot.nix
+  ./services/matrix/mautrix-discord.nix
   ./services/matrix/mautrix-meta.nix
   ./services/matrix/mautrix-signal.nix
   ./services/matrix/mautrix-telegram.nix
@@ -1544,6 +1546,7 @@
   ./services/web-apps/eintopf.nix
   ./services/web-apps/engelsystem.nix
   ./services/web-apps/ethercalc.nix
+  ./services/web-apps/fediwall.nix
   ./services/web-apps/fider.nix
   ./services/web-apps/filebrowser.nix
   ./services/web-apps/filesender.nix

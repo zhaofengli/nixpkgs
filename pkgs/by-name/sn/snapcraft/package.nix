@@ -14,7 +14,7 @@
 
 python312Packages.buildPythonApplication rec {
   pname = "snapcraft";
-  version = "8.9.2";
+  version = "8.9.5";
 
   pyproject = true;
 
@@ -22,7 +22,7 @@ python312Packages.buildPythonApplication rec {
     owner = "canonical";
     repo = "snapcraft";
     tag = version;
-    hash = "sha256-4Dv2q/aKWnQkQ6ANYev/5fT1fFKh1MytYJtHK0iAzhk=";
+    hash = "sha256-bwk9wK8fIXhhmj4XdtpTzZfzZkAtETpfMleTrbYt6Ww=";
   };
 
   patches = [
@@ -111,6 +111,7 @@ python312Packages.buildPythonApplication rec {
     "docutils"
     "jsonschema"
     "pygit2"
+    "requests"
     "urllib3"
     "validators"
   ];
