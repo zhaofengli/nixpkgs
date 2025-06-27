@@ -2,30 +2,25 @@
   lib,
   buildPythonPackage,
   fetchFromGitHub,
-  setuptools,
-  wheel,
-  black,
   boilerpy3,
   cdxj-indexer,
-  click,
   frictionless,
   jsonlines,
   pytest-cov,
   pyyaml,
   shortuuid,
-  typer,
   pytestCheckHook,
 }:
 
 buildPythonPackage rec {
   pname = "wacz";
   version = "0.5.0";
-  pyproject = true;
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "webrecorder";
     repo = "py-wacz";
-    rev = "v${version}";
+    tag = "v${version}";
     hash = "sha256-bGY6G7qBAN1Vu+pTNqRG0xh34sR62pMhQFHFGlJaTPQ=";
   };
 
@@ -34,22 +29,15 @@ buildPythonPackage rec {
       --replace "pytest-runner" ""
   '';
 
-  build-system = [
-    setuptools
-    wheel
-  ];
-
+  # Upstream appears to attempt to pin transitive dependencies (typer, click)
+  # to work around package conflicts.
   dependencies = [
-    black
     boilerpy3
     cdxj-indexer
-    click
     frictionless
-    jsonlines
     pytest-cov
     pyyaml
     shortuuid
-    typer
   ];
 
   optional-dependencies = {
@@ -60,6 +48,7 @@ buildPythonPackage rec {
 
   nativeCheckInputs = [
     pytestCheckHook
+    jsonlines # Not even actually used...
   ];
 
   disabledTests = [
@@ -70,8 +59,6 @@ buildPythonPackage rec {
   pythonImportsCheck = [
     "wacz"
   ];
-
-  dontCheckRuntimeDeps = true;
 
   meta = {
     description = "Utility for working with web archive data using the WACZ format specification";
