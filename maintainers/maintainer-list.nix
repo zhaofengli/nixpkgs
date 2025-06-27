@@ -11770,6 +11770,12 @@
     githubId = 56772267;
     name = "Jürgen Hahn";
   };
+  jherland = {
+    email = "johan@herland.net";
+    github = "jherland";
+    githubId = 547031;
+    name = "Johan Herland";
+  };
   jhh = {
     email = "jeff@j3ff.io";
     github = "jhh";
@@ -27499,6 +27505,11 @@
     email = "yanganto@gmail.com";
     github = "yanganto";
     githubId = 10803111;
+  };
+  yannham = {
+    github = "yannham";
+    githubId = 6530104;
+    name = "Yann Hamdaoui";
   };
   yannickulrich = {
     email = "yannick.ulrich@proton.me";
