@@ -2,8 +2,6 @@
   lib,
   buildPythonPackage,
   fetchFromGitHub,
-  setuptools,
-  wheel,
   lxml,
   unittestCheckHook,
 }:
@@ -11,19 +9,14 @@
 buildPythonPackage rec {
   pname = "ezodf";
   version = "0.3.2";
-  pyproject = true;
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "T0ha";
     repo = "ezodf";
-    rev = version;
+    tag = version;
     hash = "sha256-d66CTj9CpCnMICqNdUP07M9elEfoxuPg8x1kxqgXTTE=";
   };
-
-  build-system = [
-    setuptools
-    wheel
-  ];
 
   dependencies = [
     lxml
