@@ -2,27 +2,20 @@
   lib,
   buildPythonPackage,
   fetchFromGitHub,
-  setuptools,
-  wheel,
   defusedxml,
 }:
 
 buildPythonPackage rec {
   pname = "py3amf";
   version = "0.8.11";
-  pyproject = true;
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "StdCarrot";
     repo = "Py3AMF";
-    rev = "v${version}";
+    tag = "v${version}";
     hash = "sha256-9zuHh5+ggIjv1LcjpBNHy2yh09KsFpxUdGrtKGm94Zg=";
   };
-
-  build-system = [
-    setuptools
-    wheel
-  ];
 
   dependencies = [
     defusedxml
