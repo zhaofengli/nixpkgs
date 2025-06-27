@@ -65,7 +65,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "frictionlessdata";
     repo = "frictionless-py";
-    rev = "v${version}";
+    tag = "v${version}";
     hash = "sha256-svspEHcEw994pEjnuzWf0FFaYeFZuqriK96yFAB6/gI=";
   };
 
