@@ -55,6 +55,10 @@
   pytest-vcr,
   moto,
   requests-mock,
+
+  # Tests depending on excel
+  openpyxl,
+  xlrd,
 }:
 
 buildPythonPackage rec {
@@ -161,6 +165,8 @@ buildPythonPackage rec {
       sqlalchemy
     ];
     visidata = [
+      # Not ideal: This is actually outside pythonPackages set and depends on whatever
+      # Python version the top-level python3Packages set refers to
       visidata
     ];
     wkt = [
@@ -181,6 +187,11 @@ buildPythonPackage rec {
     pytest-vcr
     moto
     requests-mock
+
+    # We do not have all packages for the `excel` format to fully function,
+    # but it's required for some of the tests.
+    openpyxl
+    xlrd
   ] ++ lib.flatten (lib.attrValues optional-dependencies);
 
   disabledTestPaths = [
