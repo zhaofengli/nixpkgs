@@ -1,0 +1,36 @@
+{
+  lib,
+  python3,
+  fetchFromGitHub,
+}:
+
+python3.pkgs.buildPythonApplication rec {
+  pname = "warcit";
+  version = "unstable-2024-11-28";
+  format = "setuptools";
+
+  src = fetchFromGitHub {
+    owner = "webrecorder";
+    repo = "warcit";
+    rev = "3cba1ad2c3e9bddd33c3babf45c2a03b5d8935ef";
+    hash = "sha256-hqQPQWmhR6/NP3XsQkjlOIVbbDfoOf9uhhvlJvIPNZE=";
+  };
+
+  dependencies = with python3.pkgs; [
+    warcio
+    cchardet
+    pyyaml
+  ];
+
+  pythonImportsCheck = [
+    "warcit"
+  ];
+
+  meta = {
+    description = "Convert Directories, Files and ZIP Files to Web Archives (WARC)";
+    homepage = "https://github.com/webrecorder/warcit";
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [ zhaofengli ];
+    mainProgram = "warcit";
+  };
+}
