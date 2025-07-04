@@ -1605,8 +1605,8 @@ self: {
       description = "A dependently typed functional programming language and proof assistant";
       license = lib.licenses.mit;
       maintainers = [
-        lib.maintainers.abbradar
         lib.maintainers.iblech
+        lib.maintainers.ncfavier
         lib.maintainers.turion
       ];
     }

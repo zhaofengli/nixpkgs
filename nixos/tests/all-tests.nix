@@ -433,6 +433,7 @@ in
   fscrypt = runTest ./fscrypt.nix;
   fastnetmon-advanced = runTest ./fastnetmon-advanced.nix;
   lauti = runTest ./lauti.nix;
+  easytier = handleTest ./easytier.nix { };
   ejabberd = runTest ./xmpp/ejabberd.nix;
   elk = handleTestOn [ "x86_64-linux" ] ./elk.nix { };
   emacs-daemon = runTest ./emacs-daemon.nix;
@@ -502,6 +503,10 @@ in
   firefox-esr-128 = runTest {
     imports = [ ./firefox.nix ];
     _module.args.firefoxPackage = pkgs.firefox-esr-128;
+  };
+  firefox-esr-140 = runTest {
+    imports = [ ./firefox.nix ];
+    _module.args.firefoxPackage = pkgs.firefox-esr-140;
   };
   firefoxpwa = runTest ./firefoxpwa.nix;
   firejail = runTest ./firejail.nix;
@@ -806,7 +811,7 @@ in
   mariadb-galera = handleTest ./mysql/mariadb-galera.nix { };
   marytts = runTest ./marytts.nix;
   mastodon = pkgs.recurseIntoAttrs (handleTest ./web-apps/mastodon { inherit handleTestOn; });
-  pixelfed = discoverTests (import ./web-apps/pixelfed { inherit handleTestOn; });
+  pixelfed = import ./web-apps/pixelfed { inherit runTestOn; };
   mate = runTest ./mate.nix;
   mate-wayland = runTest ./mate-wayland.nix;
   matter-server = runTest ./matter-server.nix;
@@ -913,9 +918,9 @@ in
   networking.scripted = handleTest ./networking/networkd-and-scripted.nix { networkd = false; };
   networking.networkd = handleTest ./networking/networkd-and-scripted.nix { networkd = true; };
   networking.networkmanager = handleTest ./networking/networkmanager.nix { };
-  netbox_3_7 = handleTest ./web-apps/netbox/default.nix { netbox = pkgs.netbox_3_7; };
   netbox_4_1 = handleTest ./web-apps/netbox/default.nix { netbox = pkgs.netbox_4_1; };
   netbox_4_2 = handleTest ./web-apps/netbox/default.nix { netbox = pkgs.netbox_4_2; };
+  netbox_4_3 = handleTest ./web-apps/netbox/default.nix { netbox = pkgs.netbox_4_3; };
   netbox-upgrade = runTest ./web-apps/netbox-upgrade.nix;
   # TODO: put in networking.nix after the test becomes more complete
   networkingProxy = runTest ./networking-proxy.nix;
