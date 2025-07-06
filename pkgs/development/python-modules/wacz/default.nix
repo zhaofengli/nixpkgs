@@ -2,10 +2,11 @@
   lib,
   buildPythonPackage,
   fetchFromGitHub,
+  fetchpatch,
+  setuptools,
   boilerpy3,
   cdxj-indexer,
   frictionless,
-  jsonlines,
   pytest-cov,
   pyyaml,
   shortuuid,
@@ -15,7 +16,7 @@
 buildPythonPackage rec {
   pname = "wacz";
   version = "0.5.0";
-  format = "setuptools";
+  pyproject = true;
 
   src = fetchFromGitHub {
     owner = "webrecorder";
@@ -24,21 +25,31 @@ buildPythonPackage rec {
     hash = "sha256-bGY6G7qBAN1Vu+pTNqRG0xh34sR62pMhQFHFGlJaTPQ=";
   };
 
+  patches = [
+    # <https://github.com/webrecorder/py-wacz/pull/47>
+    (fetchpatch {
+      name = "clean-up-deps.patch";
+      url = "https://github.com/webrecorder/py-wacz/compare/1e8f724a527f28855eedeb0d969ee39b00b2a80a...9d3ad60f125247b8a4354511d9123b85ce6a23c5.patch";
+      hash = "sha256-zH6BKhsq9ybjzaWcNbVkk1sWh8vVCkv7Qxuwl0MQhNM=";
+    })
+  ];
+
   postPatch = ''
     substituteInPlace setup.py \
       --replace "pytest-runner" ""
   '';
 
-  # Upstream appears to attempt to pin transitive dependencies (typer, click)
-  # to work around package conflicts.
+  build-system = [
+    setuptools
+  ];
+
   dependencies = [
     boilerpy3
     cdxj-indexer
     frictionless
-    pytest-cov
     pyyaml
     shortuuid
-  ];
+  ] ++ frictionless.optional-dependencies.json;
 
   optional-dependencies = {
     # signing = [
@@ -48,7 +59,7 @@ buildPythonPackage rec {
 
   nativeCheckInputs = [
     pytestCheckHook
-    jsonlines # Not even actually used...
+    pytest-cov
   ];
 
   disabledTests = [
