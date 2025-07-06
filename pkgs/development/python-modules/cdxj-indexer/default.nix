@@ -2,6 +2,7 @@
   lib,
   buildPythonPackage,
   fetchFromGitHub,
+  setuptools,
   warcio,
   surt,
   py3amf,
@@ -12,7 +13,7 @@
 buildPythonPackage rec {
   pname = "cdxj-indexer";
   version = "1.4.6";
-  format = "setuptools";
+  pyproject = true;
 
   src = fetchFromGitHub {
     owner = "webrecorder";
@@ -21,13 +22,21 @@ buildPythonPackage rec {
     hash = "sha256-E3b/IfjngyXhWvRYP9CkQGvBFeC8pAm4KxZA9MwOo4s=";
   };
 
-  # This upstream performs the questionable practice of pinning transitive
-  # dependencies to resolve conflicts.
+  build-system = [
+    setuptools
+  ];
+
   dependencies = [
     warcio
     surt
     py3amf
     multipart
+  ];
+
+  pythonRemoveDeps = [
+    # Transitive dependency that does not need to be pinned
+    # Proposed fix in <https://github.com/webrecorder/cdxj-indexer/pull/25>
+    "idna"
   ];
 
   nativeCheckInputs = [
