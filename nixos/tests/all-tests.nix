@@ -311,6 +311,7 @@ in
   cfssl = runTestOn [ "aarch64-linux" "x86_64-linux" ] ./cfssl.nix;
   cgit = runTest ./cgit.nix;
   charliecloud = runTest ./charliecloud.nix;
+  chhoto-url = runTest ./chhoto-url.nix;
   chromadb = runTest ./chromadb.nix;
   chromium = (handleTestOn [ "aarch64-linux" "x86_64-linux" ] ./chromium.nix { }).stable or { };
   chrony = runTestOn [ "aarch64-linux" "x86_64-linux" ] ./chrony.nix;
@@ -790,6 +791,11 @@ in
   leaps = runTest ./leaps.nix;
   lemmy = runTest ./lemmy.nix;
   libinput = runTest ./libinput.nix;
+  lemurs = runTest ./lemurs/lemurs.nix;
+  lemurs-wayland = runTest ./lemurs/lemurs-wayland.nix;
+  lemurs-wayland-script = runTest ./lemurs/lemurs-wayland-script.nix;
+  lemurs-xorg = runTest ./lemurs/lemurs-xorg.nix;
+  lemurs-xorg-script = runTest ./lemurs/lemurs-xorg-script.nix;
   librenms = runTest ./librenms.nix;
   libresprite = runTest ./libresprite.nix;
   libreswan = runTest ./libreswan.nix;
