@@ -207,6 +207,7 @@ let
             ${optionalString cfg.recommendedTlsSettings ''
               # Keep in sync with https://ssl-config.mozilla.org/#server=nginx&config=intermediate
 
+              ssl_ecdh_curve X25519:prime256v1:secp384r1;
               ssl_session_timeout 1d;
               ssl_session_cache shared:SSL:10m;
               # Breaks forward secrecy: https://github.com/mozilla/server-side-tls/issues/135
@@ -214,10 +215,6 @@ let
               # We don't enable insecure ciphers by default, so this allows
               # clients to pick the most performant, per https://github.com/mozilla/server-side-tls/issues/260
               ssl_prefer_server_ciphers off;
-
-              # OCSP stapling
-              ssl_stapling on;
-              ssl_stapling_verify on;
             ''}
 
             ${optionalString cfg.recommendedBrotliSettings ''
@@ -1449,11 +1446,12 @@ in
         mkCertOwnershipAssertion {
           cert = config.security.acme.certs.${name};
           groups = config.users.groups;
-          services =
-            [ config.systemd.services.nginx ]
-            ++ lib.optional (
-              cfg.enableReload || vhostCertNames != [ ]
-            ) config.systemd.services.nginx-config-reload;
+          services = [
+            config.systemd.services.nginx
+          ]
+          ++ lib.optional (
+            cfg.enableReload || vhostCertNames != [ ]
+          ) config.systemd.services.nginx-config-reload;
         }
       ) vhostCertNames;
 
@@ -1484,10 +1482,11 @@ in
       description = "Nginx Web Server";
       wantedBy = [ "multi-user.target" ];
       wants = concatLists (map (certName: [ "acme-finished-${certName}.target" ]) vhostCertNames);
-      after =
-        [ "network.target" ]
-        ++ map (certName: "acme-selfsigned-${certName}.service") vhostCertNames
-        ++ map (certName: "acme-${certName}.service") independentCertNames; # avoid loading self-signed key w/ real cert, or vice-versa
+      after = [
+        "network.target"
+      ]
+      ++ map (certName: "acme-selfsigned-${certName}.service") vhostCertNames
+      ++ map (certName: "acme-${certName}.service") independentCertNames; # avoid loading self-signed key w/ real cert, or vice-versa
       # Nginx needs to be started in order to be able to request certificates
       # (it's hosting the acme challenge after all)
       # This fixes https://github.com/NixOS/nixpkgs/issues/81842
@@ -1525,24 +1524,22 @@ in
         # New file permissions
         UMask = "0027"; # 0640 / 0750
         # Capabilities
-        AmbientCapabilities =
-          [
-            "CAP_NET_BIND_SERVICE"
-            "CAP_SYS_RESOURCE"
-          ]
-          ++ optionals cfg.enableQuicBPF [
-            "CAP_SYS_ADMIN"
-            "CAP_NET_ADMIN"
-          ];
-        CapabilityBoundingSet =
-          [
-            "CAP_NET_BIND_SERVICE"
-            "CAP_SYS_RESOURCE"
-          ]
-          ++ optionals cfg.enableQuicBPF [
-            "CAP_SYS_ADMIN"
-            "CAP_NET_ADMIN"
-          ];
+        AmbientCapabilities = [
+          "CAP_NET_BIND_SERVICE"
+          "CAP_SYS_RESOURCE"
+        ]
+        ++ optionals cfg.enableQuicBPF [
+          "CAP_SYS_ADMIN"
+          "CAP_NET_ADMIN"
+        ];
+        CapabilityBoundingSet = [
+          "CAP_NET_BIND_SERVICE"
+          "CAP_SYS_RESOURCE"
+        ]
+        ++ optionals cfg.enableQuicBPF [
+          "CAP_SYS_ADMIN"
+          "CAP_NET_ADMIN"
+        ];
         # Security
         NoNewPrivileges = true;
         # Sandboxing (sorted by occurrence in https://www.freedesktop.org/software/systemd/man/systemd.exec.html)
@@ -1576,7 +1573,8 @@ in
         SystemCallArchitectures = "native";
         SystemCallFilter = [
           "~@cpu-emulation @debug @keyring @mount @obsolete @privileged @setuid"
-        ] ++ optional cfg.enableQuicBPF [ "bpf" ];
+        ]
+        ++ optional cfg.enableQuicBPF [ "bpf" ];
       };
     };
 

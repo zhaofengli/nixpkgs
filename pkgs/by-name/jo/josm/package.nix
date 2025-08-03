@@ -60,8 +60,13 @@ stdenv.mkDerivation {
           --add-flags "${baseJavaOpts} ${extraJavaOpts} -jar $out/share/josm/josm.jar" \
           --prefix LD_LIBRARY_PATH ":" '${libXxf86vm}/lib' \
           --prefix _JAVA_AWT_WM_NONREPARENTING : 1 \
-          --prefix _JAVA_OPTIONS : "-Dawt.useSystemAAFontSettings=on"
+          --prefix _JAVA_OPTIONS " " "-Dawt.useSystemAAFontSettings=gasp"
       '';
+
+  passthru = {
+    inherit srcs;
+    updateScript = ./update.sh;
+  };
 
   meta = {
     description = "Extensible editor for OpenStreetMap";

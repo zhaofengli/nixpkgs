@@ -62,13 +62,12 @@ rustPlatform.buildRustPackage {
   cargoHash = "sha256-L9zugOwlPwpdtjV87dT1PH7FAMJYHYFuvfyOfPe5b2k=";
 
   buildNoDefaultFeatures = true;
-  buildFeatures =
-    [
-      "cli"
-    ]
-    ++ lib.optional withServer [
-      "server"
-    ];
+  buildFeatures = [
+    "cli"
+  ]
+  ++ lib.optional withServer [
+    "server"
+  ];
 
   preConfigure = lib.optionalString withServer ''
     cp -r ${web}/dist src/static
@@ -85,7 +84,7 @@ rustPlatform.buildRustPackage {
   };
 
   meta = {
-    description = "a lightweight way to check for container image updates. written in Rust";
+    description = "Lightweight way to check for container image updates. written in Rust";
     homepage = "https://cup.sergi0g.dev";
     license = lib.licenses.agpl3Only;
     platforms = lib.platforms.all;

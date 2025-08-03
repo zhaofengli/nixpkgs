@@ -27,7 +27,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     hash = "sha256-XGZHUMVTJLlWIwgEqVCMoHDoDkzkFAdTvOOtMtCAw98=";
   };
 
-  useFetchCargoVendor = true;
   cargoHash = "sha256-+NI1poeMXMlR9rafmGKu6i6iFORe2IGVVPj08MP8g3o=";
 
   nativeBuildInputs = [
@@ -77,7 +76,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   };
 
   meta = {
-    description = "seccomp-based application sandbox";
+    description = "Seccomp-based application sandbox";
     homepage = "https://gitlab.exherbo.org/sydbox/sydbox";
     changelog = "https://gitlab.exherbo.org/sydbox/sydbox/-/blob/${finalAttrs.src.tag}/ChangeLog.md";
     license = lib.licenses.gpl3Plus;

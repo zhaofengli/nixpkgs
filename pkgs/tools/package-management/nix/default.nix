@@ -204,14 +204,14 @@ lib.makeExtensible (
       nix_2_29 = addTests "nix_2_29" self.nixComponents_2_29.nix-everything;
 
       nixComponents_2_30 = nixDependencies.callPackage ./modular/packages.nix rec {
-        version = "2.30.1";
+        version = "2.30.2";
         inherit (self.nix_2_24.meta) maintainers teams;
         otherSplices = generateSplicesForNixComponents "nixComponents_2_30";
         src = fetchFromGitHub {
           owner = "NixOS";
           repo = "nix";
           tag = version;
-          hash = "sha256-4+xPVJBeYLlIn+fOS5F0iq/DclpCXnmh4Y7VzAIr/a8=";
+          hash = "sha256-U46fAs+j2PfWWqP1zNi1odhnV4030SQ0RoEC8Eah1OQ=";
         };
       };
 
@@ -231,7 +231,7 @@ lib.makeExtensible (
 
       git = addTests "git" self.nixComponents_git.nix-everything;
 
-      latest = self.nix_2_29;
+      latest = self.nix_2_30;
 
       # The minimum Nix version supported by Nixpkgs
       # Note that some functionality *might* have been backported into this Nix version,

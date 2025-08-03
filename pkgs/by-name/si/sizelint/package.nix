@@ -6,17 +6,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "sizelint";
-  version = "0.1.1";
+  version = "0.1.3";
 
   src = fetchFromGitHub {
     owner = "a-kenji";
     repo = "sizelint";
     tag = "v${version}";
-    hash = "sha256-bFOe8zrWzfIPzOn6NAHD5y943/v8cwCMzC2pTPEUi2Q=";
+    hash = "sha256-06RJrE0w1Xhj364dUUuYadxleX12mkB8yO+h1QLZhH0=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-h5NJXxiGe3TIFt2aa08XAxPB2rtuBva/6GEhajin4OE=";
+  cargoHash = "sha256-1kg1xfgzqrbZvazRavM4aW7oyRei9jKW0a+a6z2HLnc=";
 
   meta = {
     description = "Lint your file tree based on file sizes";

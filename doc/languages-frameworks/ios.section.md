@@ -153,9 +153,7 @@ instances:
 let
   pkgs = import <nixpkgs> { };
 
-  xcodeenv = import ./xcodeenv {
-    inherit (pkgs) stdenv;
-  };
+  xcodeenv = import ./xcodeenv { inherit (pkgs) stdenv; };
 in
 xcode.simulateApp {
   name = "simulate";
@@ -187,9 +185,7 @@ app in the requested simulator instance:
 let
   pkgs = import <nixpkgs> { };
 
-  xcodeenv = import ./xcodeenv {
-    inherit (pkgs) stdenv;
-  };
+  xcodeenv = import ./xcodeenv { inherit (pkgs) stdenv; };
 in
 xcode.simulateApp {
   name = "simulate";

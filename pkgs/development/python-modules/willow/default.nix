@@ -45,7 +45,8 @@ buildPythonPackage rec {
     pytestCheckHook
     pillow
     wand
-  ] ++ optional-dependencies.heif;
+  ]
+  ++ optional-dependencies.heif;
 
   meta = {
     description = "Python image library that sits on top of Pillow, Wand and OpenCV";
@@ -53,7 +54,6 @@ buildPythonPackage rec {
     changelog = "https://github.com/wagtail/Willow/releases/tag/v${version}";
     license = lib.licenses.bsd2;
     maintainers = with lib.maintainers; [
-      desiderius
       kuflierl
     ];
   };

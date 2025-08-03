@@ -51,14 +51,14 @@
 
 buildPythonPackage rec {
   pname = "openai";
-  version = "1.97.0";
+  version = "1.97.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "openai";
     repo = "openai-python";
     tag = "v${version}";
-    hash = "sha256-q+GUEHducm71Zqh7ZfRF217awFKQIsOSEWoe04M3DFM=";
+    hash = "sha256-ANY74P3tM8VVPh9m6hOdZSkMhcQphi72bKNcLrsLEq8=";
   };
 
   postPatch = ''substituteInPlace pyproject.toml --replace-fail "hatchling==1.26.3" "hatchling"'';
@@ -68,19 +68,18 @@ buildPythonPackage rec {
     hatch-fancy-pypi-readme
   ];
 
-  dependencies =
-    [
-      anyio
-      distro
-      httpx
-      jiter
-      pydantic
-      sniffio
-      tqdm
-      typing-extensions
-    ]
-    ++ lib.optionals withRealtime optional-dependencies.realtime
-    ++ lib.optionals withVoiceHelpers optional-dependencies.voice-helpers;
+  dependencies = [
+    anyio
+    distro
+    httpx
+    jiter
+    pydantic
+    sniffio
+    tqdm
+    typing-extensions
+  ]
+  ++ lib.optionals withRealtime optional-dependencies.realtime
+  ++ lib.optionals withVoiceHelpers optional-dependencies.voice-helpers;
 
   optional-dependencies = {
     # `httpx_aiohttp` not currently in `nixpkgs`
@@ -119,16 +118,15 @@ buildPythonPackage rec {
     "-Wignore::DeprecationWarning"
   ];
 
-  disabledTests =
-    [
-      # Tests make network requests
-      "test_copy_build_request"
-      "test_basic_attribute_access_works"
-    ]
-    ++ lib.optionals (pythonAtLeast "3.13") [
-      # RuntimeWarning: coroutine method 'aclose' of 'AsyncStream._iter_events' was never awaited
-      "test_multi_byte_character_multiple_chunks"
-    ];
+  disabledTests = [
+    # Tests make network requests
+    "test_copy_build_request"
+    "test_basic_attribute_access_works"
+  ]
+  ++ lib.optionals (pythonAtLeast "3.13") [
+    # RuntimeWarning: coroutine method 'aclose' of 'AsyncStream._iter_events' was never awaited
+    "test_multi_byte_character_multiple_chunks"
+  ];
 
   disabledTestPaths = [
     # Test makes network requests

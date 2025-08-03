@@ -593,10 +593,7 @@ with lib.maintainers;
   };
 
   infisical = {
-    members = [
-      akhilmhdh
-      mahyarmirrashed
-    ];
+    members = [ akhilmhdh ];
     scope = "Maintain Infisical";
     shortName = "Infisical";
   };
@@ -1233,6 +1230,7 @@ with lib.maintainers;
       arianvp
       elvishjerricco
       aanderse
+      grimmauld
     ];
     githubTeams = [ "systemd" ];
     scope = "Maintain systemd for NixOS.";

@@ -32,15 +32,14 @@ stdenv.mkDerivation rec {
     zlib
   ];
 
-  preConfigure =
-    ''
-      substituteInPlace src/Makefile.in \
-        --replace-fail "-L\$(subst /libgfortran.a, ,\$(FRTLIB) )" "-L${gfortran.cc.lib}/lib"
-    ''
-    + (lib.optionalString stdenv.hostPlatform.isDarwin ''
-      substituteInPlace src/Makefile.in \
-        --replace-fail "gfortran -print-file-name=libgfortran.a" "gfortran -print-file-name=libgfortran.dylib"
-    '');
+  preConfigure = ''
+    substituteInPlace src/Makefile.in \
+      --replace-fail "-L\$(subst /libgfortran.a, ,\$(FRTLIB) )" "-L${gfortran.cc.lib}/lib"
+  ''
+  + (lib.optionalString stdenv.hostPlatform.isDarwin ''
+    substituteInPlace src/Makefile.in \
+      --replace-fail "gfortran -print-file-name=libgfortran.a" "gfortran -print-file-name=libgfortran.dylib"
+  '');
 
   enableParallelBuilding = false; # broken
 
@@ -52,7 +51,7 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "APPLgrid project provides a fast and flexible way to reproduce the results of full NLO calculations with any input parton distribution set in only a few milliseconds rather than the weeks normally required to gain adequate statistics";
+    description = "Fast and flexible way to reproduce the results of full NLO calculations with any input parton distribution set in only a few milliseconds rather than the weeks normally required to gain adequate statistics";
     license = licenses.gpl3;
     homepage = "http://applgrid.hepforge.org";
     platforms = platforms.unix;

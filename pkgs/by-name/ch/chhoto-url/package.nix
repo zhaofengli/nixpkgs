@@ -8,13 +8,13 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "chhoto-url";
-  version = "6.2.8";
+  version = "6.2.11";
 
   src = fetchFromGitHub {
     owner = "SinTan1729";
     repo = "chhoto-url";
     tag = finalAttrs.version;
-    hash = "sha256-aWiLfhNbtjsM7fEqoNIKsU12/3b8ORTpZ/4jyqSLmdM=";
+    hash = "sha256-3VQmTQ6ZlDTRL3nx/sQxWLKgW8ee0Ts+C1CiWkiX2/g=";
   };
 
   sourceRoot = "${finalAttrs.src.name}/actix";
@@ -24,7 +24,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
       --replace-fail "./resources/" "${placeholder "out"}/share/chhoto-url/resources/"
   '';
 
-  cargoHash = "sha256-rKNGUl1TI21SOBwTuv/TGl46S8FVjCWunJwP5PLdx6g=";
+  cargoHash = "sha256-QIqLzk/vAOrW0ain0Oq9tnqzCSyK4yDOYsjmil3xPc4=";
 
   postInstall = ''
     mkdir -p $out/share/chhoto-url
