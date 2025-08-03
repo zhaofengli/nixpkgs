@@ -18,13 +18,13 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "vue-language-server";
-  version = "3.3.7";
+  version = "3.3.10";
 
   src = fetchFromGitHub {
     owner = "vuejs";
     repo = "language-tools";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-+jtnbSZFvRwl03iW6u6pZXMuql1LxIQZaPPaQUL+saQ=";
+    hash = "sha256-3x3idLqfh3SiyyMWaCUencgvY82yjP2nTeOFASEBFbM=";
   };
 
   pnpmDeps = fetchPnpmDeps {
@@ -35,7 +35,7 @@ stdenv.mkDerivation (finalAttrs: {
       ;
     inherit pnpm;
     fetcherVersion = 4;
-    hash = "sha256-OAPNM8Ngx9x3XcWIq6pw7LWadcGWhl29AjGjqoIEveo=";
+    hash = "sha256-aUxUw3PjlSyUATb2FFQstpq+3P3ymPGZnmdiuYUQ3AE=";
   };
 
   nativeBuildInputs = [

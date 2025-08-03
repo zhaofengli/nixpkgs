@@ -349,7 +349,7 @@ let
 
       dontDisableStatic = true;
 
-      configureScript = "${python.interpreter} configure.py";
+      configureScript = "${python.pythonOnBuildForHost.interpreter} configure.py";
 
       # In order to support unsupported cross configurations, we copy some intermediate executables
       # from a native build and replace all the build-system tools with a script which simply touches
@@ -542,6 +542,7 @@ let
             ]
             # Those are annoyingly flaky, but not enough to be marked as such upstream.
             ++ lib.optional (majorVersion == "22") "test-child-process-stdout-flush-exit"
+            ++ lib.optional (majorVersion == "22" && stdenv.hostPlatform.isRiscV64) "test-worker-messaging"
             ++ lib.optional (
               majorVersion == "22" && stdenv.buildPlatform.isDarwin
             ) "test/sequential/test-http-server-request-timeouts-mixed.js"

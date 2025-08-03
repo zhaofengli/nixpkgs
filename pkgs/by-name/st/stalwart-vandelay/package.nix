@@ -8,14 +8,14 @@
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "vandelay";
-  version = "1.0.6";
+  version = "1.0.8";
   src = fetchFromGitHub {
     owner = "stalwartlabs";
     repo = "vandelay";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-Eg4kQncwCHpFzCZBp2OK4yUsBsYXwf1pQ+USHwmU9Ro=";
+    hash = "sha256-2KknqhkbdqEcdmJmfLaJZE6LVQ9C6S1F9aMz1OJB5Nc=";
   };
-  cargoHash = "sha256-+v0xgVliX/sDDDMCzWMVDnBDoJK9a2xaIkMJwEIO6ks=";
+  cargoHash = "sha256-dHWnfKvwRsw8XVg+aJrBCTeLx7z/oAJuF75O00/Vg/c=";
   __structuredAttrs = true;
   __darwinAllowLocalNetworking = true;
   # called `Result::unwrap()` on an `Err` value: Tls("rustls platform verifier: unexpected error: No CA certificates were loaded from the system")

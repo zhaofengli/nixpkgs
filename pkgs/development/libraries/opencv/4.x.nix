@@ -54,14 +54,13 @@
   enableIpp ? false,
   enablePython ? false,
   pythonPackages,
-  enableGtk2 ? false,
-  gtk2,
   enableGtk3 ? false,
   gtk3,
   enableVtk ? false,
   vtk,
   enableFfmpeg ? true,
-  ffmpeg-headless,
+  # FIXME: unpin once upstream has ffmpeg 9 support
+  ffmpeg_8-headless,
   enableGStreamer ? true,
   elfutils,
   gst_all_1,
@@ -360,9 +359,6 @@ effectiveStdenv.mkDerivation {
   ++ optionals (effectiveStdenv.buildPlatform == effectiveStdenv.hostPlatform) [
     hdf5
   ]
-  ++ optionals enableGtk2 [
-    gtk2
-  ]
   ++ optionals enableGtk3 [
     gtk3
   ]
@@ -391,7 +387,7 @@ effectiveStdenv.mkDerivation {
     openjpeg
   ]
   ++ optionals enableFfmpeg [
-    ffmpeg-headless
+    ffmpeg_8-headless
   ]
   ++ optionals (enableGStreamer && effectiveStdenv.hostPlatform.isLinux) [
     elfutils
@@ -649,7 +645,6 @@ effectiveStdenv.mkDerivation {
       opencv4-tests = callPackage ./tests.nix {
         inherit
           enableGStreamer
-          enableGtk2
           enableGtk3
           runAccuracyTests
           runPerformanceTests

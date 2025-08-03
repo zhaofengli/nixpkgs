@@ -30,14 +30,14 @@
 
 buildPythonPackage rec {
   pname = "quart";
-  version = "0.20.0";
+  version = "0.22.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "pallets";
     repo = "quart";
     tag = version;
-    hash = "sha256-NApev3nRBS4QDMGq8++rSmK5YgeljkaVAsdezsTbZr4=";
+    hash = "sha256-1rwkrxxk79EB8gkeXNvT2hR37it4H6RqewPxYny/VIs=";
   };
 
   build-system = [ flit-core ];
@@ -65,11 +65,6 @@ buildPythonPackage rec {
     pytest-asyncio
     pytest-cov-stub
     pytestCheckHook
-  ];
-
-  disabledTests = [
-    # click 8.4 compat
-    "test_cli_blueprints"
   ];
 
   meta = {

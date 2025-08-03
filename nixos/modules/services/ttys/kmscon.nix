@@ -35,7 +35,7 @@ let
     enableAutologin:
     "${gettyCfg.loginProgram} ${baseLoginOptions}${lib.optionalString enableAutologin " -f -- ${gettyCfg.autologinUser}"}";
 
-  loginScript = pkgs.writers.writeDash "kmscon-login" (
+  loginScript = pkgs.writers.writeBash "kmscon-login" (
     lib.optionalString (gettyCfg.autologinUser != null && gettyCfg.autologinOnce) ''
       kms_tty=
       active_tty_file=/sys/class/tty/tty0/active
@@ -160,6 +160,10 @@ in
     );
 
     environment.systemPackages = [ cfg.package ];
+
+    # Install at least one monospace font, as otherwise the fallback is DejaVu Sans, a non-monospace font
+    fonts.packages = [ pkgs.hack-font ];
+
     systemd.packages = [ cfg.package ];
 
     systemd.services."kmsconvt@" = {

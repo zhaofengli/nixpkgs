@@ -74,14 +74,14 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "mistral-rs";
-  version = "0.9.0";
+  version = "0.9.2";
   __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "EricLBuehler";
     repo = "mistral.rs";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-3p/e7UZ8BLwT+dpb61NmzX2Z1QxxEgkgjlNzv5lWybM=";
+    hash = "sha256-T7CKIQOCvJXAdYpwLzQ7oFs/xu30OIuxqa8GpYWLK9U=";
   };
 
   patches = [
@@ -130,7 +130,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
           ""
     '';
 
-  cargoHash = "sha256-TULJ3mEAWp1ktPDPeBbUJGHhsEuo5T2qh3/JpS+8+ds=";
+  cargoHash = "sha256-7Vp9nNvVbC8McJwQuiIMJWGfU42xtr6rL1/H8WJ1wkQ=";
 
   nativeBuildInputs = [
     pkg-config
@@ -228,6 +228,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
     "--skip=sandboxed_session_can_execute_python"
     "--skip=sandboxed_session_default_policy_can_execute_python"
 
+    # Upstream's v0.9.2 bump updated the version example in the generated CLI reference page
+    # but not in the clap doc comment it is generated from, so this golden test fails at the tag.
+    "--skip=docgen::cli_reference_matches_committed"
+
     # Linux namespace / seccomp tests require capabilities the nix build sandbox blocks
     "--skip=network_none_blocks_socket"
     "--skip=rlimit_nproc_caps_processes"
@@ -241,6 +245,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
   # When started, mistralrs tries to load libcuda.so from the driver which is not available in the sandbox
   # mistralrs: error while loading shared libraries: libcuda.so.1: cannot open shared object file: No such file or directory
   doInstallCheck = !cudaSupport;
+
+  __darwinAllowLocalNetworking = true;
 
   passthru = {
     tests = {

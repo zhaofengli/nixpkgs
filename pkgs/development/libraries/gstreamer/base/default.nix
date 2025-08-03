@@ -17,7 +17,7 @@
   isocodes,
   libjpeg,
   libpng,
-  tremor, # provides 'virbisidec'
+  libvorbis,
   libGL,
   withIntrospection ?
     lib.meta.availableOn stdenv.hostPlatform gobject-introspection
@@ -50,7 +50,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "gst-plugins-base";
-  version = "1.28.4";
+  version = "1.28.5";
 
   outputs = [
     "out"
@@ -61,7 +61,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   src = fetchurl {
     url = "https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-${finalAttrs.version}.tar.xz";
-    hash = "sha256-qJiv1XZhcrAEnmeBVY4GiQmL+HudgrhGxlLlccAdYNg=";
+    hash = "sha256-d28ZIo+R/SW79U2YUFl+FYUH9ZSHKlK5toFOJCm0Pqo=";
   };
 
   __structuredAttrs = true;
@@ -98,7 +98,7 @@ stdenv.mkDerivation (finalAttrs: {
     isocodes
     libpng
     libjpeg
-    tremor
+    libvorbis
     pango
   ]
   ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
@@ -143,6 +143,8 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.mesonEnable "introspection" withIntrospection)
     (lib.mesonEnable "doc" enableDocumentation)
     (lib.mesonEnable "libvisual" false)
+    (lib.mesonEnable "tremor" false) # unmaintained in nixpkgs, just use regular libvorbis instead
+    (lib.mesonEnable "vorbis" true)
   ]
   ++ lib.optionals (stdenv.buildPlatform != stdenv.hostPlatform) [
     "-Dtests=disabled"

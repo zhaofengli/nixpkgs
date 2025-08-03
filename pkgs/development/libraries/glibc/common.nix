@@ -278,6 +278,13 @@ stdenv.mkDerivation (
     passthru = {
       inherit version;
       minorRelease = version;
+
+      # glibc's threads are POSIX threads.
+      #
+      # See the comment on `threadModel` in
+      # pkgs/development/compilers/gcc/ng/common/libgcc/default.nix for further
+      # details.
+      threadModel = "posix";
     };
   }
 

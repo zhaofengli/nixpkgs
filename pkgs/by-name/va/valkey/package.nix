@@ -10,6 +10,7 @@
   which,
   ps,
   getconf,
+  python3Packages,
   withSystemd ? lib.meta.availableOn stdenv.hostPlatform systemd,
   systemd,
   # dependency ordering is broken at the moment when building with openssl
@@ -24,13 +25,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "valkey";
-  version = "9.1.0";
+  version = "9.1.1";
 
   src = fetchFromGitHub {
     owner = "valkey-io";
     repo = "valkey";
     rev = finalAttrs.version;
-    hash = "sha256-RMZz83fycpOTPWB1dIXU0/hdh4ZGC+6JhCws8htAQ5E=";
+    hash = "sha256-wGHlPQ2JPxGTaJRJ9Siz3Q3eKdlo5z1tQpSFs9xZMbI=";
   };
 
   patches = lib.optional useSystemJemalloc ./use_system_jemalloc.patch;
@@ -113,6 +114,7 @@ stdenv.mkDerivation (finalAttrs: {
     tests = {
       redis = nixosTests.redis;
       unitTests = finalAttrs.finalPackage.overrideAttrs { doCheck = true; };
+      valkey-python = python3Packages.valkey;
     };
     serverBin = "valkey-server";
   };

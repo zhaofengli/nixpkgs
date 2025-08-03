@@ -13,14 +13,14 @@ in
 python.pkgs.toPythonModule (
   python.pkgs.buildPythonApplication rec {
     pname = "searxng";
-    version = "0-unstable-2026-07-17";
+    version = "0-unstable-2026-08-22";
     pyproject = true;
 
     src = fetchFromGitHub {
       owner = "searxng";
       repo = "searxng";
-      rev = "81c9c23862903d709121f467492f31ea34f6c648";
-      hash = "sha256-4li48GYHqNab6W+I7SNeHFxrV7JJpPo5rWT0QY3MliQ=";
+      rev = "9fea41204fdfa7a5cfa15b0ebd12904c520478ce";
+      hash = "sha256-eirAuVDRGe2htZYbRcFmBtZ7Bg2xAHtmHbM8ELEMoik=";
     };
 
     nativeBuildInputs = with python.pkgs; [ pythonRelaxDepsHook ];

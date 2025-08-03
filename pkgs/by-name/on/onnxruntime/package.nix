@@ -25,7 +25,7 @@
   pythonSupport ? (stdenv.buildPlatform.canExecute stdenv.hostPlatform),
   cudaSupport ? config.cudaSupport,
   ncclSupport ? cudaSupport && cudaPackages.nccl.meta.available,
-  openvinoSupport ? stdenv.isLinux,
+  openvinoSupport ? stdenv.hostPlatform.isLinux,
   rocmSupport ? config.rocmSupport,
   coremlSupport ? stdenv.hostPlatform.isDarwin,
   withFullProtobuf ? false,
@@ -131,6 +131,11 @@ effectiveStdenv.mkDerivation (finalAttrs: {
     # https://github.com/microsoft/onnxruntime/issues/9155
     # Patch adapted from https://gitlab.alpinelinux.org/alpine/aports/-/raw/462dfe0eb4b66948fe48de44545cc22bb64fdf9f/community/onnxruntime/0001-Remove-MATH_NO_EXCEPT-macro.patch
     ./remove-MATH_NO_EXCEPT-macro.patch
+  ]
+  ++ lib.optionals cudaSupport [
+    # Drop the orphaned ShardedMoE CUDA contrib op, whose ft_moe backend was removed upstream
+    # Fix submitted upstream: https://github.com/microsoft/onnxruntime/pull/31139
+    ./drop-orphaned-sharded-moe.patch
   ];
 
   postPatch = ''
@@ -286,7 +291,7 @@ effectiveStdenv.mkDerivation (finalAttrs: {
     # fails to find protoc on darwin, so specify it
     (lib.cmakeFeature "ONNX_CUSTOM_PROTOC_EXECUTABLE" (lib.getExe buildPackages.protobuf))
     (lib.cmakeBool "onnxruntime_BUILD_SHARED_LIB" true)
-    (lib.cmakeBool "onnxruntime_BUILD_UNIT_TESTS" finalAttrs.doCheck)
+    (lib.cmakeBool "onnxruntime_BUILD_UNIT_TESTS" finalAttrs.finalPackage.doCheck)
     (lib.cmakeBool "onnxruntime_USE_FULL_PROTOBUF" withFullProtobuf)
     (lib.cmakeBool "onnxruntime_USE_CUDA" cudaSupport)
     (lib.cmakeBool "onnxruntime_USE_NCCL" ncclSupport)

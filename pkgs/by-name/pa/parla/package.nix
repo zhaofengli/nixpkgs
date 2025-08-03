@@ -16,7 +16,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "parla";
-  version = "0.7.0";
+  version = "0.8.0";
   __structuredAttrs = true;
   strictDeps = true;
 
@@ -24,7 +24,7 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "trufae";
     repo = "parla";
     tag = finalAttrs.version;
-    hash = "sha256-fG8xRqOfcePYTZUidUWMd2ZICWpof/ACfXOXPCAexsM=";
+    hash = "sha256-uUtmkDwEenXzNsOTAtmkgbaSYl3CbgEOeVjOrSZwoW4=";
   };
 
   nativeBuildInputs = [

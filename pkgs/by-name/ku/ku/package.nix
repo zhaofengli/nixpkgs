@@ -8,14 +8,14 @@
 
 buildGo126Module (finalAttrs: {
   pname = "ku";
-  version = "0.9.0";
+  version = "0.11.0";
   __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "bjarneo";
     repo = "ku";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-4z4lPvmkEqC7YBEaAa8cUyB42hkFkTFRkHGaA58/Vpg=";
+    hash = "sha256-UO390xbjUVhlDN8NzvRl2BXMQCYngfU5cXu+tNiVvoA=";
   };
 
   vendorHash = "sha256-x7O2/uKnIIFDr8WK0ej3FJiIGxN5Fq5Czqrv4OJ5A44=";

@@ -10,7 +10,7 @@
 
 buildGoModule (finalAttrs: {
   pname = "telegraf";
-  version = "1.39.2";
+  version = "1.39.3";
 
   subPackages = [ "cmd/telegraf" ];
 
@@ -18,10 +18,10 @@ buildGoModule (finalAttrs: {
     owner = "influxdata";
     repo = "telegraf";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-yWWjlCAc5xJh4IwszVRTGIM5DMXKHyfAHEa1jSVi/mk=";
+    hash = "sha256-2Pt5lTRo8twIVoKP8BxJr8LIylZjFAdHYGc2vINyGNo=";
   };
 
-  vendorHash = "sha256-j/yGDEXNOrMAq4ArMjqTxZHfvQZkjmDpZQ3LAUe8BJ0=";
+  vendorHash = "sha256-Y+FHFWq6eVycNci/Br9WWfJUrBPTLG5xCp/WrA6uzR4=";
   proxyVendor = true;
 
   ldflags = [
@@ -30,7 +30,7 @@ buildGoModule (finalAttrs: {
     "-X=github.com/influxdata/telegraf/internal.Commit=${finalAttrs.src.rev}"
     "-X=github.com/influxdata/telegraf/internal.Version=${finalAttrs.version}"
   ]
-  # Binary is too large for the default GOT PLT displacments on 32-bit ARM;
+  # Binary is too large for the default GOT PLT displacements on 32-bit ARM;
   # need to use larger encoding otherwise linking fails with:
   # BFD (GNU Binutils) 2.46 assertion fail /build/binutils-with-gold-2.46/bfd/elf32-arm.c:9783
   ++ lib.optionals stdenv.hostPlatform.isAarch32 [

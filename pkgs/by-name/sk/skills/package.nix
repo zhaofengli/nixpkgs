@@ -14,20 +14,20 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "skills";
-  version = "1.5.19";
+  version = "1.5.22";
 
   src = fetchFromGitHub {
     owner = "vercel-labs";
     repo = "skills";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-lxf2ODxgwin83JHRrDynMccTFtCo+tYFb053XrS1IqA=";
+    hash = "sha256-F3KVn4OWpGKxKPzW8L/CnnLv8m51G7aflH65vv4SrtY=";
   };
 
   pnpmDeps = fetchPnpmDeps {
     fetcherVersion = 3;
     inherit (finalAttrs) pname version src;
     inherit pnpm;
-    hash = "sha256-wntHp5UT21wD1myxj8EQafQis5QMuQ9U2PKiKg2jalw=";
+    hash = "sha256-kDjPsOHkQaFrRNQMb2EoLrkepOjMxeHglL88YDLFMWM=";
   };
 
   nativeBuildInputs = [

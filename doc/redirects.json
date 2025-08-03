@@ -105,6 +105,9 @@
   "cuda-writing-tests": [
     "index.html#cuda-writing-tests"
   ],
+  "dev-environments": [
+    "index.html#dev-environments"
+  ],
   "ex-build-helpers-extendMkDerivation": [
     "index.html#ex-build-helpers-extendMkDerivation"
   ],
@@ -140,6 +143,9 @@
   "ex-writeShellApplication": [
     "index.html#ex-writeShellApplication"
   ],
+  "fetchfromtangled": [
+    "index.html#fetchfromtangled"
+  ],
   "first-package-go": [
     "index.html#first-package-go"
   ],
@@ -148,6 +154,9 @@
   ],
   "friction-graphics-wayland": [
     "index.html#friction-graphics-wayland"
+  ],
+  "getting-started": [
+    "index.html#getting-started"
   ],
   "ghc-deprecation-policy": [
     "index.html#ghc-deprecation-policy"
@@ -439,6 +448,9 @@
   ],
   "sec-darwin-availability-checks": [
     "index.html#sec-darwin-availability-checks"
+  ],
+  "sec-darwin-builder-vz": [
+    "index.html#sec-darwin-builder-vz"
   ],
   "sec-darwin-libcxx-deployment-targets": [
     "index.html#sec-darwin-libcxx-deployment-targets"
@@ -2062,6 +2074,12 @@
   "fetchfromgithub": [
     "index.html#fetchfromgithub"
   ],
+  "fetchfromhuggingface": [
+    "index.html#fetchfromhuggingface"
+  ],
+  "ex-fetchfromhuggingface": [
+    "index.html#ex-fetchfromhuggingface"
+  ],
   "fetchfromgitlab": [
     "index.html#fetchfromgitlab"
   ],
@@ -2782,9 +2800,6 @@
   ],
   "glycin-dont-wrap": [
     "index.html#glycin-dont-wrap"
-  ],
-  "ghc": [
-    "index.html#ghc"
   ],
   "gnome-platform": [
     "index.html#gnome-platform"
@@ -3633,7 +3648,8 @@
     "index.html#hareHook-cross-compilation"
   ],
   "haskell": [
-    "index.html#haskell"
+    "index.html#haskell",
+    "index.html#ghc"
   ],
   "haskell-available-packages": [
     "index.html#haskell-available-packages"
@@ -3762,15 +3778,9 @@
     "index.html#language-javascript"
   ],
   "javascript-introduction": [
-    "index.html#javascript-introduction"
-  ],
-  "javascript-finding-examples": [
-    "index.html#javascript-finding-examples"
-  ],
-  "javascript-finding-examples-github": [
-    "index.html#javascript-finding-examples-github"
-  ],
-  "javascript-finding-examples-gitlab": [
+    "index.html#javascript-introduction",
+    "index.html#javascript-finding-examples",
+    "index.html#javascript-finding-examples-github",
     "index.html#javascript-finding-examples-gitlab"
   ],
   "javascript-tools-overview": [

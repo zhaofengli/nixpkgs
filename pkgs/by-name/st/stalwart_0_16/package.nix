@@ -10,13 +10,13 @@
   foundationdb,
   zstd,
   stdenv,
+  _experimental-update-script-combinators,
   nix-update-script,
   rocksdb,
   callPackage,
   python3Packages,
   cacert,
   libredirect,
-  rust-jemalloc-sys,
   writeTextFile,
   withFoundationdb ? false,
   stalwartEnterprise ? false,
@@ -51,7 +51,7 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "stalwart" + (lib.optionalString stalwartEnterprise "-enterprise");
-  version = "0.16.14";
+  version = "0.16.17";
 
   __structuredAttrs = true;
 
@@ -59,10 +59,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
     owner = "stalwartlabs";
     repo = "stalwart";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-FggCbIgn/7ncbuE02miIfwJh3Adaj0xcTTaOyYRHeQY=";
+    hash = "sha256-tQY5L8tTyVbhIX0VrWbaKfR+Q97coTVoMRRDSHv5Lms=";
   };
 
-  cargoHash = "sha256-pdwXJ5/Ko+UloTYHEkXOcyw5gVuHmyAAHDfWoTFZ8FY=";
+  cargoHash = "sha256-EUx/ELV85pdPKzv49SEQ1Q8e/4ism2x3ZrKPqL6uvoE=";
 
   env = {
     # https://docs.rs/openssl/latest/openssl/#manual
@@ -72,7 +72,15 @@ rustPlatform.buildRustPackage (finalAttrs: {
     ZSTD_SYS_USE_PKG_CONFIG = true;
     ROCKSDB_INCLUDE_DIR = "${rocksdb}/include";
     ROCKSDB_LIB_DIR = "${rocksdb}/lib";
-  };
+  }
+  //
+    lib.optionalAttrs
+      (stdenv.hostPlatform.isLinux && (stdenv.hostPlatform.isAarch64 || stdenv.hostPlatform.isArmv7))
+      {
+        # Required to fix Stalwart on ARM systems with 16 KB page size.
+        # Using rust-jemalloc-sys causes segmentation faults on x86_64.
+        JEMALLOC_SYS_WITH_LG_PAGE = 16;
+      };
 
   depsBuildBuild = [
     pkg-config
@@ -87,7 +95,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
   buildInputs = [
     bzip2
     openssl
-    rust-jemalloc-sys
     sqlite
     zstd
   ]
@@ -273,7 +280,12 @@ rustPlatform.buildRustPackage (finalAttrs: {
     inherit rocksdb; # make used rocksdb version available (e.g., for backup scripts)
     webui = callPackage ./webui.nix { };
     spam-filter = callPackage ./spam-filter.nix { };
-    updateScript = nix-update-script { };
+    # subpackages have distinct version numbers, so we can't use nix-update's `--subpackage`
+    updateScript = _experimental-update-script-combinators.sequence [
+      (nix-update-script { })
+      (nix-update-script { attrPath = "stalwart_0_16.webui"; })
+      (nix-update-script { attrPath = "stalwart_0_16.spam-filter"; })
+    ];
   };
 
   meta = {

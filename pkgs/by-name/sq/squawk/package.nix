@@ -10,16 +10,16 @@
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "squawk";
-  version = "2.40.1";
+  version = "2.62.0";
 
   src = fetchFromGitHub {
     owner = "sbdchd";
     repo = "squawk";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-JpRuZDJSGl5mMakmjAvDYA/Q7yxr5wa0oYmGJOCeFZg=";
+    hash = "sha256-XazgQu5Ot1Vknn+tN9qWLfNlRefoA6yXerjrF0H/Mso=";
   };
 
-  cargoHash = "sha256-ADia4CjTqhkccwpi8v2TStl+xlDpIeZfuVFvmSBwrCM=";
+  cargoHash = "sha256-Z8VNk8ZN0e7UOOTNAz0p8bt5a3F9g4IGi7l7t7+rZ/Q=";
 
   nativeBuildInputs = [
     pkg-config
@@ -51,6 +51,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     homepage = "https://squawkhq.com";
     changelog = "https://github.com/sbdchd/squawk/blob/v${finalAttrs.version}/CHANGELOG.md";
     license = lib.licenses.gpl3Only;
-    maintainers = [ ];
+    maintainers = [ lib.maintainers.dibenzepin ];
   };
 })

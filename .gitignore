@@ -27,6 +27,9 @@ tags
 .mypy_cache
 __pycache__
 
+/AGENTS.md
+/CLAUDE.md
+
 /pkgs/development/libraries/qt-5/*/tmp/
 /pkgs/desktops/kde-5/*/tmp/
 /pkgs/development/mobile/androidenv/xml/*
@@ -40,3 +43,5 @@ update-git-commits.txt
 
 # Usually used for manual backports
 .worktree/
+
+/untracked

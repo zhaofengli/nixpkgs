@@ -1,37 +1,51 @@
 {
   rustPlatform,
   fetchFromGitHub,
-  pkg-config,
-  alsa-lib,
   cmake,
-  opus,
+  pkg-config,
+  makeWrapper,
+  nasm,
+  alsa-lib,
+  pipewire,
+  libva,
+  mesa,
   lib,
   stdenv,
   nix-update-script,
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "concord-tui";
-  version = "2.4.1";
+  version = "2.5.11";
 
   src = fetchFromGitHub {
     owner = "chojs23";
     repo = "concord";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-3c5jxpJrBr6vYnbcJIYD06d932Da94hXUZA5FLa3kkU=";
+    hash = "sha256-a6+HixqNjt+aHcAuT/trMs/sAaXieoQhbMt56g1u7rM=";
   };
 
-  cargoHash = "sha256-6iAyKsS+FoNCKkMvbL70vKSPoAaKQtUDiAQGaEMuxWk=";
+  cargoHash = "sha256-4KsBuIAfQIWmwpJ66iSEYa68lwhf62ibMVkSh8aSZ2w=";
 
-  buildInputs = [
-    opus
-  ]
-  ++ lib.optionals stdenv.hostPlatform.isLinux [
+  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
     alsa-lib
+    pipewire
+    libva
+    mesa
   ];
   nativeBuildInputs = [
-    pkg-config
     cmake
-  ];
+    pkg-config
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
+    rustPlatform.bindgenHook
+    makeWrapper
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isx86_64 [ nasm ];
+
+  postFixup = lib.optionalString stdenv.hostPlatform.isLinux ''
+    wrapProgram "$out/bin/concord" \
+      --set-default PIPEWIRE_CONFIG_DIR "${pipewire}/share/pipewire"
+  '';
 
   __darwinAllowLocalNetworking = true;
 
