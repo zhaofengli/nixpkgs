@@ -1,32 +1,24 @@
 {
   lib,
-  buildGo125Module,
+  buildGoModule,
   fetchFromGitHub,
   nix-update-script,
   writableTmpDirAsHomeHook,
   versionCheckHook,
 }:
 
-buildGo125Module (finalAttrs: {
+buildGoModule (finalAttrs: {
   pname = "crush";
-  version = "0.12.1";
+  version = "0.18.3";
 
   src = fetchFromGitHub {
     owner = "charmbracelet";
     repo = "crush";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-uESS76cPJ/sYGbsTpaUKlF8g0y2+LYbF4zd7dAoKWWU=";
+    hash = "sha256-BTD+03LG+Y7pMw9P2nB52qtLK0QSQEurbTr+2vT0QmM=";
   };
 
-  vendorHash = "sha256-lqoAPp8EW2tW+QjwCuBgxZDbKT3XMvP3qwx/yES1mx4=";
-
-  # rename TestMain to prevent it from running, as it panics in the sandbox.
-  postPatch = ''
-    substituteInPlace internal/llm/provider/openai_test.go \
-      --replace-fail \
-        "func TestMain" \
-        "func DisabledTestMain"
-  '';
+  vendorHash = "sha256-6/DvpfhW1Lk3SP7umOxeWBJhUtX1ay7pkG5Ys8M9xM4=";
 
   ldflags = [
     "-s"
@@ -37,6 +29,7 @@ buildGo125Module (finalAttrs: {
     let
       # these tests fail in the sandbox
       skippedTests = [
+        "TestCoderAgent"
         "TestOpenAIClientStreamChoices"
         "TestGrepWithIgnoreFiles"
         "TestSearchImplementations"

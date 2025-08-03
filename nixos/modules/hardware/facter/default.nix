@@ -6,9 +6,12 @@
 {
   imports = [
     ./disk.nix
+    ./firmware.nix
+    ./graphics
     ./keyboard.nix
     ./networking
     ./system.nix
+    ./virtualisation.nix
   ];
 
   meta.maintainers = with lib.maintainers; [ mic92 ];

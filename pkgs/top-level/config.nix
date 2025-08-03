@@ -139,6 +139,39 @@ let
           null;
     };
 
+    npmRegistryOverrides = mkOption {
+      type = types.attrsOf types.str;
+      description = ''
+        The default NPM registry overrides for all `fetchNpmDeps` calls, as an attribute set.
+
+        For each attribute, all files fetched from the host corresponding to the name will instead be fetched from the host (and sub-path) specified in the value.
+
+        For example, an override like `"registry.npmjs.org" = "my-mirror.local/registry.npmjs.org"` will replace a URL like `https://registry.npmjs.org/foo.tar.gz` with `https://my-mirror.local/registry.npmjs.org/foo.tar.gz`.
+
+        To set the string directly, see [`npmRegistryOverridesString`](#opt-npmRegistryOverridesString).
+      '';
+      default = { };
+      example = {
+        "registry.npmjs.org" = "my-mirror.local/registry.npmjs.org";
+      };
+    };
+
+    npmRegistryOverridesString = mkOption {
+      type = types.addCheck types.str (
+        s:
+        let
+          j = builtins.fromJSON s;
+        in
+        lib.isAttrs j && lib.all builtins.isString (builtins.attrValues j)
+      );
+      description = ''
+        A string containing a string with a JSON representation of NPM registry overrides for `fetchNpmDeps`.
+
+        This overrides the [`npmRegistryOverrides`](#opt-npmRegistryOverrides) option, see its documentation for more details.
+      '';
+      default = builtins.toJSON config.npmRegistryOverrides;
+    };
+
     doCheckByDefault = mkMassRebuild {
       feature = "run `checkPhase` by default";
     };
@@ -226,36 +259,6 @@ let
         Variants are instances of the current nixpkgs instance with different stdenvs or other applied options.
         This allows for using different toolchains, libcs, or global build changes across nixpkgs.
         Disabling can ensure nixpkgs is only building for the platform which you specified.
-      '';
-    };
-
-    allowlistedLicenses = mkOption {
-      description = ''
-        Allow licenses that are specifically acceptable. `allowlistedLicenses` only applies to unfree licenses unless
-        `allowUnfree` is enabled. It is not a generic allowlist for all types of licenses.
-      '';
-      default = [ ];
-      type = types.listOf (types.attrsOf types.anything);
-      example = literalExpression ''
-        with lib.licenses; [
-          amd
-          wtfpl
-        ]
-      '';
-    };
-
-    blocklistedLicenses = mkOption {
-      description = ''
-        Block licenses that are specifically unacceptable. Unlike `allowlistedLicenses`, `blocklistedLicenses`
-        applies to all licenses.
-      '';
-      default = [ ];
-      type = types.listOf (types.attrsOf types.anything);
-      example = literalExpression ''
-        with lib.licenses; [
-          agpl3Only
-          gpl3Only
-        ]
       '';
     };
 

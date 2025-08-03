@@ -13,16 +13,17 @@
 
 buildGoModule (finalAttrs: {
   pname = "VictoriaMetrics";
-  version = "1.128.0";
+  version = "1.130.0";
 
   src = fetchFromGitHub {
     owner = "VictoriaMetrics";
     repo = "VictoriaMetrics";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-X1TkE0lJNu68iETf8M8U5IZvRadtIPR6LqP61uzhD3Y=";
+    hash = "sha256-upviz4MDwEXzIs21mPwa5TgKywfXiRcsZfdF/d3w/Ao=";
   };
 
   vendorHash = null;
+  env.CGO_ENABLED = 0;
 
   subPackages =
     lib.optionals withServer [

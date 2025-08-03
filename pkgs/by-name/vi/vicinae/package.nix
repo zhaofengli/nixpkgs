@@ -20,23 +20,23 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "vicinae";
-  version = "0.15.5";
+  version = "0.16.8";
 
   src = fetchFromGitHub {
     owner = "vicinaehq";
     repo = "vicinae";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-3pKexTUWfohL/S/yWsVMShmtMlBFI9zsd7NFzySKG0w=";
+    hash = "sha256-TAKv3dmc8DSlVp0LXQeLgrgfLTbQ/saQelenFUp9sP0=";
   };
 
   apiDeps = fetchNpmDeps {
     src = "${finalAttrs.src}/typescript/api";
-    hash = "sha256-dSHEzw15lSRRbldl9PljuWFf2htdG+HgSeKPAB88RBg=";
+    hash = "sha256-4OgVCnw5th2TcXszVY5G9ENr3/Y/eR2Kd45DbUhQRNk=";
   };
 
   extensionManagerDeps = fetchNpmDeps {
     src = "${finalAttrs.src}/typescript/extension-manager";
-    hash = "sha256-TCT7uZRZn4rsLA/z2yLeK5Bt4DJPmdSC4zkmuCxTtc8=";
+    hash = "sha256-krDFHTG8irgVk4a79LMz148drLgy2oxEoHCKRpur1R4=";
   };
 
   cmakeFlags = lib.mapAttrsToList lib.cmakeFeature {
@@ -89,6 +89,8 @@ stdenv.mkDerivation (finalAttrs: {
       ]
     }"
   ];
+
+  passthru.updateScript = ./update.sh;
 
   meta = {
     description = "A focused launcher for your desktop — native, fast, extensible";

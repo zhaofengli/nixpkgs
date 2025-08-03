@@ -9,6 +9,24 @@
   writeShellScript,
 }:
 
+let
+  pythonEnv = python3.withPackages (
+    p:
+    with p;
+    [
+      python-can
+      cffi
+      pyserial
+      greenlet
+      jinja2
+      markupsafe
+
+      numpy
+      matplotlib
+    ]
+    ++ extraPythonPackages p
+  );
+in
 stdenv.mkDerivation rec {
   pname = "klipper";
   version = "0.13.0-unstable-2025-10-27";
@@ -29,20 +47,7 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
-    (python3.withPackages (
-      p:
-      with p;
-      [
-        python-can
-        cffi
-        pyserial
-        greenlet
-        jinja2
-        markupsafe
-        numpy
-      ]
-      ++ extraPythonPackages p
-    ))
+    pythonEnv
   ];
 
   # we need to run this to prebuild the chelper.
@@ -60,18 +65,6 @@ stdenv.mkDerivation rec {
     # needed for cross compilation
     substituteInPlace ./chelper/__init__.py \
       --replace 'GCC_CMD = "gcc"' 'GCC_CMD = "${stdenv.cc.targetPrefix}cc"'
-  '';
-
-  pythonInterpreter =
-    (python3.withPackages (
-      p: with p; [
-        numpy
-        matplotlib
-      ]
-    )).interpreter;
-
-  pythonScriptWrapper = writeShellScript pname ''
-    ${pythonInterpreter} "@out@/lib/scripts/@script@" "$@"
   '';
 
   # NB: We don't move the main entry point into `/bin`, or even symlink it,
@@ -97,10 +90,8 @@ stdenv.mkDerivation rec {
     chmod 755 $out/lib/klipper/klippy.py
     makeWrapper $out/lib/klipper/klippy.py $out/bin/klippy --chdir $out/lib/klipper
 
-    substitute "$pythonScriptWrapper" "$out/bin/klipper-calibrate-shaper" \
-      --subst-var "out" \
-      --subst-var-by "script" "calibrate_shaper.py"
-    chmod 755 "$out/bin/klipper-calibrate-shaper"
+    makeWrapper "${pythonEnv.interpreter}" "$out/bin/klipper-calibrate-shaper" \
+      --add-flags "$out/lib/scripts/calibrate_shaper.py"
 
     runHook postInstall
   '';

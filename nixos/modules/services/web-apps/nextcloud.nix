@@ -297,6 +297,7 @@ let
         ${lib.optionalString (c.dbpassFile != null) "'dbpassword' => nix_read_secret('dbpass'),"}
         'dbtype' => '${c.dbtype}',
         ${objectstoreConfig}
+        ${cfg.extraConfig}
       ];
 
       $CONFIG = array_replace_recursive($CONFIG, nix_decode_json_file(
@@ -550,6 +551,7 @@ in
         "pm.min_spare_servers" = "6";
         "pm.max_spare_servers" = "18";
         "pm.max_requests" = "500";
+        "pm.status_path" = "/status";
       };
       description = ''
         Options for nextcloud's PHP pool. See the documentation on `php-fpm.conf` for details on
@@ -1016,6 +1018,12 @@ in
       };
     };
 
+    extraConfig = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      description = "[not for upstream] Extra configurations.";
+    };
+
     cli.memoryLimit = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = null;
@@ -1235,6 +1243,8 @@ in
               path = [ occ ];
               restartTriggers = [ overrideConfig ];
               script = ''
+                export OCC_BIN="${lib.getExe occ}"
+
                 ${lib.optionalString (c.dbpassFile != null) ''
                   if [ -z "$(<"$CREDENTIALS_DIRECTORY/dbpass")" ]; then
                     echo "dbpassFile ${c.dbpassFile} is empty!"
@@ -1275,13 +1285,13 @@ in
                   ${occInstallCmd}
                 fi
 
-                ${lib.getExe occ} upgrade
+                $OCC_BIN upgrade
 
-                ${lib.getExe occ} config:system:delete trusted_domains
+                $OCC_BIN config:system:delete trusted_domains
 
                 ${lib.optionalString (cfg.extraAppsEnable && cfg.extraApps != { }) ''
                   # Try to enable apps
-                  ${lib.getExe occ} app:enable ${lib.concatStringsSep " " (lib.attrNames cfg.extraApps)}
+                  $OCC_BIN app:enable ${lib.concatStringsSep " " (lib.attrNames cfg.extraApps)}
                 ''}
 
                 ${occSetTrustedDomainsCmd}

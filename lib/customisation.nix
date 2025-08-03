@@ -178,6 +178,11 @@ rec {
         );
         # Change the result of the function call by applying g to it
         overrideResult = g: makeOverridable (mirrorArgs (args: g (f args))) origArgs;
+
+        # List of arguments not supplied by origArgs
+        nonOverriddenArgs = builtins.filter (arg: !builtins.hasAttr arg origArgs) (
+          builtins.attrNames (lib.functionArgs f)
+        );
       in
       if isAttrs result then
         result
@@ -196,12 +201,16 @@ rec {
             # NOTE: part of the above documentation had to be duplicated in `mkDerivation`'s `overrideAttrs`.
             #       design/tech debt issue: https://github.com/NixOS/nixpkgs/issues/273815
             fdrv: overrideResult (x: x.overrideAttrs fdrv);
+
+          inherit nonOverriddenArgs;
         }
       else if isFunction result then
         # Transform the result into a functor while propagating its arguments
         setFunctionArgs result (functionArgs result)
         // {
           override = overrideArgs;
+
+          inherit nonOverriddenArgs;
         }
       else
         result
@@ -763,11 +772,26 @@ rec {
     # Inputs
 
     `extendMkDerivation`-specific configurations
-    : `constructDrv`: Base build helper, the `mkDerivation`-like build helper to extend.
-    : `excludeDrvArgNames`: Argument names not to pass from the input fixed-point arguments to `constructDrv`. Note: It doesn't apply to the updating arguments returned by `extendDrvArgs`.
-    : `extendDrvArgs` : An extension (overlay) of the argument set, like the one taken by [overrideAttrs](#sec-pkg-overrideAttrs) but applied before passing to `constructDrv`.
-    : `inheritFunctionArgs`: Whether to inherit `__functionArgs` from the base build helper (default to `true`).
-    : `transformDrv`: Function to apply to the result derivation (default to `lib.id`).
+    : `constructDrv` (required)
+      : Base build helper, the `mkDerivation`-like build helper to extend.
+
+      `excludeDrvArgNames` (default to `[ ]`)
+      : Argument names not to pass from the input fixed-point arguments to `constructDrv`.
+        It doesn't apply to the updating arguments returned by `extendDrvArgs`.
+
+      `excludeFunctionArgNames` (default to `[ ]`)
+      : `__functionArgs` attribute names to remove from the result build helper.
+        `excludeFunctionArgNames` is useful for argument deprecation while avoiding ellipses.
+
+      `extendDrvArgs` (required)
+      : An extension (overlay) of the argument set, like the one taken by [overrideAttrs](#sec-pkg-overrideAttrs) but applied before passing to `constructDrv`.
+
+      `inheritFunctionArgs` (default to `true`)
+      : Whether to inherit `__functionArgs` from the base build helper.
+        Set `inheritFunctionArgs` to `false` when `extendDrvArgs`'s `args` set pattern does not contain an ellipsis.
+
+      `transformDrv` (default to `lib.id`)
+      : Function to apply to the result derivation.
 
     # Type
 
@@ -776,6 +800,7 @@ rec {
       {
         constructDrv :: ((FixedPointArgs | AttrSet) -> a)
         excludeDrvArgNames :: [ String ],
+        excludeFunctionArgNames :: [ String ]
         extendDrvArgs :: (AttrSet -> AttrSet -> AttrSet)
         inheritFunctionArgs :: Bool,
         transformDrv :: a -> a,
@@ -836,6 +861,7 @@ rec {
     {
       constructDrv,
       excludeDrvArgNames ? [ ],
+      excludeFunctionArgNames ? [ ],
       extendDrvArgs,
       inheritFunctionArgs ? true,
       transformDrv ? id,
@@ -850,10 +876,12 @@ rec {
       )
       # Add __functionArgs
       (
-        # Inherit the __functionArgs from the base build helper
-        optionalAttrs inheritFunctionArgs (removeAttrs (functionArgs constructDrv) excludeDrvArgNames)
-        # Recover the __functionArgs from the derived build helper
-        // functionArgs (extendDrvArgs { })
+        removeAttrs (
+          # Inherit the __functionArgs from the base build helper
+          optionalAttrs inheritFunctionArgs (removeAttrs (functionArgs constructDrv) excludeDrvArgNames)
+          # Recover the __functionArgs from the derived build helper
+          // functionArgs (extendDrvArgs { })
+        ) excludeFunctionArgNames
       )
     // {
       inherit

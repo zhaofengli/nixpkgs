@@ -566,6 +566,8 @@ in
 
         mba6x_bl = callPackage ../os-specific/linux/mba6x_bl { };
 
+        mdio-netlink = callPackage ../os-specific/linux/mdio-netlink { };
+
         mwprocapture = callPackage ../os-specific/linux/mwprocapture { };
 
         mxu11x0 = callPackage ../os-specific/linux/mxu11x0 { };
@@ -654,10 +656,6 @@ in
 
         zenpower = callPackage ../os-specific/linux/zenpower { };
 
-        zfs_2_2 = callPackage ../os-specific/linux/zfs/2_2.nix {
-          configFile = "kernel";
-          inherit pkgs kernel;
-        };
         zfs_2_3 = callPackage ../os-specific/linux/zfs/2_3.nix {
           configFile = "kernel";
           inherit pkgs kernel;

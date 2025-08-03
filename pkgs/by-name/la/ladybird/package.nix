@@ -27,20 +27,19 @@
   skia,
   nixosTests,
   unstableGitUpdater,
-  apple-sdk_14,
   libtommath,
   sdl3,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "ladybird";
-  version = "0-unstable-2025-10-28";
+  version = "0-unstable-2025-11-14";
 
   src = fetchFromGitHub {
     owner = "LadybirdBrowser";
     repo = "ladybird";
-    rev = "d2b2d573879a50d8f3d568f9c35b8c660bc43013";
-    hash = "sha256-OOqAYUXjyoZHdXOaPqddeUfYD/SNCNZh6a9ysnEseLA=";
+    rev = "70b5496ecda0043b44ddfbbaf3ba0856c969db88";
+    hash = "sha256-98hbxfKBD9rf3AWB6fHZ57V0GgUtMfnk5dAxlAM+2e8=";
   };
 
   postPatch = ''
@@ -107,9 +106,6 @@ stdenv.mkDerivation (finalAttrs: {
   ++ lib.optional stdenv.hostPlatform.isLinux [
     libpulseaudio.dev
     qt6Packages.qtwayland
-  ]
-  ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    apple-sdk_14
   ];
 
   cmakeFlags = [
