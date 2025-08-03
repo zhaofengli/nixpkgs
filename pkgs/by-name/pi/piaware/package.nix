@@ -13,15 +13,16 @@
   mlat-client,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "piaware";
-  version = "8.2";
+  version = "10.2";
 
   src = fetchFromGitHub {
+    name = "piaware-v${finalAttrs.version}-source";
     owner = "flightaware";
     repo = "piaware";
-    rev = "v${version}";
-    hash = "sha256-La0J+6Y0cWr6fTr0ppzYV6Vq00GisyDxmSyGzR7nfpg=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-pt8jrcD1UJbCvzCnbwvtf+wy+w+hka3xyzXB4L12TiQ=";
   };
 
   buildInputs = [
@@ -69,4 +70,4 @@ stdenv.mkDerivation rec {
     platforms = platforms.unix;
     maintainers = with maintainers; [ zhaofengli ];
   };
-}
+})
