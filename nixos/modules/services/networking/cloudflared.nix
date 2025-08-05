@@ -299,6 +299,14 @@ in
                   "*.anotherone.com" = "http://localhost:80";
                 };
               };
+
+              extraTunnelOptions = lib.mkOption {
+                type = lib.types.str;
+                default = "";
+                description = ''
+                  Extra tunnel options.
+                '';
+              };
             };
           }
         )
@@ -389,7 +397,7 @@ in
           ]
           ++ (lib.optional (certFile != null) "cert.pem:${certFile}");
 
-          ExecStart = "${cfg.package}/bin/cloudflared tunnel --config=${mkConfigFile} --no-autoupdate run";
+          ExecStart = "${cfg.package}/bin/cloudflared tunnel --config=${mkConfigFile} --no-autoupdate ${tunnel.extraTunnelOptions} run";
           Restart = "on-failure";
           DynamicUser = true;
         };
