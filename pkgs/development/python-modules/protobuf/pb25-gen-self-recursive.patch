@@ -1,0 +1,12 @@
+diff --git a/setup.py b/setup.py
+index 057414d8f..d4424a409 100755
+--- a/setup.py
++++ b/setup.py
+@@ -135,6 +135,7 @@ def GenerateUnittestProtos():
+   GenProto('google/protobuf/internal/more_messages.proto', False)
+   GenProto('google/protobuf/internal/no_package.proto', False)
+   GenProto('google/protobuf/internal/packed_field_test.proto', False)
++  GenProto('google/protobuf/internal/self_recursive.proto', False)
+   GenProto('google/protobuf/internal/test_bad_identifiers.proto', False)
+   GenProto('google/protobuf/internal/test_proto3_optional.proto', False)
+   GenProto('google/protobuf/pyext/python.proto', False)
