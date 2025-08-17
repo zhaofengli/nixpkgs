@@ -1,3 +1,50 @@
+```console
+$ git clone -b nix https://github.com/zhaofengli/ld64 ../ld64
+
+# Change the ld64 path in repro.nix
+$ vim repro.nix
+
+# Modify ld64
+$ vim ../ld64/...
+
+$ ./repro.sh add-empty-print
+...
+19e64696127c1fcd51e363c4d1ae3c8c6951a5fd12b9a2cf5f9255fe7f288bb3  ./untracked/meow3-20250822-011529/1/git
+875e89181b6a2aa7cf10ee6d724917ec292845c9171c7fcc566e5a4b0b001687  ./untracked/meow3-20250822-011529/2/git
+./untracked/meow3-20250822-011529/1/git: valid on disk
+./untracked/meow3-20250822-011529/1/git: satisfies its Designated Requirement
+./untracked/meow3-20250822-011529/2/git: invalid signature (code or signature have been modified)
+In architecture: arm64
+Build 1: valid
+Build 2: invalid
+Reproduced!
+
+$ tree untracked/meow3-20250822-011529/
+├── 1
+│   ├── git
+│   ├── log
+│   ├── nar
+│   └── path -> /nix/store/q187sr2b3m70v7ik220kp86d0wmij0qg-git-with-svn-2.50.1
+└── 2
+    ├── git
+    ├── log
+    ├── nar
+    └── path -> /nix/store/q187sr2b3m70v7ik220kp86d0wmij0qg-git-with-svn-2.50.1
+
+# Throw stuff against the wall
+$ vim ../ld64/...
+$ ./repro.sh throw-stuff-against-the-wall
+...
+Build 1: valid
+Build 2: valid
+NOT Reproduced - Both times valid
+
+# Did you really fix it?
+$ ./repro.sh question-life
+```
+
+---
+
 <p align="center">
   <a href="https://nixos.org">
     <picture>
