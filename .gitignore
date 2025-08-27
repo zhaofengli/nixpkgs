@@ -43,3 +43,5 @@ update-git-commits.txt
 
 # Usually used for manual backports
 .worktree/
+
+/untracked
